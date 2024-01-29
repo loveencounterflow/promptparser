@@ -5,6 +5,9 @@ settings:
   excludeLinksFromLockfile: false
 
 dependencies:
+  datom:
+    specifier: ^12.2.0
+    version: 12.2.0(acorn-loose@8.4.0)(acorn-walk@8.3.1)(acorn@8.11.2)(astring@1.8.6)(chokidar@3.5.3)(dayjs@1.11.10)(tmp@0.2.1)
   guy:
     specifier: ^13.7.2
     version: 13.7.2(acorn-loose@8.4.0)(acorn-walk@8.3.1)(acorn@8.11.2)(astring@1.8.6)(chokidar@3.5.3)(dayjs@1.11.10)(tmp@0.2.1)
