@@ -17,6 +17,9 @@ importers:
       intertext-lexer:
         specifier: ^0.26.0
         version: 0.26.0(acorn-loose@8.4.0)(acorn-walk@8.3.1)(acorn@8.11.2)(astring@1.8.6)(chokidar@3.5.3)(dayjs@1.11.10)(tmp@0.2.1)
+      intertype:
+        specifier: ^203.2.0
+        version: 203.2.0
       moonriver:
         specifier: ^4.8.4
         version: 4.8.4(acorn-loose@8.4.0)(acorn-walk@8.3.1)(acorn@8.11.2)(astring@1.8.6)(chokidar@3.5.3)(dayjs@1.11.10)(tmp@0.2.1)
@@ -170,6 +173,9 @@ packages:
 
   intertype@0.119.1:
     resolution: {integrity: sha512-Mi9lHitUbNVn4p9/7FwutkW8fHwQlX0eTq9yC2SrVF2ymwDxb9xRNvMKkWIeEnwXly2TopuHgro8oBZ+WutaXA==}
+
+  intertype@203.2.0:
+    resolution: {integrity: sha512-vGHyhV6I9V9zyEmcYsQvC/mTRVc9Gqx07GACxzKHDGjHY8RZXUgfleMajC2V4vdP3l8+03r2hPlQ5HBCEaQ0Kg==}
 
   intertype@7.6.3:
     resolution: {integrity: sha512-77FmgaqGydWBc5OIde+geMj4+dGZ1i5UIFXM4C9QHiEIBjh+Gojycsb7XtRYYLNhNJepa+jotHXfAGPngHatzw==}
@@ -477,6 +483,10 @@ snapshots:
       - acorn-walk
       - astring
       - tmp
+
+  intertype@203.2.0:
+    dependencies:
+      webguy: 5.2.1
 
   intertype@7.6.3:
     dependencies:
