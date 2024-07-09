@@ -10,9 +10,9 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "datom": "^12.2.0",
+    "datom": "^12.3.0",
     "guy": "^13.7.2",
-    "intertext-lexer": "^0.25.0",
+    "intertext-lexer": "^0.26.0",
     "moonriver": "^4.8.4",
     "webguy": "^5.2.1"
   }
