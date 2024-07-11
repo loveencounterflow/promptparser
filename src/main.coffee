@@ -13,7 +13,7 @@ GUY                       = require 'guy'
   praise
   urge
   warn
-  whisper }               = GUY.trm.get_loggers 'HYPEDOWN/HYPEDOWN-LEXER'
+  whisper }               = GUY.trm.get_loggers 'promptparser'
 #...........................................................................................................
 { rpr
   inspect
@@ -45,20 +45,23 @@ last                = Symbol 'last'
 new_prompt_lexer = ( mode = 'plain' ) ->
   lexer   = new Interlex { dotall: false, }
   #.........................................................................................................
-  lexer.add_lexeme { mode: 'plain', lxid: 'escchr',     jump: null,     pattern:  /\\(?<chr>.)/u,           }
-  lexer.add_lexeme { mode: 'plain', lxid: 'marksleft',  jump: '[marks', pattern:  /\[/u,                    }
-  lexer.add_lexeme { mode: 'plain', lxid: 'other',      jump: null,     pattern:  /[^\[\\]+/u,              }
-  lexer.add_lexeme { mode: 'marks', lxid: 'marksright', jump: '.]',     pattern:  /\]/u, reserved: ']',     }
-  lexer.add_lexeme { mode: 'marks', lxid: 'format',     jump: null,     pattern:  /[swh]/u,                 }
-  lexer.add_lexeme { mode: 'marks', lxid: 'ws',         jump: null,     pattern:  /\x20+/u,              }
-  lexer.add_lexeme { mode: 'marks', lxid: 'multiplier', jump: null,     pattern:  /x[0-9]{1,2}/u,              }
-  lexer.add_lexeme { mode: 'marks', lxid: 'promptnr',   jump: null,     pattern:  /p#[0-9]+/u,              }
-  lexer.add_lexeme { mode: 'marks', lxid: 'generation', jump: null,     pattern:  /[U01234]/u,              }
-  lexer.add_lexeme { mode: 'marks', lxid: 'grade',      jump: null,     pattern:  /[-+A-Fvnr]+/u,              }
-  lexer.add_lexeme { mode: 'marks', lxid: 'comment',    jump: null,     pattern:  /(?:(?!(?:p#[0-9]|\])).)+/u,              }
-  # lexer.add_lexeme { mode: 'marks', lxid: 'comment',    jump: null,     pattern:  /.+(?!(?:p#[0-9]|\]))/u,              }
-  # lexer.add_catchall_lexeme { mode: 'marks', lxid: 'comment', concat: true, }
-  lexer.add_reserved_lexeme { mode, lxid: 'forbidden', concat: true, }
+  do =>
+    mode = 'plain'
+    lexer.add_lexeme { mode, lxid: 'escchr',     jump: null,     pattern:  /\\(?<chr>.)/u,           }
+    lexer.add_lexeme { mode, lxid: 'marksleft',  jump: '[marks', pattern:  /\[/u,                    }
+    lexer.add_lexeme { mode, lxid: 'prompt',     jump: null,     pattern:  /[^\[\\]+/u,              }
+  #.........................................................................................................
+  do =>
+    mode = 'marks'
+    lexer.add_lexeme { mode, lxid: 'marksright', jump: '.]',     pattern:  /\]/u, reserved: ']',          }
+    lexer.add_lexeme { mode, lxid: 'format',     jump: null,     pattern:  /[swh]/u,                      }
+    lexer.add_lexeme { mode, lxid: 'ws',         jump: null,     pattern:  /\x20+/u,                      }
+    lexer.add_lexeme { mode, lxid: 'multiplier', jump: null,     pattern:  /x[0-9]{1,2}/u,                }
+    lexer.add_lexeme { mode, lxid: 'promptnr',   jump: null,     pattern:  /p#[0-9]+/u,                   }
+    lexer.add_lexeme { mode, lxid: 'generation', jump: null,     pattern:  /[U01234]/u,                   }
+    lexer.add_lexeme { mode, lxid: 'grade',      jump: null,     pattern:  /[-+A-Fvnr]+/u,                }
+    lexer.add_lexeme { mode, lxid: 'comment',    jump: null,     pattern:  /(?:(?!(?:p#[0-9]|\])).)+/u,   }
+    lexer.add_reserved_lexeme { mode, lxid: 'forbidden', concat: true, }
   #.........................................................................................................
   return lexer
 
