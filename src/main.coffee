@@ -33,15 +33,54 @@ GUY                       = require 'guy'
 # { misfit
 #   get_base_types }        = require './types'
 # E                         = require './errors'
+#...........................................................................................................
+{ Pipeline
+  $
+  Transformer
+  transforms }            = require 'moonriver'
 
+
+# #===========================================================================================================
+# class Hypedown_parser
+
+#   #---------------------------------------------------------------------------------------------------------
+#   constructor: ( cfg ) ->
+#     @types        = get_base_types()
+#     @cfg          = Object.freeze @types.create.hd_parser_cfg cfg
+#     @lexer        = new Hypedown_lexer()
+#     # debug '^234^', @lexer
+#     @_build_pipeline()
+#     return undefined
+
+#   #---------------------------------------------------------------------------------------------------------
+#   _build_pipeline: ->
+#     tfs       = new XXX_Hypedown_transforms()
+#     @pipeline = new Pipeline()
+#     #.........................................................................................................
+#     @pipeline.push new XXX_TEMP.$001_prelude()
+#     @pipeline.push new XXX_TEMP.$002_tokenize_lines()
+#     @pipeline.push new XXX_TEMP.$010_prepare_paragraphs()
+#     @pipeline.push new XXX_TEMP.$020_priority_markup()
+#     @pipeline.push new XXX_TEMP.$030_htmlish_tags()
+#     @pipeline.push new XXX_TEMP.$040_stars()
+#     @pipeline.push new XXX_TEMP.$050_hash_headings()
+#     @pipeline.push tfs.$capture_text()
+#     @pipeline.push tfs.$generate_missing_p_tags()
+#     @pipeline.push tfs.$generate_html_nls { mode: 'plain', tid: 'nl', } ### NOTE removes virtual nl, should come late ###
+#     @pipeline.push tfs.$convert_escaped_chrs()
+#     @pipeline.push tfs.$stamp_borders()
+#     # @pipeline.push ( d ) -> urge '^_build_pipeline@5^', rpr d
+#     return null
+
+#   #---------------------------------------------------------------------------------------------------------
+#   send:       ( P... ) -> @pipeline.send P...
+#   run:        ( P... ) -> @pipeline.run  P...
+#   walk:       ( P... ) -> @pipeline.walk P...
+#   stop_walk:  ( P... ) -> @pipeline.stop_walk P...
+#   step:       ( P... ) -> @pipeline.step P...
 
 
 #===========================================================================================================
-{ Interlex
-  compose  }        = require 'intertext-lexer'
-first               = Symbol 'first'
-last                = Symbol 'last'
-#.........................................................................................................
 new_prompt_lexer = ( mode = 'plain' ) ->
   lexer   = new Interlex { dotall: false, }
   #.........................................................................................................
@@ -66,6 +105,45 @@ new_prompt_lexer = ( mode = 'plain' ) ->
   return lexer
 
 #===========================================================================================================
+class Prompt_parsing_pipeline extends Transformer
+
+  #---------------------------------------------------------------------------------------------------------
+  $show: -> ( d ) -> urge 'Ω___1', d
+
+
+#===========================================================================================================
+class Prompt_parser
+
+  #---------------------------------------------------------------------------------------------------------
+  constructor: ( source ) ->
+    # super()
+    @_lexer   = new_prompt_lexer { state: 'reset', }
+    @_parser  = Prompt_parsing_pipeline.as_pipeline()
+    return undefined
+
+  #---------------------------------------------------------------------------------------------------------
+  parse: ( source ) ->
+    for d from @_lexer.walk source
+      help 'Ω___6', "#{d.$key.padEnd 20} #{rpr d.value}"
+      @_parser.send d
+    return null
+
+
+f = ->
+      p = new Pipeline()
+      p.push ( d, send ) ->
+        return send d unless d.tid is 'p'
+        send e for e from md_lexer.walk d.value
+      p.push $parse_md_stars()
+      p.send new_token '^æ19^', { start: 0, stop: probe.length, }, 'plain', 'p', null, probe
+      result      = p.run()
+      result_rpr  = ( d.value for d in result when not d.$stamped ).join ''
+      urge '^08-1^', ( Object.keys d ).sort() for d in result
+      H.tabulate "#{probe} -> #{result_rpr} (#{matcher})", result # unless result_rpr is matcher
+
+
+
+#===========================================================================================================
 do =>
   prompts = [
     "[s324w1 some remark] my prompt"
@@ -80,13 +158,23 @@ do =>
     "[A+v U1UU]"
     "[A++v 22 but not following directions] \t foo bar   "
     "[A++v 22 but not following directions p#7765] \t foo bar   "
+    ""
+    "[]"
+    "just a prompt"
+    "     just a prompt"
+    "     [324] a prompt"
     ]
+  parser = new Prompt_parser()
   for prompt in prompts
-    whisper 'Ω___1', '————————————————————————'
-    urge 'Ω___2', rpr prompt
-    for d from ( new_prompt_lexer() ).walk prompt
-      help 'Ω___3', "#{d.$key.padEnd 20} #{rpr d.value}"
+    whisper 'Ω___4', '————————————————————————'
+    urge 'Ω___5', rpr prompt
+    info 'Ω___5', parser.parse prompt
   return null
+  #.........................................................................................................
+  # p = B.as_pipeline()
+  # debug 'Ω___3', p.run_and_stop()
+  # # T?.eq result, [ [ '*', 'a1', 'a2', 'a3', 'b1', '!b2!', 'b3' ] ]
+  # process.exit 111
 
 # #===========================================================================================================
 # module.exports = {
