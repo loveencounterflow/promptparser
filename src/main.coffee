@@ -79,6 +79,18 @@ GUY                       = require 'guy'
 #   stop_walk:  ( P... ) -> @pipeline.stop_walk P...
 #   step:       ( P... ) -> @pipeline.step P...
 
+# f = ->
+#   p = new Pipeline()
+#   p.push ( d, send ) ->
+#     return send d unless d.tid is 'p'
+#     send e for e from md_lexer.walk d.value
+#   p.push $parse_md_stars()
+#   p.send new_token '^æ19^', { start: 0, stop: probe.length, }, 'plain', 'p', null, probe
+#   result      = p.run()
+#   result_rpr  = ( d.value for d in result when not d.$stamped ).join ''
+#   urge '^08-1^', ( Object.keys d ).sort() for d in result
+#   H.tabulate "#{probe} -> #{result_rpr} (#{matcher})", result # unless result_rpr is matcher
+
 
 #===========================================================================================================
 new_prompt_lexer = ( mode = 'plain' ) ->
@@ -105,41 +117,65 @@ new_prompt_lexer = ( mode = 'plain' ) ->
   return lexer
 
 #===========================================================================================================
-class Prompt_parsing_pipeline extends Transformer
+class Prompt_parser extends Transformer
 
   #---------------------------------------------------------------------------------------------------------
-  $show: -> ( d ) -> urge 'Ω___1', d
+  constructor: ->
+    super()
+    @_lexer   = new_prompt_lexer { state: 'reset', }
+    @state =
+      counts: { prompts: 0, lexemes: 0, }
+    return undefined
+
+  #---------------------------------------------------------------------------------------------------------
+  $lex: -> ( source, send ) =>
+    # urge 'Ω___1', rpr source
+    send { $key: 'source', $value: source, }
+    for lexeme from @_lexer.walk source
+      # help 'Ω___2', "#{lexeme.$key.padEnd 20} #{rpr lexeme.value}"
+      send lexeme
+    return null
+
+  #---------------------------------------------------------------------------------------------------------
+  $show: -> ( d ) =>
+    urge 'Ω___3', rpr d
+    return null
+
+  #---------------------------------------------------------------------------------------------------------
+  $normalize_prompt: -> ( d, send ) =>
+    return send d unless d.$key is 'plain:prompt'
+    send stamp d
+    send lets d, ( d ) -> d.value = d.value.trim()
+
+  #---------------------------------------------------------------------------------------------------------
+  $count: -> ( d ) =>
+    # urge 'Ω___4', d
+    if d.$key is 'source' then  @state.counts.prompts++
+    else                        @state.counts.lexemes++
+    return null
 
 
 #===========================================================================================================
-class Prompt_parser
+class Wwwww # extends Dbay
 
   #---------------------------------------------------------------------------------------------------------
-  constructor: ( source ) ->
+  constructor: ->
     # super()
-    @_lexer   = new_prompt_lexer { state: 'reset', }
-    @_parser  = Prompt_parsing_pipeline.as_pipeline()
+    @_prompt_parser = new Prompt_parser()
+    @_pipeline      = new Pipeline()
+    # @_pipeline.push $show = ( source ) -> whisper 'Ω___5', rpr source
+    @_pipeline.push @_prompt_parser
+    # @_pipeline.push $show = ( d ) -> whisper 'Ω___6', d
     return undefined
 
   #---------------------------------------------------------------------------------------------------------
   parse: ( source ) ->
-    for d from @_lexer.walk source
-      help 'Ω___6', "#{d.$key.padEnd 20} #{rpr d.value}"
-      @_parser.send d
-    return null
+    # debug 'Ω___7', rpr source
+    @_pipeline.send source
+    R = @_pipeline.run()
+    info 'Ω___8', GUY.trm.yellow GUY.trm.reverse @_prompt_parser.state
+    return R
 
-
-f = ->
-      p = new Pipeline()
-      p.push ( d, send ) ->
-        return send d unless d.tid is 'p'
-        send e for e from md_lexer.walk d.value
-      p.push $parse_md_stars()
-      p.send new_token '^æ19^', { start: 0, stop: probe.length, }, 'plain', 'p', null, probe
-      result      = p.run()
-      result_rpr  = ( d.value for d in result when not d.$stamped ).join ''
-      urge '^08-1^', ( Object.keys d ).sort() for d in result
-      H.tabulate "#{probe} -> #{result_rpr} (#{matcher})", result # unless result_rpr is matcher
 
 
 
@@ -164,15 +200,23 @@ do =>
     "     just a prompt"
     "     [324] a prompt"
     ]
-  parser = new Prompt_parser()
+  parser = new Wwwww()
+  whisper 'Ω___9', '————————————————————————'
   for prompt in prompts
-    whisper 'Ω___4', '————————————————————————'
-    urge 'Ω___5', rpr prompt
-    info 'Ω___5', parser.parse prompt
+    whisper 'Ω__10', '————————————————————————'
+    for d in parser.parse prompt
+      try
+        switch true
+          when d.$key is 'source' then  urge    'Ω__11', GUY.trm.reverse rpr d.$value
+          when d.$stamped         then  whisper 'Ω__12', "#{d.$key.padEnd 20} #{rpr d.value}"
+          else                          info    'Ω__13', "#{d.$key.padEnd 20} #{rpr d.value}"
+      catch error
+        warn 'Ω__14', error.message
+        whisper 'Ω__15', d
   return null
   #.........................................................................................................
   # p = B.as_pipeline()
-  # debug 'Ω___3', p.run_and_stop()
+  # debug 'Ω__16', p.run_and_stop()
   # # T?.eq result, [ [ '*', 'a1', 'a2', 'a3', 'b1', '!b2!', 'b3' ] ]
   # process.exit 111
 
