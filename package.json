@@ -11,6 +11,9 @@
   "license": "ISC",
   "dependencies": {
     "datom": "^12.3.0",
+    "dbay": "^16.1.0",
+    "exifreader": "^4.23.3",
+    "glob": "^11.0.0",
     "guy": "^13.7.2",
     "intertext-lexer": "^0.26.0",
     "intertype": "^203.2.0",
