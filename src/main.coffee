@@ -145,7 +145,32 @@ class Prompt_parser extends Transformer
   $normalize_prompt: -> ( d, send ) =>
     return send d unless d.$key is 'plain:prompt'
     send stamp d
+    send lets d, ( d ) -> d.value = d.value.trim().replace /\.$/, ''
+    return null
+
+  #---------------------------------------------------------------------------------------------------------
+  $normalize_generation: -> ( d, send ) =>
+    return send d unless d.$key is 'marks:generation'
+    send stamp d
+    send lets d, ( d ) -> d.value = if ( /^\d$/.test d.value ) then parseInt d.value, 10 else 0
+    return null
+
+  #---------------------------------------------------------------------------------------------------------
+  $normalize_comment: -> ( d, send ) =>
+    return send d unless d.$key is 'marks:comment'
+    send stamp d
     send lets d, ( d ) -> d.value = d.value.trim()
+    return null
+
+  #---------------------------------------------------------------------------------------------------------
+  $stamp_extraneous: -> ( d, send ) =>
+    switch true
+      when d.$key is 'marks:marksleft'  then  send stamp  d
+      when d.$key is 'marks:marksright' then  send stamp  d
+      when d.$key is 'marks:grade'      then  send stamp  d
+      when d.$key is 'marks:ws'         then  send stamp  d
+      else                                    send        d
+    return null
 
   #---------------------------------------------------------------------------------------------------------
   $count: -> ( d ) =>
@@ -193,12 +218,12 @@ do =>
     "[UU]"
     "[A+v U1UU]"
     "[A++v 22 but not following directions] \t foo bar   "
-    "[A++v 22 but not following directions p#7765] \t foo bar   "
+    "[A++v 22 but not following directions p#7765] \t foo bar.   "
     ""
     "[]"
     "just a prompt"
     "     just a prompt"
-    "     [324] a prompt"
+    "     [324] a prompt."
     ]
   parser = new Wwwww()
   whisper 'Ω___9', '————————————————————————'
