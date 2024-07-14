@@ -18,16 +18,10 @@ GUY                       = require 'guy'
   reverse
   log     }               = GUY.trm
 FS                        = require 'node:fs'
-CRYPTO                    = require 'node:crypto'
 { DBay }                  = require 'dbay'
 { SQL  }                  = DBay
-nosuchprompt              = ""
+{ U }                     = require './utilities'
 
-#-----------------------------------------------------------------------------------------------------------
-id_from_text = ( text, length = 8 ) ->
-  hash = CRYPTO.createHash 'sha1'
-  hash.update text
-  return ( hash.digest 'hex' )[ ... length ]
 
 #-----------------------------------------------------------------------------------------------------------
 set_path = ->
@@ -41,26 +35,11 @@ demo_exifreader = ->
   PATH            = require 'node:path'
   { glob
     globSync  }   = require 'glob'
-  ExifReader      = require 'exifreader'
   patterns        = [ '**/*.png', '**/*.jpg', ]
   cfg             = { dot: true }
   base_path       = set_path()
   count           = 0
   DB              = prepare_db()
-  #.........................................................................................................
-  exif_from_path  = do =>
-    my_buffer = new Buffer.alloc 2 * 1024
-    return ( path ) ->
-      fd          = FS.openSync path
-      FS.readSync fd, my_buffer
-      exif        = ExifReader.load my_buffer
-      if ( data = exif?.UserComment ? null )?
-        R = JSON.parse ( Buffer.from data.value ).toString 'utf-8'
-      else
-        R = { prompt: nosuchprompt, date: null, }
-      #.....................................................................................................
-      R.prompt_id = id_from_text R.prompt
-      return R
   #.........................................................................................................
   do =>
     DB.db ->
@@ -75,7 +54,7 @@ demo_exifreader = ->
         count++; whisper count if ( count %% 1000 ) is 0
         break if count > 10000 ### !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! ###
         abs_path  = PATH.resolve base_path, rel_path
-        path_id   = id_from_text abs_path
+        path_id   = U.id_from_text abs_path
         #...................................................................................................
         if DB.known_path_ids.has path_id
           # help "Ω__18 skipping path ID #{rpr path_id}"
@@ -90,7 +69,7 @@ demo_exifreader = ->
           # warn "Ω__19 inserting path ID #{rpr path_id}"
           counts.added++
           #.................................................................................................
-          exif = exif_from_path abs_path
+          exif = U.exif_from_path abs_path
           ### TAINT use prepared statement ###
           DB.db SQL"""
             insert into prompts ( id, prompt ) values ( ?, ? )
@@ -136,7 +115,7 @@ prepare_db = ->
           id      text not null primary key,
           prompt  text not null );"""
       db SQL"""insert into prompts ( id, prompt ) values ( ?, ? );""", [
-        ( id_from_text nosuchprompt ), nosuchprompt, ]
+        ( U.id_from_text U.nosuchprompt ), U.nosuchprompt, ]
       return null
     return null
   #.........................................................................................................

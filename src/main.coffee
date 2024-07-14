@@ -38,58 +38,8 @@ GUY                       = require 'guy'
   $
   Transformer
   transforms }            = require 'moonriver'
+{ U }                     = require './utilities'
 
-
-# #===========================================================================================================
-# class Hypedown_parser
-
-#   #---------------------------------------------------------------------------------------------------------
-#   constructor: ( cfg ) ->
-#     @types        = get_base_types()
-#     @cfg          = Object.freeze @types.create.hd_parser_cfg cfg
-#     @lexer        = new Hypedown_lexer()
-#     # debug '^234^', @lexer
-#     @_build_pipeline()
-#     return undefined
-
-#   #---------------------------------------------------------------------------------------------------------
-#   _build_pipeline: ->
-#     tfs       = new XXX_Hypedown_transforms()
-#     @pipeline = new Pipeline()
-#     #.........................................................................................................
-#     @pipeline.push new XXX_TEMP.$001_prelude()
-#     @pipeline.push new XXX_TEMP.$002_tokenize_lines()
-#     @pipeline.push new XXX_TEMP.$010_prepare_paragraphs()
-#     @pipeline.push new XXX_TEMP.$020_priority_markup()
-#     @pipeline.push new XXX_TEMP.$030_htmlish_tags()
-#     @pipeline.push new XXX_TEMP.$040_stars()
-#     @pipeline.push new XXX_TEMP.$050_hash_headings()
-#     @pipeline.push tfs.$capture_text()
-#     @pipeline.push tfs.$generate_missing_p_tags()
-#     @pipeline.push tfs.$generate_html_nls { mode: 'plain', tid: 'nl', } ### NOTE removes virtual nl, should come late ###
-#     @pipeline.push tfs.$convert_escaped_chrs()
-#     @pipeline.push tfs.$stamp_borders()
-#     # @pipeline.push ( d ) -> urge '^_build_pipeline@5^', rpr d
-#     return null
-
-#   #---------------------------------------------------------------------------------------------------------
-#   send:       ( P... ) -> @pipeline.send P...
-#   run:        ( P... ) -> @pipeline.run  P...
-#   walk:       ( P... ) -> @pipeline.walk P...
-#   stop_walk:  ( P... ) -> @pipeline.stop_walk P...
-#   step:       ( P... ) -> @pipeline.step P...
-
-# f = ->
-#   p = new Pipeline()
-#   p.push ( d, send ) ->
-#     return send d unless d.tid is 'p'
-#     send e for e from md_lexer.walk d.value
-#   p.push $parse_md_stars()
-#   p.send new_token '^æ19^', { start: 0, stop: probe.length, }, 'plain', 'p', null, probe
-#   result      = p.run()
-#   result_rpr  = ( d.value for d in result when not d.$stamped ).join ''
-#   urge '^08-1^', ( Object.keys d ).sort() for d in result
-#   H.tabulate "#{probe} -> #{result_rpr} (#{matcher})", result # unless result_rpr is matcher
 
 
 #===========================================================================================================
@@ -145,7 +95,7 @@ class Prompt_parser extends Transformer
   $normalize_prompt: -> ( d, send ) =>
     return send d unless d.$key is 'plain:prompt'
     send stamp d
-    send lets d, ( d ) -> d.value = d.value.trim().replace /\.$/, ''
+    send lets d, ( d ) -> d.value = U.normalize_prompt d.value
     return null
 
   #---------------------------------------------------------------------------------------------------------
