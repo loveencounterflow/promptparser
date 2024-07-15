@@ -40,6 +40,10 @@ GUY                       = require 'guy'
   transforms }            = require 'moonriver'
 { U }                     = require './utilities'
 { build_file_db }         = require './file-cache-builder'
+{ DBay }                  = require 'dbay'
+{ SQL  }                  = DBay
+PATH                      = require 'node:path'
+FS                        = require 'node:fs'
 
 
 
