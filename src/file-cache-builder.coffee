@@ -53,7 +53,7 @@ build_file_db = ->
       info 'Ω___2', "found #{rel_paths.length} matching files"
       for rel_path in rel_paths
         count++; whisper count if ( count %% 1000 ) is 0
-        break if count > 10000 ### !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! ###
+        # break if count > 10000 ### !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! ###
         abs_path  = PATH.resolve base_path, rel_path
         path_id   = U.id_from_text abs_path
         #...................................................................................................
