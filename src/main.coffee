@@ -170,13 +170,13 @@ demo_file_as_virtual_table = ->
         create: ( filename, P... ) ->
           urge 'Ω___9', { filename, P, }
           R =
-            columns: [ 'path', 'lnr', 'line', ],
+            columns: [ 'lnr', 'line', ],
             rows: ->
               path  = PATH.resolve process.cwd(), filename
               ### TAINT read line-by-line ###
               lines = ( FS.readFileSync path, { encoding: 'utf-8', } ).split '\n'
               for line, line_idx in lines
-                yield { path, lnr: line_idx + 1, line, }
+                yield { lnr: line_idx + 1, line, }
               return null
           return R
       db SQL"""
@@ -192,7 +192,7 @@ demo_file_as_virtual_table = ->
     warn "Ω__13 initializing DB at #{path}"
     initialize_db db
   #.........................................................................................................
-  result  = db.all_rows SQL"select * from contents_of_readme order by 1, 2, 3;"
+  result  = db.all_rows SQL"""select * from contents_of_readme where line != '' order by lnr;"""
   console.table result
   #.........................................................................................................
   return null
