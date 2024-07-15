@@ -39,6 +39,7 @@ GUY                       = require 'guy'
   Transformer
   transforms }            = require 'moonriver'
 { U }                     = require './utilities'
+{ build_file_db }         = require './file-cache-builder'
 
 
 
