@@ -156,51 +156,76 @@ class Prompt_file_reader # extends Dbay
     info 'Ω___8', GUY.trm.yellow GUY.trm.reverse @_prompt_parser.state
     return R
 
+
+#===========================================================================================================
+class Prompt_file_db
+
+  #---------------------------------------------------------------------------------------------------------
+  constructor: ( path ) ->
+    @_db = new DBay { path, }
+    @_prepare()
+    #.......................................................................................................
+    if U.db_has_all_table_names @_db # , 'contents_of_readme', 'contents_of_prompts'
+      help "Ω__10 re-using DB at #{path}"
+    else
+      warn "Ω__11 initializing DB at #{path}"
+      @_initialize()
+    #.......................................................................................................
+    return undefined
+
+  #---------------------------------------------------------------------------------------------------------
+  _prepare: ->
+    @_db =>
+      @_db.create_table_function
+        name:         'file_contents_t'
+        columns:      [ 'lnr', 'line', 'eol', ]
+        parameters:   [ 'filename', ]
+        rows: ( filename ) ->
+          path  = PATH.resolve process.cwd(), filename
+          for { lnr, line, eol, } from GUY.fs.walk_lines_with_positions path
+            yield { lnr, line, eol, }
+          return null
+      # @_db.create_virtual_table
+      #   name:   'file_contents'
+      #   create: ( filename ) ->
+      #     path  = PATH.resolve process.cwd(), filename
+      #     debug 'Ω___9', process.cwd(), filename, PATH.resolve process.cwd()
+      #     return
+      #       columns: [ 'lnr', 'line', 'eol', ],
+      #       rows: ->
+      #         for { lnr, line, eol, } from GUY.fs.walk_lines_with_positions path
+      #           yield { lnr, line, eol, }
+      #         return null
+    #.......................................................................................................
+    return null
+
+  #---------------------------------------------------------------------------------------------------------
+  _initialize: ->
+    # @_db =>
+    #   @_db SQL"drop table if exists contents_of_readme;"
+    #   @_db SQL"drop table if exists contents_of_prompts;"
+    #   @_db SQL"""
+    #     create virtual table contents_of_readme
+    #       using file_contents( README.md );"""
+    #   @_db SQL"""
+    #     create virtual table contents_of_prompts
+    #       using file_contents( ./data/short-prompts.md );"""
+    #.......................................................................................................
+    return null
+
 #-----------------------------------------------------------------------------------------------------------
 demo_file_as_virtual_table = ->
-  PATH                      = require 'node:path'
-  FS                        = require 'node:fs'
-  { DBay }                  = require 'dbay'
-  { SQL  }                  = DBay
+  db = new Prompt_file_db '/dev/shm/demo_file_as_virtual_table.sqlite'
   #.........................................................................................................
-  path                      = '/dev/shm/demo_file_as_virtual_table.sqlite'
-  db                        = new DBay { path, }
-  #.........................................................................................................
-  prepare_connection = ( db ) ->
-    db ->
-      db.create_virtual_table
-        name:   'file_contents'
-        create: ( filename, P... ) ->
-          urge 'Ω___9', { filename, P, }
-          R =
-            columns: [ 'lnr', 'line', ],
-            rows: ->
-              path  = PATH.resolve process.cwd(), filename
-              ### TAINT read line-by-line ###
-              lines = ( FS.readFileSync path, { encoding: 'utf-8', } ).split '\n'
-              for line, line_idx in lines
-                yield { lnr: line_idx + 1, line, }
-              return null
-          return R
-    return null
-  #.........................................................................................................
-  initialize_db = ( db ) ->
-    db ->
-      # db SQL"drop table if exists myfile;"
-      db SQL"""
-        create virtual table contents_of_readme
-          using file_contents( README.md, any stuff goes here, and more here );"""
-    return null
-  #.........................................................................................................
-  prepare_connection db
-  if U.db_has_all_table_names db, 'contents_of_readme'
-    help "Ω__10 re-using DB at #{path}"
-  else
-    warn "Ω__11 initializing DB at #{path}"
-    initialize_db db
-  #.........................................................................................................
-  result  = db.all_rows SQL"""select * from contents_of_readme where line != '' order by lnr;"""
-  console.table result
+  # do ->
+  #   result  = db._db.all_rows SQL"""select * from contents_of_readme /* where line != '' */ order by lnr;"""
+  #   console.table result
+  # do ->
+  #   result  = db._db.all_rows SQL"""select * from contents_of_prompts /* where line != '' */ order by lnr;"""
+  #   console.table result
+  do ->
+    result  = db._db.all_rows SQL"""select * from file_contents_t( './README.md' ) order by lnr;"""
+    console.table result
   #.........................................................................................................
   return null
 
@@ -209,6 +234,7 @@ demo_file_as_virtual_table = ->
 #===========================================================================================================
 module.exports = {
   new_prompt_lexer,
+  Prompt_file_db,
   Prompt_file_reader, }
 
 #===========================================================================================================
