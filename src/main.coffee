@@ -144,19 +144,19 @@ class File_mirror
   #---------------------------------------------------------------------------------------------------------
   constructor: ( path ) ->
     @_db = new DBay { path, }
-    @_prepare()
+    @_prepare_db_connection()
     #.......................................................................................................
     if U.db_has_all_table_names @_db, @constructor.required_table_names
       help "Ω___5 re-using DB at #{path}"
     else
-      warn "Ω___6 initializing DB at #{path}"
-      @_initialize()
+      warn "Ω___6 creating structure of DB at #{path}"
+      @_create_db_structure()
     #.......................................................................................................
     return undefined
 
   #---------------------------------------------------------------------------------------------------------
-  _prepare: ->
-    whisper "Ω___7 File_mirror._prepare"
+  _prepare_db_connection: ->
+    whisper "Ω___7 File_mirror._prepare_db_connection"
     @_db =>
       @_db.create_table_function
         name:         'file_contents_t'
@@ -171,8 +171,8 @@ class File_mirror
     return null
 
   #---------------------------------------------------------------------------------------------------------
-  _initialize: ->
-    whisper "Ω___8 File_mirror._initialize"
+  _create_db_structure: ->
+    whisper "Ω___8 File_mirror._create_db_structure"
     # @_db =>
     #   @_db SQL"drop table if exists ...;"
     #   @_db SQL"""
@@ -203,9 +203,9 @@ class Prompt_file_reader extends File_mirror
     return R
 
   #---------------------------------------------------------------------------------------------------------
-  _initialize: ->
+  _create_db_structure: ->
     super()
-    whisper "Ω__13 Prompt_file_reader._initialize"
+    whisper "Ω__13 Prompt_file_reader._create_db_structure"
     # @_db =>
     #   @_db SQL"drop table if exists ...;"
     #   @_db SQL"""
@@ -213,9 +213,9 @@ class Prompt_file_reader extends File_mirror
     return null
 
   #---------------------------------------------------------------------------------------------------------
-  _prepare: ->
+  _prepare_db_connection: ->
     super()
-    whisper "Ω__14 Prompt_file_reader._prepare"
+    whisper "Ω__14 Prompt_file_reader._prepare_db_connection"
     @_db.create_function name: 'square', deterministic: true, varargs: false, call: ( n ) -> n ** 2
     #.......................................................................................................
     return null
@@ -246,3 +246,4 @@ module.exports = {
 if module is require.main then await do =>
   # build_file_db()
   demo_file_as_virtual_table()
+
