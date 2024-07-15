@@ -31,7 +31,7 @@ set_path = ->
   return R
 
 #-----------------------------------------------------------------------------------------------------------
-demo_exifreader = ->
+build_file_db = ->
   PATH            = require 'node:path'
   { glob
     globSync  }   = require 'glob'
@@ -43,7 +43,7 @@ demo_exifreader = ->
   #.........................................................................................................
   do =>
     DB.db ->
-      console.time 'demo_exifreader'
+      console.time 'build_file_db'
       counts    =
         skipped:  0
         added:    0
@@ -82,7 +82,7 @@ demo_exifreader = ->
       info "Ω___9 changes to DB at #{DB.path}: #{rpr counts}"
       #.....................................................................................................
       return null
-    console.timeEnd 'demo_exifreader'
+    console.timeEnd 'build_file_db'
     return null
   #.........................................................................................................
   return null
