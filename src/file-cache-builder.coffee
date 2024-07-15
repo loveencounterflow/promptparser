@@ -107,6 +107,7 @@ prepare_db = ->
   path                = '/dev/shm/files-and-prompts.sqlite'
   db                  = new DBay { path, }
   #.........................................................................................................
+  ### TAINT use `U.db_has_all_table_names()` ###
   get_must_initialize = ( db ) ->
     tables    = db.first_values SQL"select name from sqlite_schema where type = 'table' order by name;"
     tables    = [ tables..., ]
