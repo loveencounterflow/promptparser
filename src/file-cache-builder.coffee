@@ -49,7 +49,7 @@ demo_exifreader = ->
         added:    0
         deleted:  0
       rel_paths = globSync patterns, cfg
-      info 'Ω__17', "found #{rel_paths.length} matching files"
+      info 'Ω___2', "found #{rel_paths.length} matching files"
       for rel_path in rel_paths
         count++; whisper count if ( count %% 1000 ) is 0
         break if count > 10000 ### !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! ###
@@ -57,7 +57,7 @@ demo_exifreader = ->
         path_id   = U.id_from_text abs_path
         #...................................................................................................
         if DB.known_path_ids.has path_id
-          # help "Ω__18 skipping path ID #{rpr path_id}"
+          # help "Ω___3 skipping path ID #{rpr path_id}"
           counts.skipped++
           ### NOTE we know that in the present run we will not again have to test against the current
           `path_id`, so we also know we can safely delete it from the pool of known IDs (thereby making it
@@ -79,7 +79,7 @@ demo_exifreader = ->
           DB.db SQL"""insert into files ( id, prompt_id, path ) values ( ?, ?, ? );""", [
             path_id, exif.prompt_id, abs_path, ]
       #.....................................................................................................
-      info "Ω__21 changes to DB at #{DB.path}: #{rpr counts}"
+      info "Ω___9 changes to DB at #{DB.path}: #{rpr counts}"
       #.....................................................................................................
       return null
     console.timeEnd 'demo_exifreader'
@@ -120,10 +120,10 @@ prepare_db = ->
     return null
   #.........................................................................................................
   if get_must_initialize db
-    warn "Ω__22 initializing DB at #{path}"
+    warn "Ω__10 initializing DB at #{path}"
     initialize_db db
   else
-    help "Ω__23 re-using DB at #{path}"
+    help "Ω__11 re-using DB at #{path}"
   #.........................................................................................................
   ### TAINT can we use an API call to get a set? ###
   known_path_ids = do =>
