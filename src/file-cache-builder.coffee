@@ -24,6 +24,7 @@ FS                        = require 'node:fs'
 
 
 #-----------------------------------------------------------------------------------------------------------
+### TAINT this should become part of command line handling with [M.I.X.A.](https://github.com/loveencounterflow/mixa) ###
 set_path = ->
   process.chdir path if ( path = process.argv[ 2 ] ? null )?
   R = process.cwd()
