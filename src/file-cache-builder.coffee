@@ -67,18 +67,32 @@ build_file_db = ->
           those that could be deleted from the DB if deemed necessary. ###
           DB.known_path_ids.delete path_id
         else
-          # warn "Ω__19 inserting path ID #{rpr path_id}"
+          ##################################################################################################
+          ##################################################################################################
+          ### TAINT factor this into method ###
+          # warn "Ω___4 inserting path ID #{rpr path_id}"
           counts.added++
           #.................................................................................................
           exif = U.exif_from_path abs_path
           ### TAINT use prepared statement ###
-          DB.db SQL"""
-            insert into prompts ( id, prompt ) values ( ?, ? )
-              on conflict ( id ) do nothing;""", [
-            exif.prompt_id, exif.prompt, ]
+          try
+            DB.db SQL"""
+              insert into prompts ( id, prompt ) values ( ?, ? )
+                on conflict ( id ) do nothing;""", [
+              exif.prompt_id, exif.prompt, ]
+          catch error
+            warn 'Ω___5', "error: #{error.message}"
+            warn 'Ω___6', "error happened with this data: #{rpr exif}"
+          #.................................................................................................
           ### TAINT use prepared statement ###
-          DB.db SQL"""insert into files ( id, prompt_id, path ) values ( ?, ?, ? );""", [
-            path_id, exif.prompt_id, abs_path, ]
+          try
+            DB.db SQL"""insert into files ( id, prompt_id, path ) values ( ?, ?, ? );""", [
+              path_id, exif.prompt_id, abs_path, ]
+          catch error
+            warn 'Ω___7', "error: #{error.message}"
+            warn 'Ω___8', "error happened with this data: #{rpr { path_id, prompt_id: exif.prompt_id, abs_path, }}"
+          ##################################################################################################
+          ##################################################################################################
       #.....................................................................................................
       info "Ω___9 changes to DB at #{DB.path}: #{rpr counts}"
       #.....................................................................................................
