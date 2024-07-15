@@ -147,9 +147,9 @@ class File_mirror
     @_prepare_file_mirror()
     #.......................................................................................................
     if U.db_has_all_table_names @_db, @constructor.required_table_names
-      help "Ω__10 re-using DB at #{path}"
+      help "Ω___5 re-using DB at #{path}"
     else
-      warn "Ω__11 initializing DB at #{path}"
+      warn "Ω___6 initializing DB at #{path}"
       @_initialize()
     #.......................................................................................................
     return undefined
@@ -186,17 +186,17 @@ class Prompt_file_reader extends File_mirror
     super file_mirror_path
     @_prompt_parser = new Prompt_parser()
     @_pipeline      = new Pipeline()
-    # @_pipeline.push $show = ( source ) -> whisper 'Ω___5', rpr source
+    # @_pipeline.push $show = ( source ) -> whisper 'Ω___9', rpr source
     @_pipeline.push @_prompt_parser
-    # @_pipeline.push $show = ( d ) -> whisper 'Ω___6', d
+    # @_pipeline.push $show = ( d ) -> whisper 'Ω__10', d
     return undefined
 
   #---------------------------------------------------------------------------------------------------------
   parse: ( source ) ->
-    # debug 'Ω___7', rpr source
+    # debug 'Ω__11', rpr source
     @_pipeline.send source
     R = @_pipeline.run()
-    info 'Ω___8', GUY.trm.yellow GUY.trm.reverse @_prompt_parser.state
+    info 'Ω__12', GUY.trm.yellow GUY.trm.reverse @_prompt_parser.state
     return R
 
 
