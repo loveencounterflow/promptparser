@@ -33,7 +33,7 @@ class Utilities
     return undefined
 
   #---------------------------------------------------------------------------------------------------------
-  id_from_text: ( text, length = 8 ) ->
+  id_from_text: ( text, length = 16 ) ->
     hash = CRYPTO.createHash 'sha1'
     hash.update text
     return ( hash.digest 'hex' )[ ... length ]
