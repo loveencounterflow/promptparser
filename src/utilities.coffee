@@ -33,6 +33,17 @@ class Utilities
     return undefined
 
   #---------------------------------------------------------------------------------------------------------
+  get_db_table_names: ( db ) -> db.all_first_values SQL"""
+    select name from sqlite_schema where type = 'table' order by name;"""
+
+  #---------------------------------------------------------------------------------------------------------
+  db_has_all_table_names: ( db, must_have_table_names... ) ->
+    table_names = @get_db_table_names db
+    for must_have_table_name in must_have_table_names
+      return false unless must_have_table_name in table_names
+    return true
+
+  #---------------------------------------------------------------------------------------------------------
   id_from_text: ( text, length = 16 ) ->
     hash = CRYPTO.createHash 'sha1'
     hash.update text
