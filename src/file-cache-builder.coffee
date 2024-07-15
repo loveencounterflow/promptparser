@@ -140,5 +140,5 @@ if module is require.main then await do =>
   # await demo_node_glob()
   # await demo_exifr()
   # await demo_exiftool_vendored()
-  await demo_exifreader()
   # demo_dbay_with_exifdata()
+  build_file_db()
