@@ -144,7 +144,7 @@ class File_mirror
   #---------------------------------------------------------------------------------------------------------
   constructor: ( path ) ->
     @_db = new DBay { path, }
-    @_prepare_file_mirror()
+    @_prepare()
     #.......................................................................................................
     if U.db_has_all_table_names @_db, @constructor.required_table_names
       help "Ω___5 re-using DB at #{path}"
@@ -155,7 +155,8 @@ class File_mirror
     return undefined
 
   #---------------------------------------------------------------------------------------------------------
-  _prepare_file_mirror: ->
+  _prepare: ->
+    whisper "Ω___7 File_mirror._prepare"
     @_db =>
       @_db.create_table_function
         name:         'file_contents_t'
@@ -171,11 +172,13 @@ class File_mirror
 
   #---------------------------------------------------------------------------------------------------------
   _initialize: ->
+    whisper "Ω___8 File_mirror._initialize"
     # @_db =>
     #   @_db SQL"drop table if exists ...;"
     #   @_db SQL"""
     #     create table ...
     return null
+
 
 #===========================================================================================================
 class Prompt_file_reader extends File_mirror
@@ -199,12 +202,34 @@ class Prompt_file_reader extends File_mirror
     info 'Ω__12', GUY.trm.yellow GUY.trm.reverse @_prompt_parser.state
     return R
 
+  #---------------------------------------------------------------------------------------------------------
+  _initialize: ->
+    super()
+    whisper "Ω__13 Prompt_file_reader._initialize"
+    # @_db =>
+    #   @_db SQL"drop table if exists ...;"
+    #   @_db SQL"""
+    #     create table ...
+    return null
+
+  #---------------------------------------------------------------------------------------------------------
+  _prepare: ->
+    super()
+    whisper "Ω__14 Prompt_file_reader._prepare"
+    @_db.create_function name: 'square', deterministic: true, varargs: false, call: ( n ) -> n ** 2
+    #.......................................................................................................
+    return null
+
 
 #-----------------------------------------------------------------------------------------------------------
 demo_file_as_virtual_table = ->
   db = new Prompt_file_reader '/dev/shm/demo_file_as_virtual_table.sqlite'
   do ->
-    result  = db._db.all_rows SQL"""select * from file_contents_t( './README.md' ) order by lnr;"""
+    result  = db._db.all_rows SQL"""
+      select
+          *,
+          square( lnr ) as lnr2
+        from file_contents_t( './README.md' ) order by lnr;"""
     console.table result
   #.........................................................................................................
   return null
