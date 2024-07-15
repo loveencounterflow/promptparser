@@ -217,6 +217,11 @@ class Prompt_file_reader extends File_mirror
     super()
     whisper "Ω__14 Prompt_file_reader._prepare_db_connection"
     @_db.create_function name: 'square', deterministic: true, varargs: false, call: ( n ) -> n ** 2
+    @_db.create_function
+      name:           'parse'
+      deterministic:  true
+      varargs:        false
+      call:           ( prompt ) => JSON.stringify @parse prompt
     #.......................................................................................................
     return null
 
@@ -228,7 +233,8 @@ demo_file_as_virtual_table = ->
     result  = db._db.all_rows SQL"""
       select
           *,
-          square( lnr ) as lnr2
+          square( lnr ) as lnr2,
+          parse( line ) as prompt
         from file_contents_t( './README.md' ) order by lnr;"""
     console.table result
   #.........................................................................................................
