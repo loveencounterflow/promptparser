@@ -184,12 +184,10 @@ demo_file_as_virtual_table = ->
           using file_contents( README.md, any stuff goes here, and more here );"""
     return null
   #.........................................................................................................
-  debug 'Ω__10', U.get_db_table_names db
-  debug 'Ω__11', U.db_has_all_table_names db, 'contents_of_readme'
   if U.db_has_all_table_names db, 'contents_of_readme'
-    help "Ω__12 re-using DB at #{path}"
+    help "Ω__10 re-using DB at #{path}"
   else
-    warn "Ω__13 initializing DB at #{path}"
+    warn "Ω__11 initializing DB at #{path}"
     initialize_db db
   #.........................................................................................................
   result  = db.all_rows SQL"""select * from contents_of_readme where line != '' order by lnr;"""
