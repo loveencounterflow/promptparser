@@ -136,36 +136,17 @@ class Prompt_parser extends Transformer
 
 
 #===========================================================================================================
-class Prompt_file_reader # extends Dbay
+class File_mirror
 
   #---------------------------------------------------------------------------------------------------------
-  constructor: ->
-    # super()
-    @_prompt_parser = new Prompt_parser()
-    @_pipeline      = new Pipeline()
-    # @_pipeline.push $show = ( source ) -> whisper 'Ω___5', rpr source
-    @_pipeline.push @_prompt_parser
-    # @_pipeline.push $show = ( d ) -> whisper 'Ω___6', d
-    return undefined
-
-  #---------------------------------------------------------------------------------------------------------
-  parse: ( source ) ->
-    # debug 'Ω___7', rpr source
-    @_pipeline.send source
-    R = @_pipeline.run()
-    info 'Ω___8', GUY.trm.yellow GUY.trm.reverse @_prompt_parser.state
-    return R
-
-
-#===========================================================================================================
-class Prompt_file_db
+  @required_table_names: []
 
   #---------------------------------------------------------------------------------------------------------
   constructor: ( path ) ->
     @_db = new DBay { path, }
-    @_prepare()
+    @_prepare_file_mirror()
     #.......................................................................................................
-    if U.db_has_all_table_names @_db # , 'contents_of_readme', 'contents_of_prompts'
+    if U.db_has_all_table_names @_db, @constructor.required_table_names
       help "Ω__10 re-using DB at #{path}"
     else
       warn "Ω__11 initializing DB at #{path}"
@@ -174,7 +155,7 @@ class Prompt_file_db
     return undefined
 
   #---------------------------------------------------------------------------------------------------------
-  _prepare: ->
+  _prepare_file_mirror: ->
     @_db =>
       @_db.create_table_function
         name:         'file_contents_t'
@@ -193,11 +174,35 @@ class Prompt_file_db
     # @_db =>
     #   @_db SQL"drop table if exists ...;"
     #   @_db SQL"""
+    #     create table ...
     return null
+
+#===========================================================================================================
+class Prompt_file_reader extends File_mirror
+
+  #---------------------------------------------------------------------------------------------------------
+  ### TAINT use CFG pattern, namespacing as in `file_mirror.path`, validation ###
+  constructor: ( file_mirror_path ) ->
+    super file_mirror_path
+    @_prompt_parser = new Prompt_parser()
+    @_pipeline      = new Pipeline()
+    # @_pipeline.push $show = ( source ) -> whisper 'Ω___5', rpr source
+    @_pipeline.push @_prompt_parser
+    # @_pipeline.push $show = ( d ) -> whisper 'Ω___6', d
+    return undefined
+
+  #---------------------------------------------------------------------------------------------------------
+  parse: ( source ) ->
+    # debug 'Ω___7', rpr source
+    @_pipeline.send source
+    R = @_pipeline.run()
+    info 'Ω___8', GUY.trm.yellow GUY.trm.reverse @_prompt_parser.state
+    return R
+
 
 #-----------------------------------------------------------------------------------------------------------
 demo_file_as_virtual_table = ->
-  db = new Prompt_file_db '/dev/shm/demo_file_as_virtual_table.sqlite'
+  db = new Prompt_file_reader '/dev/shm/demo_file_as_virtual_table.sqlite'
   do ->
     result  = db._db.all_rows SQL"""select * from file_contents_t( './README.md' ) order by lnr;"""
     console.table result
@@ -209,7 +214,7 @@ demo_file_as_virtual_table = ->
 #===========================================================================================================
 module.exports = {
   new_prompt_lexer,
-  Prompt_file_db,
+  File_mirror,
   Prompt_file_reader, }
 
 #===========================================================================================================
