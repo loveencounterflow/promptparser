@@ -185,44 +185,19 @@ class Prompt_file_db
           for { lnr, line, eol, } from GUY.fs.walk_lines_with_positions path
             yield { lnr, line, eol, }
           return null
-      # @_db.create_virtual_table
-      #   name:   'file_contents'
-      #   create: ( filename ) ->
-      #     path  = PATH.resolve process.cwd(), filename
-      #     debug 'Ω___9', process.cwd(), filename, PATH.resolve process.cwd()
-      #     return
-      #       columns: [ 'lnr', 'line', 'eol', ],
-      #       rows: ->
-      #         for { lnr, line, eol, } from GUY.fs.walk_lines_with_positions path
-      #           yield { lnr, line, eol, }
-      #         return null
     #.......................................................................................................
     return null
 
   #---------------------------------------------------------------------------------------------------------
   _initialize: ->
     # @_db =>
-    #   @_db SQL"drop table if exists contents_of_readme;"
-    #   @_db SQL"drop table if exists contents_of_prompts;"
+    #   @_db SQL"drop table if exists ...;"
     #   @_db SQL"""
-    #     create virtual table contents_of_readme
-    #       using file_contents( README.md );"""
-    #   @_db SQL"""
-    #     create virtual table contents_of_prompts
-    #       using file_contents( ./data/short-prompts.md );"""
-    #.......................................................................................................
     return null
 
 #-----------------------------------------------------------------------------------------------------------
 demo_file_as_virtual_table = ->
   db = new Prompt_file_db '/dev/shm/demo_file_as_virtual_table.sqlite'
-  #.........................................................................................................
-  # do ->
-  #   result  = db._db.all_rows SQL"""select * from contents_of_readme /* where line != '' */ order by lnr;"""
-  #   console.table result
-  # do ->
-  #   result  = db._db.all_rows SQL"""select * from contents_of_prompts /* where line != '' */ order by lnr;"""
-  #   console.table result
   do ->
     result  = db._db.all_rows SQL"""select * from file_contents_t( './README.md' ) order by lnr;"""
     console.table result
