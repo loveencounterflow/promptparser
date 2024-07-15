@@ -162,9 +162,8 @@ demo_file_as_virtual_table = ->
   path                      = '/dev/shm/demo_file_as_virtual_table.sqlite'
   db                        = new DBay { path, }
   #.........................................................................................................
-  initialize_db = ( db ) ->
+  prepare_connection = ( db ) ->
     db ->
-      # db SQL"drop table if exists myfile;"
       db.create_virtual_table
         name:   'file_contents'
         create: ( filename, P... ) ->
@@ -179,11 +178,17 @@ demo_file_as_virtual_table = ->
                 yield { lnr: line_idx + 1, line, }
               return null
           return R
+    return null
+  #.........................................................................................................
+  initialize_db = ( db ) ->
+    db ->
+      # db SQL"drop table if exists myfile;"
       db SQL"""
         create virtual table contents_of_readme
           using file_contents( README.md, any stuff goes here, and more here );"""
     return null
   #.........................................................................................................
+  prepare_connection db
   if U.db_has_all_table_names db, 'contents_of_readme'
     help "Ω__10 re-using DB at #{path}"
   else
