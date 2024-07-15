@@ -131,7 +131,7 @@ class Prompt_parser extends Transformer
 
 
 #===========================================================================================================
-class Wwwww # extends Dbay
+class Prompt_file_reader # extends Dbay
 
   #---------------------------------------------------------------------------------------------------------
   constructor: ->
@@ -159,4 +159,6 @@ module.exports = {
   Prompt_file_reader, }
 
 #===========================================================================================================
+if module is require.main then await do =>
+  build_file_db()
 
