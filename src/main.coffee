@@ -152,6 +152,51 @@ class Prompt_file_reader # extends Dbay
     info 'Ω___8', GUY.trm.yellow GUY.trm.reverse @_prompt_parser.state
     return R
 
+#-----------------------------------------------------------------------------------------------------------
+demo_file_as_virtual_table = ->
+  PATH                      = require 'node:path'
+  FS                        = require 'node:fs'
+  { DBay }                  = require 'dbay'
+  { SQL  }                  = DBay
+  #.........................................................................................................
+  path                      = '/dev/shm/demo_file_as_virtual_table.sqlite'
+  db                        = new DBay { path, }
+  #.........................................................................................................
+  initialize_db = ( db ) ->
+    db ->
+      # db SQL"drop table if exists myfile;"
+      db.create_virtual_table
+        name:   'file_contents'
+        create: ( filename, P... ) ->
+          urge 'Ω___9', { filename, P, }
+          R =
+            columns: [ 'path', 'lnr', 'line', ],
+            rows: ->
+              path  = PATH.resolve process.cwd(), filename
+              ### TAINT read line-by-line ###
+              lines = ( FS.readFileSync path, { encoding: 'utf-8', } ).split '\n'
+              for line, line_idx in lines
+                yield { path, lnr: line_idx + 1, line, }
+              return null
+          return R
+      db SQL"""
+        create virtual table contents_of_readme
+          using file_contents( README.md, any stuff goes here, and more here );"""
+    return null
+  #.........................................................................................................
+  debug 'Ω__10', U.get_db_table_names db
+  debug 'Ω__11', U.db_has_all_table_names db, 'contents_of_readme'
+  if U.db_has_all_table_names db, 'contents_of_readme'
+    help "Ω__12 re-using DB at #{path}"
+  else
+    warn "Ω__13 initializing DB at #{path}"
+    initialize_db db
+  #.........................................................................................................
+  result  = db.all_rows SQL"select * from contents_of_readme order by 1, 2, 3;"
+  console.table result
+  #.........................................................................................................
+  return null
+
 
 
 #===========================================================================================================
@@ -161,5 +206,5 @@ module.exports = {
 
 #===========================================================================================================
 if module is require.main then await do =>
-  build_file_db()
-
+  # build_file_db()
+  demo_file_as_virtual_table()
