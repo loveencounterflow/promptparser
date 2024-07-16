@@ -128,6 +128,9 @@ class Prompt_parser extends Transformer
     return null
 
   #---------------------------------------------------------------------------------------------------------
+  $filter_stamped: -> ( d, send ) => send d unless d.$stamped
+
+  #---------------------------------------------------------------------------------------------------------
   $count: -> ( d ) =>
     # urge 'Ω___5', d
     if d.$key is 'source' then  @state.counts.prompts++
