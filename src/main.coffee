@@ -84,7 +84,7 @@ class Prompt_parser extends Transformer
 
   #---------------------------------------------------------------------------------------------------------
   $lex: -> ( source, send ) =>
-    # urge 'Ω___1', rpr source
+    urge 'Ω___2', GUY.trm.reverse GUY.trm.cyan GUY.trm.bold rpr source
     send { $key: 'source', $value: source, }
     for lexeme from @_lexer.walk source
       # help 'Ω___3', "#{lexeme.$key.padEnd 20} #{rpr lexeme.value}"
