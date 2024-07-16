@@ -239,8 +239,8 @@ demo_file_as_virtual_table = ->
           *,
           square( lnr ) as lnr2,
           parse( line ) as prompt
-        from file_contents_t( './README.md' ) order by lnr;"""
-    console.table result
+        from file_contents_t( './data/short-prompts.md' ) order by lnr;"""
+    # console.table result
   #.........................................................................................................
   return null
 
