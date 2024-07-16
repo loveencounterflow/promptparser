@@ -87,13 +87,13 @@ class Prompt_parser extends Transformer
     # urge 'Ω___1', rpr source
     send { $key: 'source', $value: source, }
     for lexeme from @_lexer.walk source
-      # help 'Ω___2', "#{lexeme.$key.padEnd 20} #{rpr lexeme.value}"
+      # help 'Ω___3', "#{lexeme.$key.padEnd 20} #{rpr lexeme.value}"
       send lexeme
     return null
 
   #---------------------------------------------------------------------------------------------------------
   $show: -> ( d ) =>
-    urge 'Ω___3', rpr d
+    urge 'Ω___4', rpr d
     return null
 
   #---------------------------------------------------------------------------------------------------------
@@ -129,7 +129,7 @@ class Prompt_parser extends Transformer
 
   #---------------------------------------------------------------------------------------------------------
   $count: -> ( d ) =>
-    # urge 'Ω___4', d
+    # urge 'Ω___5', d
     if d.$key is 'source' then  @state.counts.prompts++
     else                        @state.counts.lexemes++
     return null
@@ -147,16 +147,16 @@ class File_mirror
     @_prepare_db_connection()
     #.......................................................................................................
     if U.db_has_all_table_names @_db, @constructor.required_table_names
-      help "Ω___5 re-using DB at #{path}"
+      help "Ω___6 re-using DB at #{path}"
     else
-      warn "Ω___6 creating structure of DB at #{path}"
+      warn "Ω___7 creating structure of DB at #{path}"
       @_create_db_structure()
     #.......................................................................................................
     return undefined
 
   #---------------------------------------------------------------------------------------------------------
   _prepare_db_connection: ->
-    whisper "Ω___7 File_mirror._prepare_db_connection"
+    whisper "Ω___8 File_mirror._prepare_db_connection"
     @_db =>
       @_db.create_table_function
         name:         'file_contents_t'
@@ -172,7 +172,7 @@ class File_mirror
 
   #---------------------------------------------------------------------------------------------------------
   _create_db_structure: ->
-    whisper "Ω___8 File_mirror._create_db_structure"
+    whisper "Ω___9 File_mirror._create_db_structure"
     # @_db =>
     #   @_db SQL"drop table if exists ...;"
     #   @_db SQL"""
@@ -189,23 +189,24 @@ class Prompt_file_reader extends File_mirror
     super file_mirror_path
     @_prompt_parser = new Prompt_parser()
     @_pipeline      = new Pipeline()
-    # @_pipeline.push $show = ( source ) -> whisper 'Ω___9', rpr source
+    # @_pipeline.push $show = ( source ) -> whisper 'Ω__10', rpr source
     @_pipeline.push @_prompt_parser
-    # @_pipeline.push $show = ( d ) -> whisper 'Ω__10', d
+    # @_pipeline.push $show = ( d ) -> whisper 'Ω__11', d
     return undefined
 
   #---------------------------------------------------------------------------------------------------------
   parse: ( source ) ->
-    # debug 'Ω__11', rpr source
+    # debug 'Ω__12', rpr source
     @_pipeline.send source
     R = @_pipeline.run()
-    info 'Ω__12', GUY.trm.yellow GUY.trm.reverse @_prompt_parser.state
+    info 'Ω__13', GUY.trm.yellow GUY.trm.reverse @_prompt_parser.state
+    debug 'Ω__14', R
     return R
 
   #---------------------------------------------------------------------------------------------------------
   _create_db_structure: ->
     super()
-    whisper "Ω__13 Prompt_file_reader._create_db_structure"
+    whisper "Ω__15 Prompt_file_reader._create_db_structure"
     # @_db =>
     #   @_db SQL"drop table if exists ...;"
     #   @_db SQL"""
@@ -215,7 +216,7 @@ class Prompt_file_reader extends File_mirror
   #---------------------------------------------------------------------------------------------------------
   _prepare_db_connection: ->
     super()
-    whisper "Ω__14 Prompt_file_reader._prepare_db_connection"
+    whisper "Ω__16 Prompt_file_reader._prepare_db_connection"
     @_db.create_function name: 'square', deterministic: true, varargs: false, call: ( n ) -> n ** 2
     @_db.create_function
       name:           'parse'
