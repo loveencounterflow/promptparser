@@ -51,10 +51,19 @@ FS                        = require 'node:fs'
 new_prompt_lexer = ( mode = 'plain' ) ->
   lexer   = new Interlex { dotall: false, }
   #.........................................................................................................
+  enter_marks = ({ token, match, lexer, }) ->
+    # debug 'Ω___1', { token, match, lexer, }
+    # jump_action = 'pushmode'
+    # jump_time   = 'inclusive'
+    # jump_target = 'marks'
+    # return { token, jump_action, jump_time, jump_target }
+    return { jump: '[marks', }
+  #.........................................................................................................
   do =>
     mode = 'plain'
-    lexer.add_lexeme { mode, lxid: 'escchr',     jump: null,     pattern:  /\\(?<chr>.)/u,           }
-    lexer.add_lexeme { mode, lxid: 'marksleft',  jump: '[marks', pattern:  /\[/u,                    }
+    # lexer.add_lexeme { mode, lxid: 'escchr',     jump: null,     pattern:  /\\(?<chr>.)/u,           }
+    # lexer.add_lexeme { mode, lxid: 'marksleft',  jump: '[marks', pattern:  /\[/u,                    }
+    lexer.add_lexeme { mode, lxid: 'marksleft',  jump: enter_marks, pattern:  /\[/u,                    }
     lexer.add_lexeme { mode, lxid: 'prompt',     jump: null,     pattern:  /[^\[\\]+/u,              }
   #.........................................................................................................
   do =>
