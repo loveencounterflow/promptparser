@@ -15,7 +15,7 @@
     "exifreader": "^4.23.3",
     "glob": "^11.0.0",
     "guy": "^13.7.2",
-    "intertext-lexer": "^0.26.0",
+    "intertext-lexer": "^0.26.1",
     "intertype": "^203.2.0",
     "moonriver": "^4.8.4",
     "webguy": "^5.2.1"
