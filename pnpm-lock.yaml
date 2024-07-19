@@ -24,8 +24,8 @@ importers:
         specifier: ^13.7.2
         version: 13.7.2(acorn-loose@8.4.0)(acorn-walk@8.3.1)(acorn@8.11.2)(astring@1.8.6)(chokidar@3.5.3)(dayjs@1.11.11)(tmp@0.2.1)
       intertext-lexer:
-        specifier: ^0.26.1
-        version: 0.26.1(acorn-loose@8.4.0)(acorn-walk@8.3.1)(acorn@8.11.2)(astring@1.8.6)(chokidar@3.5.3)(dayjs@1.11.11)(tmp@0.2.1)
+        specifier: ^0.30.0
+        version: 0.30.0(acorn-loose@8.4.0)(acorn-walk@8.3.1)(acorn@8.11.2)(astring@1.8.6)(chokidar@3.5.3)(dayjs@1.11.11)(tmp@0.2.1)
       intertype:
         specifier: ^203.2.0
         version: 203.2.0
@@ -315,8 +315,8 @@ packages:
   ini@1.3.8:
     resolution: {integrity: sha512-JV/yugV2uzW5iMRSiZAyDtQd+nxtUnjeLt0acNdw98kKLrvuRVyB80tsREOE7yvGVgalhZ6RNXCmEHkUKBKxew==}
 
-  intertext-lexer@0.26.1:
-    resolution: {integrity: sha512-7wnhOtiL+RC/uZZfXO0Xdct/xWXf0p0o+eJOT7kfBBPjdeZ5ilkY7hCvAyySltZDy9UT7tDJGIr+hc35X/gEYA==}
+  intertext-lexer@0.30.0:
+    resolution: {integrity: sha512-NW793vnRhPopNKs9Tf9yTKRoZu7Vw0Xq9v3uZcWkEM9Zb9pn5JTogb88zpMx8FcwM/WbbwNp5cIGdr6PexLcdg==}
 
   intertype-legacy@7.7.1:
     resolution: {integrity: sha512-Bj3k9bCu8vA6JLIvnCrJXOdkecgY5wtCmORclJ87uq22N53swREHT5bezSeK5TwcxgSJEDg2wEfcn4kNr9Qv8A==}
@@ -908,7 +908,7 @@ snapshots:
 
   ini@1.3.8: {}
 
-  intertext-lexer@0.26.1(acorn-loose@8.4.0)(acorn-walk@8.3.1)(acorn@8.11.2)(astring@1.8.6)(chokidar@3.5.3)(dayjs@1.11.11)(tmp@0.2.1):
+  intertext-lexer@0.30.0(acorn-loose@8.4.0)(acorn-walk@8.3.1)(acorn@8.11.2)(astring@1.8.6)(chokidar@3.5.3)(dayjs@1.11.11)(tmp@0.2.1):
     dependencies:
       compose-regexp-commonjs: 0.6.24
       datom: 12.3.0(acorn-loose@8.4.0)(acorn-walk@8.3.1)(acorn@8.11.2)(astring@1.8.6)(chokidar@3.5.3)(dayjs@1.11.11)(tmp@0.2.1)
