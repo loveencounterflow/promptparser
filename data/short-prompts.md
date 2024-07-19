@@ -7,7 +7,6 @@
 [+++ + p#41]
 [meh p#53]
 [UU]
-[32] what [4]
 
 []
 just a prompt
@@ -16,3 +15,4 @@ just a prompt
 [A+v U1UU]
 [A++v 22 but not following directions] \t foo bar
 [A++v 22 but not following directions p#7765] \t foo bar.
+[32] what [4] behind
