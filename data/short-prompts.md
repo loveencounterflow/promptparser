@@ -14,5 +14,7 @@ just a prompt
      [324] a prompt.
 [A+v U1UU]
 [A++v 22 but not following directions] \t foo bar
+[012345] repeated prompt
 [A++v 22 but not following directions p#7765] \t foo bar.
 [32] what [4] behind
+[012345] repeated prompt

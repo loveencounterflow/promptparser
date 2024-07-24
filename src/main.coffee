@@ -49,6 +49,20 @@ start_of_line             = Symbol 'start_of_line'
 end_of_line               = Symbol 'end_of_line'
 { get_types }             = require './types'
 
+###
+
+8888888b.  8888888b.   .d88888b.  888b     d888 8888888b. 88888888888   888      8888888888 Y88b   d88P 8888888888 8888888b.
+888   Y88b 888   Y88b d88P" "Y88b 8888b   d8888 888   Y88b    888       888      888         Y88b d88P  888        888   Y88b
+888    888 888    888 888     888 88888b.d88888 888    888    888       888      888          Y88o88P   888        888    888
+888   d88P 888   d88P 888     888 888Y88888P888 888   d88P    888       888      8888888       Y888P    8888888    888   d88P
+8888888P"  8888888P"  888     888 888 Y888P 888 8888888P"     888       888      888           d888b    888        8888888P"
+888        888 T88b   888     888 888  Y8P  888 888           888       888      888          d88888b   888        888 T88b
+888        888  T88b  Y88b. .d88P 888   "   888 888           888       888      888         d88P Y88b  888        888  T88b
+888        888   T88b  "Y88888P"  888       888 888           888       88888888 8888888888 d88P   Y88b 8888888888 888   T88b
+
+###
+
+
 
 #===========================================================================================================
 new_prompt_lexer = ( mode = 'plain' ) ->
@@ -94,6 +108,20 @@ new_prompt_lexer = ( mode = 'plain' ) ->
     lexer.add_reserved_lexeme { mode, lxid: 'forbidden', concat: true, }
   #.........................................................................................................
   return lexer
+
+###
+
+8888888b.  8888888b.   .d88888b.  888b     d888 8888888b.  88888888888  8888888b.      d8888  8888888b.   .d8888b.  8888888888 8888888b.
+888   Y88b 888   Y88b d88P" "Y88b 8888b   d8888 888   Y88b     888      888   Y88b    d88888  888   Y88b d88P  Y88b 888        888   Y88b
+888    888 888    888 888     888 88888b.d88888 888    888     888      888    888   d88P888  888    888 Y88b.      888        888    888
+888   d88P 888   d88P 888     888 888Y88888P888 888   d88P     888      888   d88P  d88P 888  888   d88P  "Y888b.   8888888    888   d88P
+8888888P"  8888888P"  888     888 888 Y888P 888 8888888P"      888      8888888P"  d88P  888  8888888P"      "Y88b. 888        8888888P"
+888        888 T88b   888     888 888  Y8P  888 888            888      888       d88P   888  888 T88b         "888 888        888 T88b
+888        888  T88b  Y88b. .d88P 888   "   888 888            888      888      d8888888888  888  T88b  Y88b  d88P 888        888  T88b
+888        888   T88b  "Y88888P"  888       888 888            888      888     d88P     888  888   T88b  "Y8888P"  8888888888 888   T88b
+
+###
+
 
 #===========================================================================================================
 class Prompt_parser extends Transformer
@@ -214,7 +242,14 @@ class Prompt_parser extends Transformer
     return send stamp d
 
   #---------------------------------------------------------------------------------------------------------
-  $assemble_records: ->
+  $add_prompt_id: -> ( d, send ) =>
+    return send d if d.$stamped
+    return send d unless d.$key is 'prompt'
+    send d
+    send lets d, ( d ) -> d.$key = 'prompt_id'; d.value = U.id_from_text d.value
+
+  #---------------------------------------------------------------------------------------------------------
+  $assemble_prerecords: ( d, send ) ->
     ### TAINT code duplication ###
     prerecord = null
     lnr       = null
@@ -233,26 +268,63 @@ class Prompt_parser extends Transformer
         prerecord = null
         return send d
       #.....................................................................................................
-      return send d unless d.$key in [ 'prompt', 'generations', 'comment', 'promptnr', 'rejected', ]
+      return send d unless d.$key in [ 'prompt', 'prompt_id', 'generations', 'comment', 'promptnr', 'rejected', ]
       #.....................................................................................................
       prerecord.lnr       ?= lnr
       prerecord[ d.$key ]  = d.value
       return send stamp d
 
-  # #---------------------------------------------------------------------------------------------------------
-  # $show: -> ( d ) =>
-  #   urge 'Ω___5', rpr d
-  #   return null
+  #---------------------------------------------------------------------------------------------------------
+  $assemble_generation_records: ->
+    prompt_id = null
+    nrs       = new Map()
+    #.......................................................................................................
+    return ( d, send ) =>
+      return send d if d.$stamped
+      return send d unless d.$key is 'prerecord'
+      send d
+      #.....................................................................................................
+      ### TAINT hide this in custom class ###
+      prompt_id = d.prompt_id
+      unless ( nr = nrs.get prompt_id )?
+        nrs.set prompt_id, 0
+        nr = 0
+      #.....................................................................................................
+      for count in d.generations
+        nr++
+        send { $key: 'record', table: 'generations', fields: { prompt_id, nr, count, }, }
+      nrs.set prompt_id, nr
+      return null
+
+  #---------------------------------------------------------------------------------------------------------
+  $assemble_prompt_records: -> ( d, send ) =>
+    return send d if d.$stamped
+    return send d unless d.$key is 'prerecord'
+    send d
+    fields =
+      id:         d.prompt_id
+      lnr:        d.lnr
+      prompt:     d.prompt
+      comment:    d.comment
+      rejected:   d.rejected
+    send { $key: 'record', table: 'prompts', fields, }
+    return null
+
+  #---------------------------------------------------------------------------------------------------------
+  $show: -> ( d ) =>
+    # urge 'Ω___4', rpr d # if d.$key is 'generation'
+    return null
 
   #---------------------------------------------------------------------------------------------------------
   $stamp_extraneous: -> ( d, send ) =>
     switch true
-      when d.$key is 'marks:marksleft'  then  send stamp  d
-      when d.$key is 'marks:marksright' then  send stamp  d
-      when d.$key is 'marks:grade'      then  send stamp  d
-      when d.$key is 'marks:ws'         then  send stamp  d
-      when d.$key is 'marks:$eof'       then  send stamp  d
-      when d.$key is 'plain:$eof'       then  send stamp  d
+      # when d.$key is 'marks:marksleft'  then  send stamp  d
+      # when d.$key is 'marks:marksright' then  send stamp  d
+      # when d.$key is 'marks:grade'      then  send stamp  d
+      # when d.$key is 'marks:ws'         then  send stamp  d
+      # when d.$key is 'marks:$eof'       then  send stamp  d
+      # when d.$key is 'plain:$eof'       then  send stamp  d
+      when d.$key isnt 'record'         then  send  stamp d
       else                                    send        d
     return null
 
@@ -263,56 +335,146 @@ class Prompt_parser extends Transformer
 
   #---------------------------------------------------------------------------------------------------------
   $count: -> ( d ) =>
-    # urge 'Ω___6', d
+    # urge 'Ω___5', d
     if d.$key is 'source' then  @state.counts.prompts++
     else                        @state.counts.lexemes++
     return null
 
 
+###
+
+8888888888 8888888 888      8888888888   888b     d888 8888888 8888888b.  8888888b.   .d88888b.  8888888b.
+888          888   888      888          8888b   d8888   888   888   Y88b 888   Y88b d88P" "Y88b 888   Y88b
+888          888   888      888          88888b.d88888   888   888    888 888    888 888     888 888    888
+8888888      888   888      8888888      888Y88888P888   888   888   d88P 888   d88P 888     888 888   d88P
+888          888   888      888          888 Y888P 888   888   8888888P"  8888888P"  888     888 8888888P"
+888          888   888      888          888  Y8P  888   888   888 T88b   888 T88b   888     888 888 T88b
+888          888   888      888          888   "   888   888   888  T88b  888  T88b  Y88b. .d88P 888  T88b
+888        8888888 88888888 8888888888   888       888 8888888 888   T88b 888   T88b  "Y88888P"  888   T88b
+
+###
+
 #===========================================================================================================
 class File_mirror
 
   #---------------------------------------------------------------------------------------------------------
-  @required_table_names: []
+  @required_table_names: [ 'prompts', ]
 
   #---------------------------------------------------------------------------------------------------------
   constructor: ( path ) ->
-    @_db = new DBay { path, }
-    @_prepare_db_connection()
+    hide @, 'types', get_types()
+    @cfg  = @types.create.fm_constructor_cfg path
+    hide @, '_db', new DBay { path, }
     #.......................................................................................................
-    if U.db_has_all_table_names @_db, @constructor.required_table_names
-      help "Ω___7 re-using DB at #{path}"
-    else
-      warn "Ω___8 creating structure of DB at #{path}"
-      @_create_db_structure()
+    ### TAINT rather ad-hoc ###
+    hide @, 'insert_into', insert_into = {}
+    insert_into[ key ] = ( f.bind @ ) for key, f of @constructor.insert_into
+    #.......................................................................................................
+    @_prepare_db_connection()
+    @_create_db_structure_if_necessary()
+    @_acquire_datasources_if_necessary()
     #.......................................................................................................
     return undefined
 
   #---------------------------------------------------------------------------------------------------------
   _prepare_db_connection: ->
-    whisper "Ω___9 File_mirror._prepare_db_connection"
-    @_db =>
-      @_db.create_table_function
-        name:         'file_contents_t'
-        columns:      [ 'lnr', 'line', 'eol', ]
-        parameters:   [ 'filename', ]
-        rows: ( filename ) ->
-          path  = PATH.resolve process.cwd(), filename
-          for { lnr, line, eol, } from GUY.fs.walk_lines_with_positions path
-            yield { lnr, line, eol, }
-          return null
+    # whisper "Ω___7 File_mirror._prepare_db_connection"
+    # @_db =>
+    #   @_db.create_table_function
+    #     name:         'file_contents_t'
+    #     columns:      [ 'lnr', 'line', 'eol', ]
+    #     parameters:   [ 'filename', ]
+    #     rows: ( filename ) ->
+    #       path  = PATH.resolve process.cwd(), filename
+    #       for { lnr, line, eol, } from GUY.fs.walk_lines_with_positions path
+    #         yield { lnr, line, eol, }
+    #       return null
+    #   return null
+    # #.......................................................................................................
+    return null
+
+  #---------------------------------------------------------------------------------------------------------
+  _create_db_structure_if_necessary: ->
+    if U.db_has_all_table_names @_db, @constructor.required_table_names
+      help "Ω___8 re-using DB at #{@cfg.path}"
+    else
+      warn "Ω___9 creating structure of DB at #{@cfg.path}"
+      @_create_db_structure()
     #.......................................................................................................
     return null
 
   #---------------------------------------------------------------------------------------------------------
   _create_db_structure: ->
     whisper "Ω__10 File_mirror._create_db_structure"
-    # @_db =>
-    #   @_db SQL"drop table if exists ...;"
-    #   @_db SQL"""
-    #     create table ...
+    @_db =>
+      @_db SQL"drop table if exists prompts;"
+      ### TAINT a more general solution should accommodate more than a single source file ###
+      @_db SQL"""
+        create table datasources (
+            lnr       integer not null primary key,
+            line      text    not null );"""
+      @_db SQL"""
+        create table prompts (
+            id        text    not null primary key,
+            lnr       integer not null,
+            prompt    text    not null,
+            comment   text        null,
+            rejected  boolean not null );"""
+      @_db SQL"""
+        create table generations (
+            prompt_id text    not null,
+            nr        integer not null,
+            count     integer not null,
+          primary key ( prompt_id, nr ),
+          foreign key ( prompt_id ) references prompts ( id ) );"""
+      hide @, '_insert_into',
+        datasources:  @_db.prepare_insert { into: 'datasources',                                  }
+        prompts:      @_db.prepare_insert { into: 'prompts',      on_conflict: { update: true, }, }
+        generations:  @_db.prepare_insert { into: 'generations',                                  }
+      return null
     return null
 
+  #---------------------------------------------------------------------------------------------------------
+  @insert_into:
+    #.......................................................................................................
+    datasources: ( d ) ->
+      ### TAINT validate? ###
+      return @_db @_insert_into.datasources, d
+    #.......................................................................................................
+    prompts: ( d ) ->
+      ### TAINT validate? ###
+      return @_db @_insert_into.prompts, lets d, ( d ) ->
+        d.rejected = if d.rejected is true then 1 else 0
+    #.......................................................................................................
+    generations: ( d ) ->
+      ### TAINT validate? ###
+      return @_db @_insert_into.generations, d
+
+  #---------------------------------------------------------------------------------------------------------
+  _acquire_datasources_if_necessary: ->
+    @_acquire_datasources()
+    return null
+
+  #---------------------------------------------------------------------------------------------------------
+  _acquire_datasources: ->
+    ### TAINT replace hardcoded datasource path ###
+    @_db =>
+      for { lnr, line, eol, } from GUY.fs.walk_lines_with_positions './data/short-prompts.md'
+        @_db @_insert_into.datasources, { lnr, line, }
+    return null
+
+###
+
+8888888888 8888888 888      8888888888   8888888b.  8888888888        d8888  8888888b.  8888888888 8888888b.
+888          888   888      888          888   Y88b 888              d88888  888  "Y88b 888        888   Y88b
+888          888   888      888          888    888 888             d88P888  888    888 888        888    888
+8888888      888   888      8888888      888   d88P 8888888        d88P 888  888    888 8888888    888   d88P
+888          888   888      888          8888888P"  888           d88P  888  888    888 888        8888888P"
+888          888   888      888          888 T88b   888          d88P   888  888    888 888        888 T88b
+888          888   888      888          888  T88b  888         d8888888888  888  .d88P 888        888  T88b
+888        8888888 88888888 8888888888   888   T88b 8888888888 d88P     888  8888888P"  8888888888 888   T88b
+
+###
 
 #===========================================================================================================
 class Prompt_file_reader extends File_mirror
@@ -333,25 +495,19 @@ class Prompt_file_reader extends File_mirror
     # debug 'Ω__13', rpr source
     @_pipeline.send source
     R = @_pipeline.run()
+    for d in R
     # info 'Ω__14', GUY.trm.yellow GUY.trm.reverse @_prompt_parser.state
-    info 'Ω__15', GUY.trm.reverse GUY.trm.bold GUY.trm.gold R.at -1
+      continue unless d.$key is 'record'
+      # @_db =>
+      info 'Ω__15', GUY.trm.reverse GUY.trm.bold GUY.trm.gold d
+      @_db @_insert_into[ d.table ], d.fields
     # debug 'Ω__16', ( "#{t.$key}#{rpr t.value}" for t in R ).join '|'
     return R
 
   #---------------------------------------------------------------------------------------------------------
-  _create_db_structure: ->
-    super()
-    whisper "Ω__17 Prompt_file_reader._create_db_structure"
-    # @_db =>
-    #   @_db SQL"drop table if exists ...;"
-    #   @_db SQL"""
-    #     create table ...
-    return null
-
-  #---------------------------------------------------------------------------------------------------------
   _prepare_db_connection: ->
     super()
-    whisper "Ω__18 Prompt_file_reader._prepare_db_connection"
+    whisper "Ω__17 Prompt_file_reader._prepare_db_connection"
     @_db.create_function name: 'square', deterministic: true, varargs: false, call: ( n ) -> n ** 2
     @_db.create_function
       name:           'parse'
@@ -364,18 +520,35 @@ class Prompt_file_reader extends File_mirror
 
 #-----------------------------------------------------------------------------------------------------------
 demo_file_as_virtual_table = ->
-  db = new Prompt_file_reader '/dev/shm/demo_file_as_virtual_table.sqlite'
-  do ->
-    result  = db._db.all_rows SQL"""
-      select
-          *,
-          square( lnr ) as lnr2,
-          parse( line ) as prompt
-        from file_contents_t( './data/short-prompts.md' ) order by lnr;"""
+  db = new Prompt_file_reader '/dev/shm/prompts-and-generations.sqlite'
+  for row from db._db.all_rows SQL"""select * from datasources order by lnr;"""
+    debug 'Ω__18', row
+    help 'Ω__19', db._pipeline.send row.line
+    for record from db._pipeline.walk()
+      info 'Ω__20', record
+      db.insert_into[ record.table ] record.fields
+    # result  = db._db.all_rows SQL"""
+    #   select
+    #       lnr,
+    #       line,
+    #       parse( line ) as prompt
+    #     from datasources order by lnr;"""
     # console.table result
   #.........................................................................................................
   return null
 
+###
+
+8888888888  .d88888b.  8888888888
+888        d88P" "Y88b 888
+888        888     888 888
+8888888    888     888 8888888
+888        888     888 888
+888        888     888 888
+888        Y88b. .d88P 888
+8888888888  "Y88888P"  888
+
+###
 
 
 #===========================================================================================================

@@ -50,7 +50,12 @@ class Utilities
     return ( hash.digest 'hex' )[ ... length ]
 
   #---------------------------------------------------------------------------------------------------------
-  normalize_prompt: ( prompt ) -> prompt.trim().replace /\.$/, ''
+  normalize_prompt: ( prompt ) ->
+    R = prompt
+    R = R.replace /\s*\.\s*$/, ''
+    R = R.trim()
+    R = R.replace /\s{2,}/g, ' '
+    return R
 
   #---------------------------------------------------------------------------------------------------------
   exif_from_path: do =>
