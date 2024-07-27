@@ -428,9 +428,9 @@ class File_mirror
           primary key ( prompt_id, nr ),
           foreign key ( prompt_id ) references prompts ( id ) );"""
       hide @, '_insert_into',
-        datasources:  @_db.prepare_insert { into: 'datasources',                                  }
-        prompts:      @_db.prepare_insert { into: 'prompts',      on_conflict: { update: true, }, }
-        generations:  @_db.prepare_insert { into: 'generations',                                  }
+        datasources:  @_db.create_insert { into: 'datasources',                                  }
+        prompts:      @_db.create_insert { into: 'prompts',      on_conflict: { update: true, }, }
+        generations:  @_db.create_insert { into: 'generations',                                  }
       return null
     return null
 
@@ -439,16 +439,16 @@ class File_mirror
     #.......................................................................................................
     datasources: ( d ) ->
       ### TAINT validate? ###
-      return @_db @_insert_into.datasources, d
+      return @_db.alt @_insert_into.datasources, d
     #.......................................................................................................
     prompts: ( d ) ->
       ### TAINT validate? ###
-      return @_db @_insert_into.prompts, lets d, ( d ) ->
+      return @_db.alt @_insert_into.prompts, lets d, ( d ) ->
         d.rejected = if d.rejected is true then 1 else 0
     #.......................................................................................................
     generations: ( d ) ->
       ### TAINT validate? ###
-      return @_db @_insert_into.generations, d
+      return @_db.alt @_insert_into.generations, d
 
   #---------------------------------------------------------------------------------------------------------
   _acquire_datasources_if_necessary: ->
@@ -521,12 +521,14 @@ class Prompt_file_reader extends File_mirror
 #-----------------------------------------------------------------------------------------------------------
 demo_file_as_virtual_table = ->
   db = new Prompt_file_reader '/dev/shm/prompts-and-generations.sqlite'
-  for row from db._db.all_rows SQL"""select * from datasources order by lnr;"""
-    debug 'Ω__18', row
-    help 'Ω__19', db._pipeline.send row.line
-    for record from db._pipeline.walk()
-      info 'Ω__20', record
-      db.insert_into[ record.table ] record.fields
+  db._db =>
+    # for row from db_read SQL"""select * from datasources order by lnr;"""
+    for row from db._db SQL"""select * from datasources order by lnr;"""
+      debug 'Ω__17', row
+      help 'Ω__18', db._pipeline.send row.line
+      for record from db._pipeline.walk()
+        info 'Ω__19', record
+        db.insert_into[ record.table ] record.fields
     # result  = db._db.all_rows SQL"""
     #   select
     #       lnr,
