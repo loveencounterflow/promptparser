@@ -495,10 +495,10 @@ demo_file_as_virtual_table = ->
   db = new Prompt_file_reader '/dev/shm/prompts-and-generations.sqlite'
   db._db =>
     for row from db._db SQL"""select * from datasources order by lnr;"""
-      debug 'Ω__17', row
-      help 'Ω__18', db._pipeline.send row.line
+      debug 'Ω__10', row
+      help 'Ω__11', db._pipeline.send row.line
       for record from db._pipeline.walk()
-        info 'Ω__19', record
+        info 'Ω__12', record
         db.insert_into[ record.table ] record.fields
   #.........................................................................................................
   return null
