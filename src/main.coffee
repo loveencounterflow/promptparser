@@ -482,14 +482,6 @@ class Prompt_file_reader extends File_mirror
     @_pipeline.push @_prompt_parser
     return undefined
 
-  #---------------------------------------------------------------------------------------------------------
-  _prepare_db_connection: ->
-    super()
-    whisper "Ω__16 Prompt_file_reader._prepare_db_connection"
-    #.......................................................................................................
-    return null
-
-
 #-----------------------------------------------------------------------------------------------------------
 demo_file_as_virtual_table = ->
   db = new Prompt_file_reader '/dev/shm/prompts-and-generations.sqlite'
