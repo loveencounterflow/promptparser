@@ -71,8 +71,9 @@ get_types = ->
     #.......................................................................................................
     fm_constructor_cfg:
       fields:
-        path:         'nonempty.text'
-      create: ( path ) -> { path, }
+        db_path:          'nonempty.text'
+        datasource_path:  'nonempty.text'
+      create: ( db_path, datasource_path ) -> { db_path, datasource_path, }
   #.........................................................................................................
   return types
 

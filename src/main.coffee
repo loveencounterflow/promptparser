@@ -137,11 +137,13 @@ class Prompt_parser extends Transformer
     return undefined
 
   #---------------------------------------------------------------------------------------------------------
-  $lex: -> ( source, send ) =>
-    urge 'Ω___2', GUY.trm.reverse GUY.trm.cyan GUY.trm.bold rpr source
-    send { $key: 'source', $value: source, $stamped: true, }
-    for lexeme from @_lexer.walk source
+  $lex: -> ( row, send ) =>
+    urge 'Ω___2', GUY.trm.reverse GUY.trm.cyan GUY.trm.bold rpr row
+    send { $key: 'row', $value: row, $stamped: true, }
+    for lexeme from @_lexer.walk row.line
       # help 'Ω___3', "#{lexeme.$key.padEnd 20} #{rpr lexeme.value}"
+      unless @types.isa.symbol lexeme
+        lexeme = lets lexeme, ( lexeme ) -> lexeme.lnr1 = lexeme.lnr2 = row.lnr
       send lexeme
     return null
 
@@ -252,11 +254,10 @@ class Prompt_parser extends Transformer
   #---------------------------------------------------------------------------------------------------------
   $assemble_prerecords: ( d, send ) ->
     ### TAINT code duplication ###
-    prerecord = null
-    lnr       = null
+    prerecord   = null
+    current_lnr = null
     #.......................................................................................................
     return ( d, send ) =>
-      lnr ?= d.lnr1 ? d.lnr
       return send d if d.$stamped
       #.....................................................................................................
       if d is start_of_line
@@ -265,14 +266,18 @@ class Prompt_parser extends Transformer
       #.....................................................................................................
       if d is end_of_line
         ### TAINT use Datom API ###
+        prerecord.lnr ?= current_lnr
+        prerecord.lnr ?= 1
         send @types.create.pp_prerecord_final prerecord
         prerecord = null
         return send d
       #.....................................................................................................
       return send d unless d.$key in [ 'prompt', 'prompt_id', 'generations', 'comment', 'promptnr', 'rejected', ]
       #.....................................................................................................
-      prerecord.lnr       ?= lnr
-      prerecord[ d.$key ]  = d.value
+      if d.lnr?
+        current_lnr         = d.lnr
+        prerecord.lnr       = d.lnr
+      prerecord[ d.$key ] = d.value
       return send stamp d
 
   #---------------------------------------------------------------------------------------------------------
@@ -356,18 +361,14 @@ class File_mirror
   @required_table_names: [ 'datasources', ]
 
   #---------------------------------------------------------------------------------------------------------
-  constructor: ( path ) ->
+  constructor: ( db_path, datasource_path ) ->
     hide @, 'types', get_types()
-    @cfg  = @types.create.fm_constructor_cfg path
-    hide @, '_db', new DBay { path, }
-    #.......................................................................................................
-    ### TAINT rather ad-hoc ###
-    hide @, 'insert_into', insert_into = {}
-    insert_into[ key ] = ( f.bind @ ) for key, f of @constructor.insert_into
+    @cfg  = @types.create.fm_constructor_cfg db_path, datasource_path
+    hide @, '_db', new DBay { path: @cfg.db_path, }
     #.......................................................................................................
     @_prepare_db_connection()
     @_create_db_structure_if_necessary()
-    @_acquire_datasources_if_necessary()
+    @_populate_db_if_necessary() if new.target is File_mirror
     #.......................................................................................................
     return undefined
 
@@ -403,15 +404,78 @@ class File_mirror
     return null
 
   #---------------------------------------------------------------------------------------------------------
-  _create_db_structure: ->
-    whisper "Ω___9 File_mirror._create_db_structure"
+  _clear_db : ->
+    ### TAINT use `_required_table_names` ###
     @_db =>
       @_db SQL"drop table if exists prompts;"
+    #.......................................................................................................
+    return null
+
+  #---------------------------------------------------------------------------------------------------------
+  _create_db_structure: ->
+    whisper "Ω___9 File_mirror::_create_db_structure"
+    @_clear_db()
+    @_db =>
       ### TAINT a more general solution should accommodate more than a single source file ###
       @_db SQL"""
         create table datasources (
             lnr       integer not null primary key,
             line      text    not null );"""
+      return null
+    return null
+
+  #---------------------------------------------------------------------------------------------------------
+  _populate_db_if_necessary: ->
+    @_populate_db()
+    return null
+
+  #---------------------------------------------------------------------------------------------------------
+  _populate_db: ->
+    @_db =>
+      for { lnr, line, eol, } from GUY.fs.walk_lines_with_positions @cfg.datasource_path
+        @_db @_insert_into.datasources, { lnr, line, }
+      return null
+    return null
+
+###
+
+8888888888 8888888 888      8888888888   8888888b.  8888888888        d8888  8888888b.  8888888888 8888888b.
+888          888   888      888          888   Y88b 888              d88888  888  "Y88b 888        888   Y88b
+888          888   888      888          888    888 888             d88P888  888    888 888        888    888
+8888888      888   888      8888888      888   d88P 8888888        d88P 888  888    888 8888888    888   d88P
+888          888   888      888          8888888P"  888           d88P  888  888    888 888        8888888P"
+888          888   888      888          888 T88b   888          d88P   888  888    888 888        888 T88b
+888          888   888      888          888  T88b  888         d8888888888  888  .d88P 888        888  T88b
+888        8888888 88888888 8888888888   888   T88b 8888888888 d88P     888  8888888P"  8888888888 888   T88b
+
+###
+
+#===========================================================================================================
+class Prompt_file_reader extends File_mirror
+
+  #---------------------------------------------------------------------------------------------------------
+  @required_table_names = [ 'prompts', 'generations', ]
+
+  #---------------------------------------------------------------------------------------------------------
+  ### TAINT use CFG pattern, namespacing as in `file_mirror.path`, validation ###
+  constructor: ( db_path, datasource_path ) ->
+    super db_path, datasource_path
+    @_prompt_parser = new Prompt_parser()
+    @_pipeline      = new Pipeline()
+    @_pipeline.push @_prompt_parser
+    #.......................................................................................................
+    ### TAINT rather ad-hoc ###
+    hide @, 'insert_into', insert_into = {}
+    insert_into[ key ] = ( f.bind @ ) for key, f of @constructor.insert_into
+    #.......................................................................................................
+    @_populate_db_if_necessary() if new.target is Prompt_file_reader
+    return undefined
+
+  #---------------------------------------------------------------------------------------------------------
+  _create_db_structure: ->
+    super()
+    whisper "Ω__10 Prompt_file_reader::_create_db_structure"
+    @_db =>
       @_db SQL"""
         create table prompts (
             id        text    not null primary key,
@@ -452,58 +516,28 @@ class File_mirror
       ### TAINT validate? ###
       return @_db.alt @_insert_into.generations, d
 
-  #---------------------------------------------------------------------------------------------------------
-  _acquire_datasources_if_necessary: ->
-    @_acquire_datasources()
-    return null
-
-  #---------------------------------------------------------------------------------------------------------
-  _acquire_datasources: ->
-    ### TAINT replace hardcoded datasource path ###
+  #-----------------------------------------------------------------------------------------------------------
+  _populate_db: ->
+    whisper "Ω__11 Prompt_file_reader::_populate_db()"
+    super()
     @_db =>
-      for { lnr, line, eol, } from GUY.fs.walk_lines_with_positions './data/short-prompts.md'
-        @_db @_insert_into.datasources, { lnr, line, }
+      for row from @_db SQL"""select * from datasources order by lnr;"""
+        help 'Ω__12', @_pipeline.send row
+        for record from @_pipeline.walk()
+          info 'Ω__13', record
+          @insert_into[ record.table ] record.fields
+    # @_db =>
+    #   for row from @_db SQL"""select * from datasources order by lnr;"""
+    #     debug 'Ω__14', row
+    #     help 'Ω__15', @_pipeline.send row.line
+    #     for record from @_pipeline.walk()
+    #       info 'Ω__16', record
+    #       @insert_into[ record.table ] record.fields
     return null
-
-###
-
-8888888888 8888888 888      8888888888   8888888b.  8888888888        d8888  8888888b.  8888888888 8888888b.
-888          888   888      888          888   Y88b 888              d88888  888  "Y88b 888        888   Y88b
-888          888   888      888          888    888 888             d88P888  888    888 888        888    888
-8888888      888   888      8888888      888   d88P 8888888        d88P 888  888    888 8888888    888   d88P
-888          888   888      888          8888888P"  888           d88P  888  888    888 888        8888888P"
-888          888   888      888          888 T88b   888          d88P   888  888    888 888        888 T88b
-888          888   888      888          888  T88b  888         d8888888888  888  .d88P 888        888  T88b
-888        8888888 88888888 8888888888   888   T88b 8888888888 d88P     888  8888888P"  8888888888 888   T88b
-
-###
-
-#===========================================================================================================
-class Prompt_file_reader extends File_mirror
-
-  #---------------------------------------------------------------------------------------------------------
-  @required_table_names = [ 'prompts', 'generations', ]
-
-  #---------------------------------------------------------------------------------------------------------
-  ### TAINT use CFG pattern, namespacing as in `file_mirror.path`, validation ###
-  constructor: ( file_mirror_path ) ->
-    super file_mirror_path
-    @_prompt_parser = new Prompt_parser()
-    @_pipeline      = new Pipeline()
-    @_pipeline.push @_prompt_parser
-    return undefined
 
 #-----------------------------------------------------------------------------------------------------------
-demo_file_as_virtual_table = ->
-  db = new Prompt_file_reader '/dev/shm/prompts-and-generations.sqlite'
-  db._db =>
-    for row from db._db SQL"""select * from datasources order by lnr;"""
-      debug 'Ω__10', row
-      help 'Ω__11', db._pipeline.send row.line
-      for record from db._pipeline.walk()
-        info 'Ω__12', record
-        db.insert_into[ record.table ] record.fields
-  #.........................................................................................................
+demo_prompts = ->
+  db = new Prompt_file_reader '/dev/shm/prompts-and-generations.sqlite', './data/short-prompts.md'
   return null
 
 ###
@@ -529,5 +563,5 @@ module.exports = {
 #===========================================================================================================
 if module is require.main then await do =>
   # build_file_db()
-  demo_file_as_virtual_table()
+  demo_prompts()
 
