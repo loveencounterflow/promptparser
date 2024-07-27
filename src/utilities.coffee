@@ -39,7 +39,7 @@ class Utilities
   #---------------------------------------------------------------------------------------------------------
   db_has_all_table_names: ( db, must_have_table_names... ) ->
     table_names = @get_db_table_names db
-    for must_have_table_name in must_have_table_names
+    for must_have_table_name from must_have_table_names
       return false unless must_have_table_name in table_names
     return true
 
