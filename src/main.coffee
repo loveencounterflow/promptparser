@@ -426,6 +426,7 @@ class File_mirror
             count     integer not null,
           primary key ( prompt_id, nr ),
           foreign key ( prompt_id ) references prompts ( id ) );"""
+      ### TAINT auto-generate ###
       hide @, '_insert_into',
         datasources:  @_db.create_insert { into: 'datasources',                                  }
         prompts:      @_db.create_insert { into: 'prompts',      on_conflict: { update: true, }, }
@@ -434,6 +435,8 @@ class File_mirror
     return null
 
   #---------------------------------------------------------------------------------------------------------
+  ### TAINT this should become a standard part of `DBay`; note that as with `@_required_table_names`,
+  one should walk the prototype chain ###
   @insert_into:
     #.......................................................................................................
     datasources: ( d ) ->
