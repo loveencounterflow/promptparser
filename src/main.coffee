@@ -318,12 +318,6 @@ class Prompt_parser extends Transformer
   #---------------------------------------------------------------------------------------------------------
   $stamp_extraneous: -> ( d, send ) =>
     switch true
-      # when d.$key is 'marks:marksleft'  then  send stamp  d
-      # when d.$key is 'marks:marksright' then  send stamp  d
-      # when d.$key is 'marks:grade'      then  send stamp  d
-      # when d.$key is 'marks:ws'         then  send stamp  d
-      # when d.$key is 'marks:$eof'       then  send stamp  d
-      # when d.$key is 'plain:$eof'       then  send stamp  d
       when d.$key isnt 'record'         then  send  stamp d
       else                                    send        d
     return null
@@ -485,34 +479,12 @@ class Prompt_file_reader extends File_mirror
     super file_mirror_path
     @_prompt_parser = new Prompt_parser()
     @_pipeline      = new Pipeline()
-    # @_pipeline.push $show = ( source ) -> whisper 'Ω__10', rpr source
     @_pipeline.push @_prompt_parser
-    # @_pipeline.push $show = ( d ) -> whisper 'Ω__11', d
     return undefined
-
-  #---------------------------------------------------------------------------------------------------------
-  parse: ( source ) ->
-    # debug 'Ω__13', rpr source
-    @_pipeline.send source
-    R = @_pipeline.run()
-    for d in R
-    # info 'Ω__14', GUY.trm.yellow GUY.trm.reverse @_prompt_parser.state
-      continue unless d.$key is 'record'
-      # @_db =>
-      info 'Ω__15', GUY.trm.reverse GUY.trm.bold GUY.trm.gold d
-      @_db @_insert_into[ d.table ], d.fields
-    # debug 'Ω__16', ( "#{t.$key}#{rpr t.value}" for t in R ).join '|'
-    return R
 
   #---------------------------------------------------------------------------------------------------------
   _prepare_db_connection: ->
     super()
-    @_db.create_function name: 'square', deterministic: true, varargs: false, call: ( n ) -> n ** 2
-    @_db.create_function
-      name:           'parse'
-      deterministic:  true
-      varargs:        false
-      call:           ( prompt ) => JSON.stringify @parse prompt
     whisper "Ω__16 Prompt_file_reader._prepare_db_connection"
     #.......................................................................................................
     return null
@@ -522,20 +494,12 @@ class Prompt_file_reader extends File_mirror
 demo_file_as_virtual_table = ->
   db = new Prompt_file_reader '/dev/shm/prompts-and-generations.sqlite'
   db._db =>
-    # for row from db_read SQL"""select * from datasources order by lnr;"""
     for row from db._db SQL"""select * from datasources order by lnr;"""
       debug 'Ω__17', row
       help 'Ω__18', db._pipeline.send row.line
       for record from db._pipeline.walk()
         info 'Ω__19', record
         db.insert_into[ record.table ] record.fields
-    # result  = db._db.all_rows SQL"""
-    #   select
-    #       lnr,
-    #       line,
-    #       parse( line ) as prompt
-    #     from datasources order by lnr;"""
-    # console.table result
   #.........................................................................................................
   return null
 
