@@ -378,7 +378,7 @@ class File_mirror
 
   #---------------------------------------------------------------------------------------------------------
   _prepare_db_connection: ->
-    # whisper "Ω___7 File_mirror._prepare_db_connection"
+    # whisper "Ω___6 File_mirror._prepare_db_connection"
     # @_db =>
     #   @_db.create_table_function
     #     name:         'file_contents_t'
@@ -396,16 +396,16 @@ class File_mirror
   #---------------------------------------------------------------------------------------------------------
   _create_db_structure_if_necessary: ->
     if U.db_has_all_table_names @_db, @constructor.required_table_names
-      help "Ω___8 re-using DB at #{@cfg.path}"
+      help "Ω___7 re-using DB at #{@cfg.path}"
     else
-      warn "Ω___9 creating structure of DB at #{@cfg.path}"
+      warn "Ω___8 creating structure of DB at #{@cfg.path}"
       @_create_db_structure()
     #.......................................................................................................
     return null
 
   #---------------------------------------------------------------------------------------------------------
   _create_db_structure: ->
-    whisper "Ω__10 File_mirror._create_db_structure"
+    whisper "Ω___9 File_mirror._create_db_structure"
     @_db =>
       @_db SQL"drop table if exists prompts;"
       ### TAINT a more general solution should accommodate more than a single source file ###
@@ -485,9 +485,9 @@ class Prompt_file_reader extends File_mirror
     super file_mirror_path
     @_prompt_parser = new Prompt_parser()
     @_pipeline      = new Pipeline()
-    # @_pipeline.push $show = ( source ) -> whisper 'Ω__11', rpr source
+    # @_pipeline.push $show = ( source ) -> whisper 'Ω__10', rpr source
     @_pipeline.push @_prompt_parser
-    # @_pipeline.push $show = ( d ) -> whisper 'Ω__12', d
+    # @_pipeline.push $show = ( d ) -> whisper 'Ω__11', d
     return undefined
 
   #---------------------------------------------------------------------------------------------------------
@@ -507,13 +507,13 @@ class Prompt_file_reader extends File_mirror
   #---------------------------------------------------------------------------------------------------------
   _prepare_db_connection: ->
     super()
-    whisper "Ω__17 Prompt_file_reader._prepare_db_connection"
     @_db.create_function name: 'square', deterministic: true, varargs: false, call: ( n ) -> n ** 2
     @_db.create_function
       name:           'parse'
       deterministic:  true
       varargs:        false
       call:           ( prompt ) => JSON.stringify @parse prompt
+    whisper "Ω__16 Prompt_file_reader._prepare_db_connection"
     #.......................................................................................................
     return null
 
