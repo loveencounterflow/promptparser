@@ -374,7 +374,7 @@ class File_mirror
 
   #---------------------------------------------------------------------------------------------------------
   _prepare_db_connection: ->
-    # whisper "Ω___6 File_mirror._prepare_db_connection"
+    # whisper "Ω___7 File_mirror._prepare_db_connection"
     # @_db =>
     #   @_db.create_table_function
     #     name:         'file_contents_t'
@@ -396,9 +396,9 @@ class File_mirror
   #---------------------------------------------------------------------------------------------------------
   _create_db_structure_if_necessary: ->
     if U.db_has_all_table_names @_db, @constructor.required_table_names
-      help "Ω___7 re-using DB at #{@cfg.path}"
+      help "Ω___8 re-using DB at #{@cfg.path}"
     else
-      warn "Ω___8 creating structure of DB at #{@cfg.path}"
+      warn "Ω___9 creating structure of DB at #{@cfg.path}"
       @_create_db_structure()
     #.......................................................................................................
     return null
@@ -413,7 +413,7 @@ class File_mirror
 
   #---------------------------------------------------------------------------------------------------------
   _create_db_structure: ->
-    whisper "Ω___9 File_mirror::_create_db_structure"
+    whisper "Ω__10 File_mirror::_create_db_structure"
     @_clear_db()
     @_db =>
       ### TAINT a more general solution should accommodate more than a single source file ###
@@ -474,7 +474,7 @@ class Prompt_file_reader extends File_mirror
   #---------------------------------------------------------------------------------------------------------
   _create_db_structure: ->
     super()
-    whisper "Ω__10 Prompt_file_reader::_create_db_structure"
+    whisper "Ω__11 Prompt_file_reader::_create_db_structure"
     @_db =>
       @_db SQL"""
         create table prompts (
@@ -516,23 +516,17 @@ class Prompt_file_reader extends File_mirror
       ### TAINT validate? ###
       return @_db.alt @_insert_into.generations, d
 
-  #-----------------------------------------------------------------------------------------------------------
+  #---------------------------------------------------------------------------------------------------------
   _populate_db: ->
-    whisper "Ω__11 Prompt_file_reader::_populate_db()"
+    whisper "Ω__12 Prompt_file_reader::_populate_db()"
     super()
     @_db =>
       for row from @_db SQL"""select * from datasources order by lnr;"""
-        help 'Ω__12', @_pipeline.send row
+        help 'Ω__13', @_pipeline.send row
         for record from @_pipeline.walk()
-          info 'Ω__13', record
+          info 'Ω__14', record
           @insert_into[ record.table ] record.fields
-    # @_db =>
-    #   for row from @_db SQL"""select * from datasources order by lnr;"""
-    #     debug 'Ω__14', row
-    #     help 'Ω__15', @_pipeline.send row.line
-    #     for record from @_pipeline.walk()
-    #       info 'Ω__16', record
-    #       @insert_into[ record.table ] record.fields
+      return null
     return null
 
 #-----------------------------------------------------------------------------------------------------------
