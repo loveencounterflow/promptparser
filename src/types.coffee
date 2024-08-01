@@ -72,7 +72,7 @@ get_types = ->
     fm_constructor_cfg:
       fields:
         db_path:          'nonempty.text'
-        datasource_path:  'nonempty.text'
+        datasource_path:  ( x ) -> @isa.optional.nonempty.text x ### TAINT workaround due to missing feature ###
       create: ( db_path, datasource_path ) -> { db_path, datasource_path, }
   #.........................................................................................................
   return types
