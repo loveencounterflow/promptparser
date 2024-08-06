@@ -432,6 +432,7 @@ class File_mirror
 
   #---------------------------------------------------------------------------------------------------------
   _populate_db: ->
+    ### TAINT throw error unless @cfg.auto_populate_db ###
     @_db =>
       for { lnr, line, eol, } from GUY.fs.walk_lines_with_positions @cfg.datasource_path
         @_db @_insert_into.datasources, { lnr, line, }
