@@ -137,14 +137,16 @@ class Prompt_parser extends Transformer
     return undefined
 
   #---------------------------------------------------------------------------------------------------------
+  _cast_token: ( lnr, token ) ->
+    unless @types.isa.symbol token
+      token = lets token, ( token ) -> token.lnr1 = token.lnr2 = lnr
+    return token
+
+  #---------------------------------------------------------------------------------------------------------
   $lex: -> ( row, send ) =>
     urge 'Ω___2', GUY.trm.reverse GUY.trm.cyan GUY.trm.bold rpr row
     send { $key: 'row', $value: row, $stamped: true, }
-    for lexeme from @_lexer.walk row.line
-      # help 'Ω___3', "#{lexeme.$key.padEnd 20} #{rpr lexeme.value}"
-      unless @types.isa.symbol lexeme
-        lexeme = lets lexeme, ( lexeme ) -> lexeme.lnr1 = lexeme.lnr2 = row.lnr
-      send lexeme
+    send @_cast_token row.lnr, token for token from @_lexer.walk row.line
     return null
 
   #---------------------------------------------------------------------------------------------------------
@@ -530,6 +532,32 @@ class Prompt_file_reader extends File_mirror
           @insert_into[ record.table ] record.fields
       return null
     return null
+
+  #---------------------------------------------------------------------------------------------------------
+  parse_all_records: ( source ) ->
+    R = []
+    for { lnr, line, eol, } from GUY.str.walk_lines_with_positions source
+      @_pipeline.send { lnr, line, }
+      R.push @_pipeline.run()
+    return R
+
+  #---------------------------------------------------------------------------------------------------------
+  parse_first_records: ( source ) ->
+    return ( @parse_all_records source )[ 0 ] ? []
+
+  #---------------------------------------------------------------------------------------------------------
+  parse_all_tokens: ( source ) ->
+    R = []
+    for { lnr, line, eol, } from GUY.str.walk_lines_with_positions source
+      R.push tokens = []
+      for token from @_prompt_parser._lexer.walk line
+        continue if @types.isa.symbol token
+        tokens.push @_prompt_parser._cast_token lnr, token
+    return R
+
+  #---------------------------------------------------------------------------------------------------------
+  parse_first_tokens: ( source ) ->
+    return ( @parse_all_tokens source )[ 0 ] ? []
 
 #-----------------------------------------------------------------------------------------------------------
 demo_prompts = ->
