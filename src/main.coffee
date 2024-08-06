@@ -318,7 +318,7 @@ class Prompt_parser extends Transformer
 
   #---------------------------------------------------------------------------------------------------------
   $show: -> ( d ) =>
-    # urge 'Ω___4', rpr d # if d.$key is 'generation'
+    # urge 'Ω___5', rpr d # if d.$key is 'generation'
     return null
 
   #---------------------------------------------------------------------------------------------------------
@@ -335,7 +335,7 @@ class Prompt_parser extends Transformer
 
   #---------------------------------------------------------------------------------------------------------
   $count: -> ( d ) =>
-    # urge 'Ω___5', d
+    # urge 'Ω___6', d
     if d.$key is 'source' then  @state.counts.prompts++
     else                        @state.counts.lexemes++
     return null
