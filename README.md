@@ -7,6 +7,7 @@
 
 - [Prompt Parser](#prompt-parser)
   - [Parsing Individual Prompts](#parsing-individual-prompts)
+  - [Inserting Individual Prompts](#inserting-individual-prompts)
   - [To Do](#to-do)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
@@ -20,6 +21,16 @@
 * **`parse_all_tokens: ( source ) ->`**
 * **`parse_first_records: ( source ) ->`**
 * **`parse_all_records: ( source ) ->`**
+
+## Inserting Individual Prompts
+
+* **`insert: ( insertion_record ) ->`**: insert one or more records
+  * **`insertion_record`**: either
+    * an object with fields:
+      * `table`: name of the targetted DB table
+      * `fields`: object with name / value pairs for each relevant field in the named table
+      * and possibly other properties
+    * or a list of insertion records
 
 
 ## To Do
@@ -40,6 +51,8 @@
   * **[–]** look into lexer for solution
   * **[–]** otherwise, send line numbering datoms
 * **[–]** add prompt with opening but missing closing bracket, test whether state is properly reset when
-  prompt ends
+* **[–]** add `prompt_id` to all records so they have a common name for the central anchoring point of all
+  data
+* **[–]** make `parse_all_tokens()`, `parse_all_records()` return flat lists
 
 
