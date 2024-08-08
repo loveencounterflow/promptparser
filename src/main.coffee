@@ -538,26 +538,37 @@ class Prompt_file_reader extends File_mirror
     R = []
     for { lnr, line, eol, } from GUY.str.walk_lines_with_positions source
       @_pipeline.send { lnr, line, }
-      R.push @_pipeline.run()
+      R = R.concat @_pipeline.run()
     return R
 
   #---------------------------------------------------------------------------------------------------------
   parse_first_records: ( source ) ->
-    return ( @parse_all_records source )[ 0 ] ? []
+    prompt_id = null
+    R         = []
+    for record from @parse_all_records source
+      prompt_id ?= record.prompt_id
+      break unless prompt_id is record.prompt_id
+      R.push record
+    return R
 
   #---------------------------------------------------------------------------------------------------------
   parse_all_tokens: ( source ) ->
     R = []
     for { lnr, line, eol, } from GUY.str.walk_lines_with_positions source
-      R.push tokens = []
       for token from @_prompt_parser._lexer.walk line
         continue if @types.isa.symbol token
-        tokens.push @_prompt_parser._cast_token lnr, token
+        R.push @_prompt_parser._cast_token lnr, token
     return R
 
   #---------------------------------------------------------------------------------------------------------
   parse_first_tokens: ( source ) ->
-    return ( @parse_all_tokens source )[ 0 ] ? []
+    R     = []
+    lnr1  = null
+    for token from @parse_all_tokens source
+      lnr1 ?= token.lnr1
+      break if lnr1 isnt token.lnr1
+      R.push token
+    return R
 
 #-----------------------------------------------------------------------------------------------------------
 demo_prompts = ->
