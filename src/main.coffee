@@ -570,6 +570,15 @@ class Prompt_file_reader extends File_mirror
       R.push token
     return R
 
+  #---------------------------------------------------------------------------------------------------------
+  insert: ( insertion_records ) ->
+    insertion_records = @types.create.fm_insertion_records insertion_records
+    R = 0
+    for insertion_record in insertion_records
+       change_record = @insert_into[ insertion_record.table ] insertion_record.fields
+       R += change_record.changes
+    return R
+
 #-----------------------------------------------------------------------------------------------------------
 demo_prompts = ->
   db = new Prompt_file_reader '/dev/shm/prompts-and-generations.sqlite', './data/short-prompts.md'

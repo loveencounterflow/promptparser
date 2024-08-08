@@ -93,6 +93,23 @@ get_types = ->
           db_path,          has_db_path,          has_db,
           datasource_path,  has_datasource_path,  has_datasource,
           auto_populate_db, }
+    #.......................................................................................................
+    fm_table_name:          'nonempty.text'
+    fm_table_fields:        'object'
+    fm_insertion_record_object:
+      fields:
+        table:              'fm_table_name'
+        fields:             'fm_table_fields'
+    fm_insertion_record_list: ( x ) ->
+      return false unless @isa.list x
+      return x.every ( e ) => @isa.fm_insertion_record_object e
+    fm_insertion_records:
+      test:     ( x ) -> ( @isa.fm_insertion_record_object x ) or ( @isa.fm_insertion_record_list x )
+      create:   ( x ) ->
+        return x if @isa.fm_insertion_record_list x
+        return [ x, ]
+
+
   #.........................................................................................................
   return types
 
