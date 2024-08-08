@@ -300,7 +300,7 @@ class Prompt_parser extends Transformer
       #.....................................................................................................
       for count in d.generations
         nr++
-        send { $key: 'record', table: 'generations', fields: { prompt_id, nr, count, }, }
+        send { $key: 'record', prompt_id, table: 'generations', fields: { prompt_id, nr, count, }, }
       nrs.set prompt_id, nr
       return null
 
@@ -315,7 +315,7 @@ class Prompt_parser extends Transformer
       prompt:     d.prompt
       comment:    d.comment
       rejected:   d.rejected
-    send { $key: 'record', table: 'prompts', fields, }
+    send { $key: 'record', prompt_id: d.prompt_id, table: 'prompts', fields, }
     return null
 
   #---------------------------------------------------------------------------------------------------------
