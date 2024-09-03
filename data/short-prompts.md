@@ -20,3 +20,9 @@ just a prompt
 [32] what [4] behind
 [01234] repeated prompt
 [WORDING] this has been rejected
+This is a `[444444 sum 24 avg 4]`-rated prompt:
+
+[1234
+4321]
+
+
