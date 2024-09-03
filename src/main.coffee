@@ -1,5 +1,4 @@
 
-
 'use strict'
 
 
@@ -49,6 +48,7 @@ FS                        = require 'node:fs'
 start_of_line             = Symbol 'start_of_line'
 end_of_line               = Symbol 'end_of_line'
 { get_types }             = require './types'
+types                     = get_types()
 
 ###
 
@@ -144,7 +144,7 @@ class Prompt_parser extends Transformer
 
   #---------------------------------------------------------------------------------------------------------
   $lex: -> ( row, send ) =>
-    urge 'Ω___2', GUY.trm.reverse GUY.trm.cyan GUY.trm.bold rpr row
+    # urge 'Ω___2', GUY.trm.reverse GUY.trm.cyan GUY.trm.bold rpr row
     send { $key: 'row', $value: row, $stamped: true, }
     send @_cast_token row.lnr, token for token from @_lexer.walk row.line
     return null
@@ -320,7 +320,7 @@ class Prompt_parser extends Transformer
 
   #---------------------------------------------------------------------------------------------------------
   $show: -> ( d ) =>
-    # urge 'Ω___5', rpr d # if d.$key is 'generation'
+    # urge 'Ω___3', rpr d # if d.$key is 'generation'
     return null
 
   #---------------------------------------------------------------------------------------------------------
@@ -337,7 +337,7 @@ class Prompt_parser extends Transformer
 
   #---------------------------------------------------------------------------------------------------------
   $count: -> ( d ) =>
-    # urge 'Ω___6', d
+    # urge 'Ω___4', d
     if d.$key is 'source' then  @state.counts.prompts++
     else                        @state.counts.lexemes++
     return null
@@ -376,7 +376,7 @@ class File_mirror
 
   #---------------------------------------------------------------------------------------------------------
   _prepare_db_connection: ->
-    # whisper "Ω___7 File_mirror._prepare_db_connection"
+    # whisper "Ω___5 File_mirror._prepare_db_connection"
     # @_db =>
     #   @_db.create_table_function
     #     name:         'file_contents_t'
@@ -398,9 +398,9 @@ class File_mirror
   #---------------------------------------------------------------------------------------------------------
   _create_db_structure_if_necessary: ->
     if U.db_has_all_table_names @_db, @constructor.required_table_names
-      help "Ω___8 re-using DB at #{@cfg.path}"
+      help "Ω___6 re-using DB at #{@cfg.path}"
     else
-      warn "Ω___9 creating structure of DB at #{@cfg.path}"
+      warn "Ω___7 creating structure of DB at #{@cfg.path}"
       @_create_db_structure()
     #.......................................................................................................
     return null
@@ -415,7 +415,7 @@ class File_mirror
 
   #---------------------------------------------------------------------------------------------------------
   _create_db_structure: ->
-    whisper "Ω__10 File_mirror::_create_db_structure"
+    whisper "Ω___8 File_mirror::_create_db_structure"
     @_clear_db()
     @_db =>
       ### TAINT a more general solution should accommodate more than a single source file ###
@@ -462,8 +462,11 @@ class Prompt_file_reader extends File_mirror
 
   #---------------------------------------------------------------------------------------------------------
   ### TAINT use CFG pattern, namespacing as in `file_mirror.path`, validation ###
-  constructor: ( db_path, datasource_path ) ->
+  constructor: ( cmd, flags = null ) ->
+    db_path         = '/dev/shm/prompts-and-generations.sqlite'
+    datasource_path = '../to-be-merged-from-Atlas/prompts-consolidated.md'
     super db_path, datasource_path
+    @cfg            = @types.create.pfr_constructor_cfg @cfg, cmd, flags
     @_prompt_parser = new Prompt_parser()
     @_pipeline      = new Pipeline()
     @_pipeline.push @_prompt_parser
@@ -478,7 +481,7 @@ class Prompt_file_reader extends File_mirror
   #---------------------------------------------------------------------------------------------------------
   _create_db_structure: ->
     super()
-    whisper "Ω__11 Prompt_file_reader::_create_db_structure"
+    whisper "Ω___9 Prompt_file_reader::_create_db_structure"
     @_db =>
       @_db SQL"""
         create table prompts (
@@ -494,6 +497,38 @@ class Prompt_file_reader extends File_mirror
             count     integer not null,
           primary key ( prompt_id, nr ),
           foreign key ( prompt_id ) references prompts ( id ) );"""
+      @_db SQL"""
+        create view counts as select distinct
+            prompt_id             as prompt_id,
+            count(*)      over w  as generations,
+            sum( count )  over w  as images
+          from generations as g
+          window w as ( partition by prompt_id );"""
+      @_db SQL"""
+        create view averages as select
+            c.prompt_id                                                           as prompt_id,
+            c.generations                                                                   as generations,
+            c.images                                                                   as images,
+            cast( ( ( cast( c.images as real ) / c.generations / 4 ) * 100 + 0.5 ) as integer )  as avg
+          from generations as g
+          left join counts as c on ( g.prompt_id = c.prompt_id );"""
+      @_db SQL"""
+        create view promptstats as select
+            a.prompt_id     as prompt_id,
+            a.generations             as generations,
+            a.images             as images,
+            a.avg           as avg
+          from prompts as p
+          join averages as a on ( p.id = a.prompt_id );"""
+      @_db SQL"""
+        create view rowcounts as
+          select            null as name,         null as rowcount where false
+          union all select  'prompts',            count(*)                from prompts
+          union all select  'distinct_prompts',   count( distinct id )    from prompts
+          union all select  'generations',        count(*)                from generations
+          union all select  'counts',             count(*)                from counts
+          union all select  'averages',           count(*)                from averages
+          ;"""
       ### TAINT auto-generate ###
       hide @, '_insert_into',
         datasources:  @_db.create_insert { into: 'datasources',                                  }
@@ -522,13 +557,19 @@ class Prompt_file_reader extends File_mirror
 
   #---------------------------------------------------------------------------------------------------------
   _populate_db: ->
-    whisper "Ω__12 Prompt_file_reader::_populate_db()"
+    whisper "Ω__10 Prompt_file_reader::_populate_db()"
     super()
+    count     = 0
+    max_count = 3e3 ### TAINT make CLI parameter ###
     @_db =>
       for row from @_db SQL"""select * from datasources order by lnr;"""
-        help 'Ω__13', @_pipeline.send row
+        @_pipeline.send row
+        count++
+        debug 'Ω__11', @cfg; process.exit 111
+        whisper "Ω__12 #{count}" if count %% 1e3 is 0
+        break if count > max_count
         for record from @_pipeline.walk()
-          info 'Ω__14', record
+          # info 'Ω__13', record
           @insert_into[ record.table ] record.fields
       return null
     return null
@@ -581,7 +622,8 @@ class Prompt_file_reader extends File_mirror
 
 #-----------------------------------------------------------------------------------------------------------
 demo_prompts = ->
-  db = new Prompt_file_reader '/dev/shm/prompts-and-generations.sqlite', './data/short-prompts.md'
+  # db = new Prompt_file_reader '/dev/shm/prompts-and-generations.sqlite', './data/short-prompts.md'
+  db = new Prompt_file_reader '/dev/shm/prompts-and-generations.sqlite', '../to-be-merged-from-Atlas/prompts-consolidated.md'
   return null
 
 ###
@@ -608,4 +650,3 @@ module.exports = {
 if module is require.main then await do =>
   # build_file_db()
   demo_prompts()
-

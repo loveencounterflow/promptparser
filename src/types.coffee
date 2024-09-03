@@ -32,6 +32,9 @@ get_types = ->
     create                } = types
   #.........................................................................................................
   types.declare
+    #.......................................................................................................
+    positive_integer_or_infinity: ( x ) -> ( x is Infinity ) or ( @isa.positive.integer x )
+    #.......................................................................................................
     pp_linenumber:    'positive.integer'
     pp_content_id:    ( x ) -> ( @isa.text x ) and ( /^[0-9a-f]{16}$/.test x )
     #.......................................................................................................
@@ -108,6 +111,67 @@ get_types = ->
       create:   ( x ) ->
         return x if @isa.fm_insertion_record_list x
         return [ x, ]
+    #.......................................................................................................
+    pfr_constructor_cfg:
+      test:   'object'
+      fields:
+        ### inherited from fm_constructor_cfg ###
+        db_path:              'nonempty.text'
+        datasource_path:      ( x ) -> @isa.optional.nonempty.text x ### TAINT workaround due to missing feature ###
+        has_db_path:          'boolean'
+        has_datasource_path:  'boolean'
+        has_db:               'boolean'
+        ### own fields ###
+        cmd:                  'nonempty.text'
+        flags:                'object'
+      create: ( upstream_cfg, cmd, flags ) ->
+        R = { upstream_cfg..., cmd, flags, }
+        return R
+    #.......................................................................................................
+    cli_max_count:
+      test:                 'positive_integer_or_infinity'
+      template:             +Infinity ### TAINT `template` repeated as `fallback` in `jobdef` ###
+      create:               ( x ) ->
+        return @declarations.cli_max_count.template unless x?
+        return x unless /^\+?\d+$/.test x
+        Math.round parseFloat x
+    cli_foo:
+      test:                 'text'
+      create:               ( x ) -> rpr x
+    #.......................................................................................................
+    normalfloat:            ( x ) -> ( @isa.float x ) and 0 <= x <= 1
+    #.......................................................................................................
+    cli_sample:
+      test:                 'normalfloat'
+      template:             1
+      create: ( x ) ->
+        debug 'Ω___1', "cli_sample", rpr x
+        return @declarations.cli_sample.template unless x?
+        return ( ( parseFloat x ) / 100 ) if x.endsWith '%'
+        return parseFloat x
+    cli_match:
+      test:                 ( x ) -> @isa.optional.regex x ### TAINT workaround due to missing feature ###
+      template:             null
+      create: ( x ) ->
+        debug 'Ω___2', "cli_match", rpr x
+        return null unless x?
+        return new RegExp x
+    cli_overwrite:
+      test:                 'boolean'
+      template:             false
+      create: ( x ) ->
+        debug 'Ω___3', "cli_overwrite", rpr x
+        return @declarations.cli_overwrite.template unless x?
+        return true                                 if x is 'true'
+        return false                                if x is 'false'
+        return x
+    cli_db:
+      test:                 'nonempty.text'
+      template:             '/dev/shm/prompts-and-generations.sqlite'
+      create: ( x ) -> x ? @declarations.cli_db.template
+    cli_prompts:
+      test:                 'nonempty.text'
+      template:             null
 
 
   #.........................................................................................................
