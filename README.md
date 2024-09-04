@@ -8,7 +8,9 @@
 - [Prompt Parser](#prompt-parser)
   - [Parsing Individual Prompts](#parsing-individual-prompts)
   - [Inserting Individual Prompts](#inserting-individual-prompts)
+  - [Queries](#queries)
   - [To Do](#to-do)
+  - [Is Done](#is-done)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -113,6 +115,9 @@ left join prompts as p
   * **[–]** correlation between prompt length and fulfillment rate
   * **[–]** acceptance rate: what proportion of produced images were downloaded
   * **[–]** success rate: what proportion of possible images (generation count times four) were downloaded
+* **[–]** in jobdefs, forbid:
+  * **[+]** `runner`
+  * **[–]** `fallback`
 
 ## Is Done
 
