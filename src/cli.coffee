@@ -115,32 +115,33 @@ class Mixa
     cmd_def               = @jobdef.commands[ @cmd ]
     for flag_name, flag_def of cmd_def.flags ? {}
       continue if Reflect.has @flags, flag_name
-      @flags[ flag_name ] = null
+      @flags[ flag_name ] = flag_def.type null ### TAINT should call `create` ###
     #.......................................................................................................
     return null
 
   #---------------------------------------------------------------------------------------------------------
   _validate_flags: ->
+    help 'Ω___4', @flags
     failure_count         = 0
     for flag_name, flag_value of @flags
       if flag_value instanceof Failure
         failure_count++
-        warn 'Ω___3', GUY.trm.reverse " #{flag_value.message} "
+        warn 'Ω___5', GUY.trm.reverse " #{flag_value.message} "
     #.......................................................................................................
     if failure_count > 0
-      warn 'Ω___4', GUY.trm.reverse " one or more flags have incorrect values, see above "
+      warn 'Ω___6', GUY.trm.reverse " one or more flags have incorrect values, see above "
       process.exit 111
     #.......................................................................................................
     return null
 
   #---------------------------------------------------------------------------------------------------------
   cmd_help: ->
-    debug 'Ω___5', @cmd, @flags
+    debug 'Ω___7', @cmd, @flags
     if @error?
       warn GUY.trm.reverse " #{@error.tag}: #{@error.message} "
     #.......................................................................................................
     ### TAINT the ordering stuff done here should be performed by a jobdef compilation step ###
-    help 'Ω___6', "The following sub-commands are available:"
+    help 'Ω___8', "The following sub-commands are available:"
     cmds = ( cmd for cmd of @jobdef.commands ).sort()
     for cmd in cmds
       flags = ( flag for flag of @jobdef.commands[ cmd ].flags ).sort()
@@ -189,39 +190,22 @@ class Promptparser_cli extends Mixa
           max_count:
             type:           return_error 'max_count', types.create.cli_max_count.bind types.create
             description:    "max_count"
-            multiple:       false
-            positional:     false
-            # fallback:       Infinity ### TAINT `fallback` repeated as `template` in types ###
           sample:
             type:           return_error 'sample',    types.create.cli_sample.bind    types.create
             description:    "when given as e.g. `4/1000` or `0.4%`, will randomly choose approx. 0.4% of all prompts"
-            multiple:       false
-            positional:     false
-            # fallback:       1 ### TAINT `fallback` repeated as `template` in types ###
           match:
             type:           return_error 'match',     types.create.cli_match.bind     types.create
             description:    "when given, will run this RegEx against prompts and only keep matching ones"
-            multiple:       false
-            positional:     false
-            # fallback:       null ### TAINT `fallback` repeated as `template` in types ###
           overwrite:
             type:           return_error 'overwrite', types.create.cli_overwrite.bind types.create
             description:    "whether to overwrite existing DB"
-            multiple:       false
-            positional:     false
-            # fallback:       false ### TAINT `fallback` repeated as `template` in types ###
           db:
             type:           return_error 'db',        types.create.cli_db.bind        types.create
             description:    "path to DB"
-            multiple:       false
-            positional:     false
-            # fallback:       null ### TAINT `fallback` repeated as `template` in types ###
           prompts:
             type:           return_error 'prompts',   types.create.cli_prompts.bind   types.create
             description:    "prompts"
-            multiple:       false
             positional:     true
-            # fallback:       null ### TAINT `fallback` repeated as `template` in types ###
 
   #---------------------------------------------------------------------------------------------------------
   _new_prompt_file_reader: ->
@@ -230,18 +214,18 @@ class Promptparser_cli extends Mixa
 
   # #---------------------------------------------------------------------------------------------------------
   # cmd_nosuch: ->
-  #   help 'Ω___7', "cmd_nosuch", @flags
+  #   help 'Ω___9', "cmd_nosuch", @flags
   #   return null
 
   # #---------------------------------------------------------------------------------------------------------
   # cmd_refresh: ->
-  #   help 'Ω___8', "cmd_refresh", @flags
+  #   help 'Ω__10', "cmd_refresh", @flags
   #   pfr = @_new_prompt_file_reader()
   #   return null
 
   #---------------------------------------------------------------------------------------------------------
   cmd_build: ->
-    help 'Ω___9', "cmd_build", @flags
+    help 'Ω__11', "cmd_build", @flags
     # pfr = @_new_prompt_file_reader()
     return null
 
@@ -249,7 +233,7 @@ class Promptparser_cli extends Mixa
 #===========================================================================================================
 run = ( process_argv = null ) ->
   cli = new Promptparser_cli process_argv ? process.argv
-  info 'Ω__10', "running command: #{GUY.trm.gold cli.cmd} #{GUY.trm.lime rpr cli.flags}"
+  info 'Ω__12', "running command: #{GUY.trm.gold cli.cmd} #{GUY.trm.lime rpr cli.flags}"
   await cli.run() ### using `await` to demonstrate generally command execution may be async ###
   return null
 

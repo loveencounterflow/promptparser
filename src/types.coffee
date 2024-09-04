@@ -145,33 +145,43 @@ get_types = ->
       test:                 'normalfloat'
       template:             1
       create: ( x ) ->
-        debug 'Ω___1', "cli_sample", rpr x
-        return @declarations.cli_sample.template unless x?
-        return ( ( parseFloat x ) / 100 ) if x.endsWith '%'
+        debug 'Ω___1', { x, }
+        switch true
+          when not x?
+            return @declarations.cli_sample.template
+          when x.endsWith '%'
+            return ( ( parseFloat x ) / 100 )
+          when ( match = x.match /^(?<numerator>[0-9.]+)\/(?<denominator>[0-9.]+)$/ )?
+            return ( ( parseFloat match.groups.numerator ) / parseFloat match.groups.denominator )
         return parseFloat x
+    #.......................................................................................................
     cli_match:
       test:                 ( x ) -> @isa.optional.regex x ### TAINT workaround due to missing feature ###
       template:             null
       create: ( x ) ->
-        debug 'Ω___2', "cli_match", rpr x
         return null unless x?
         return new RegExp x
+    #.......................................................................................................
     cli_overwrite:
       test:                 'boolean'
       template:             false
       create: ( x ) ->
-        debug 'Ω___3', "cli_overwrite", rpr x
         return @declarations.cli_overwrite.template unless x?
         return true                                 if x is 'true'
         return false                                if x is 'false'
         return x
+    #.......................................................................................................
     cli_db:
       test:                 'nonempty.text'
       template:             '/dev/shm/prompts-and-generations.sqlite'
-      create: ( x ) -> x ? @declarations.cli_db.template
+      create: ( x ) ->
+        debug 'Ω___2', rpr x
+        x ? @declarations.cli_db.template
+    #.......................................................................................................
     cli_prompts:
       test:                 'nonempty.text'
       template:             null
+      create: ( x ) -> x
 
 
   #.........................................................................................................
