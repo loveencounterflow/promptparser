@@ -97,6 +97,8 @@ left join prompts as p
   * **[–]** https://sqlite.org/spellfix1.html
 * **[–]** consider to use `git blame $filename` to detect changed lines, updated linenrs when doing
   `refresh`
+  * **[–]** this may be simplified by only supporting refreshing everything from the first changed line
+    onwards
 * **[–]** commands:
   * **[–]** sooner:
     * **[–]** `build` DB with all prompts:
