@@ -138,7 +138,8 @@ class Mixa
   cmd_help: ->
     debug 'Ω___6', @cmd, @flags
     if @error?
-      warn GUY.trm.reverse " #{@error.tag}: #{@error.message} "
+      warn 'Ω___7', GUY.trm.reverse " #{@error.tag}: #{@error.message} "
+    debug 'Ω___8', rpr @cmd
     #.......................................................................................................
     ### TAINT the ordering stuff done here should be performed by a jobdef compilation step ###
     help 'Ω___9', "The following sub-commands are available:"
