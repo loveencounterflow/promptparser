@@ -133,7 +133,7 @@ get_types = ->
       template:             +Infinity
       create:               ( x ) ->
         return @declarations.cli_max_count.template unless x?
-        return x unless /^\+?\d+$/.test x
+        # return x unless /^\+?\d+$/.test x
         Math.round parseFloat x
     cli_foo:
       test:                 'text'
