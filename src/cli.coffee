@@ -188,23 +188,29 @@ class Promptparser_cli extends Mixa
         description: "build DB from prompts path given"
         flags:
           max_count:
-            type:           return_error 'max_count', types.create.cli_max_count.bind types.create
             description:    "max_count"
+            expect:         "an integer number such as `1439`; may use exponential notation as in `1.5e3`"
+            type:           return_error 'max_count', types.create.cli_max_count.bind types.create
           sample:
+            description:    "a ratio to indicate the approximate ratio of prompts to randomly accept"
+            expect:         "a fraction as in `20/1000` or `0.02`, or a percentage as in `2%`"
             type:           return_error 'sample',    types.create.cli_sample.bind    types.create
-            description:    "when given as e.g. `4/1000` or `0.4%`, will randomly choose approx. 0.4% of all prompts"
           match:
+            description:    "only keep prompts that match this RegEx"
+            expect:         "a legal JavaScript literal to be used in `new RegExp()`; slashes will be interpreted literally"
             type:           return_error 'match',     types.create.cli_match.bind     types.create
-            description:    "when given, will run this RegEx against prompts and only keep matching ones"
           overwrite:
-            type:           return_error 'overwrite', types.create.cli_overwrite.bind types.create
             description:    "whether to overwrite existing DB"
+            expect:         "may be used without value or else with either `true` or `false`"
+            type:           return_error 'overwrite', types.create.cli_overwrite.bind types.create
           db:
-            type:           return_error 'db',        types.create.cli_db.bind        types.create
             description:    "path to DB"
+            expect:         "file system path that points to either an unused name in an existing folder or a valid SQLite DB file"
+            type:           return_error 'db',        types.create.cli_db.bind        types.create
           prompts:
-            type:           return_error 'prompts',   types.create.cli_prompts.bind   types.create
             description:    "prompts"
+            expect:         "file system path that points to a file containing the prompts to be processed"
+            type:           return_error 'prompts',   types.create.cli_prompts.bind   types.create
             positional:     true
 
   #---------------------------------------------------------------------------------------------------------
