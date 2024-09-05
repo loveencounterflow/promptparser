@@ -28,6 +28,12 @@ types                     = get_types()
 MIXA                      = require 'mixa'
 WG                        = require 'webguy'
 
+#===========================================================================================================
+color =
+  cmd:          ( P... ) -> GUY.trm.white GUY.trm.reverse GUY.trm.bold P...
+  flag:         ( P... ) -> GUY.trm.grey  GUY.trm.reverse GUY.trm.bold P...
+  description:  ( P... ) -> GUY.trm.lime P...
+  expect:       ( P... ) -> GUY.trm.blue P...
 
 #===========================================================================================================
 return_error = ( flag_name, create ) -> ( x ) -> try create x catch error then new Failure flag_name, x
@@ -38,7 +44,9 @@ class Failure
 
   #---------------------------------------------------------------------------------------------------------
   constructor: ( flag_name, value ) ->
-    @message = "#{rpr value} is not a valid #{rpr flag_name}"
+    @flag_name  = flag_name
+    @value      = value
+    @message    = "#{rpr value} is not a valid setting for flag `--#{flag_name}`"
     return undefined
 
 
@@ -123,14 +131,25 @@ class Mixa
 
   #---------------------------------------------------------------------------------------------------------
   _validate_flags: ->
-    failure_count         = 0
+    failed_flags = []
     for flag_name, flag_value of @flags
       if flag_value instanceof Failure
-        failure_count++
-        warn 'Ω___4', GUY.trm.reverse " #{flag_value.message} "
+        failure = flag_value
+        failed_flags.push "`--#{flag_name}`"
+        echo()
+        echo '🔴', GUY.trm.bold " #{failure.message} "
+        flag_def  = @jobdef.commands[ @cmd ].flags[ flag_name ]
+        if ( expect = flag_def.expect )?
+          echo GUY.trm.bold "expected #{expect}"
+          echo GUY.trm.bold "got #{rpr failure.value}"
     #.......................................................................................................
-    if failure_count > 0
-      warn 'Ω___5', GUY.trm.reverse " one or more flags have incorrect values, see above "
+    if failed_flags.length > 0
+      echo()
+      failed_flag_names = failed_flags.join ', '
+      if failed_flags.length is 1
+        echo GUY.trm.red GUY.trm.reverse GUY.trm.bold " flag #{failed_flag_names} has an incorrect setting, see above "
+      else
+        echo GUY.trm.red GUY.trm.reverse GUY.trm.bold " flags #{failed_flag_names} have incorrect settings, see above "
       process.exit 111
     #.......................................................................................................
     return null
@@ -138,25 +157,23 @@ class Mixa
   #---------------------------------------------------------------------------------------------------------
   cmd_help: ->
     if @error?
-      warn 'Ω___7', GUY.trm.reverse " #{@error.tag}: #{@error.message} "
-    #.......................................................................................................
-    cmd_color   = ( P... ) -> GUY.trm.white GUY.trm.reverse GUY.trm.bold P...
-    flag_color  = ( P... ) -> GUY.trm.grey  GUY.trm.reverse GUY.trm.bold P...
+      warn 'Ω___3', GUY.trm.reverse " #{@error.tag}: #{@error.message} "
     #.......................................................................................................
     ### TAINT the ordering stuff done here should be performed by a jobdef compilation step ###
-    help 'Ω___8', "The following sub-commands are available:"
+    help GUY.trm.grey 'Ω___4'
+    echo GUY.trm.lime "The following sub-commands are available:"
     cmds = ( cmd for cmd of @jobdef.commands ).sort()
     for cmd in cmds
       cmd_def = @jobdef.commands[ cmd ]
-      flags   = ( flag for flag of cmd_def.flags ).sort()
+      flags       = ( flag for flag of cmd_def.flags ).sort()
       description = @jobdef.commands[ cmd ].description ? ( if cmd is 'help' then "show this message" else '?' )
-      echo " #{cmd_color cmd} #{GUY.trm.blue description}"
+      echo " #{color.cmd cmd} #{color.description description}"
       for flag in flags
         flag_def    = cmd_def.flags[ flag ]
         description = flag_def.description ? '?'
-        echo "   #{flag_color '--' + flag} #{GUY.trm.gold description}"
+        echo "   #{color.flag '--' + flag} #{color.description description}"
         if ( expect = flag_def.expect )?
-          echo "     #{GUY.trm.blue 'expects ' + expect}"
+          echo "     #{color.expect 'expects ' + expect}"
     return null
 
   #---------------------------------------------------------------------------------------------------------
