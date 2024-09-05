@@ -145,7 +145,6 @@ get_types = ->
       test:                 'normalfloat'
       template:             1
       create: ( x ) ->
-        debug 'Ω___1', { x, }
         switch true
           when not x?
             return @declarations.cli_sample.template
@@ -159,7 +158,6 @@ get_types = ->
       test:                 'float'
       template:             null
       create: ( x ) ->
-        debug 'Ω___2', { x, }
         return @declarations.cli_sample.template unless x?
         return parseFloat x
     #.......................................................................................................
@@ -183,7 +181,6 @@ get_types = ->
       test:                 'nonempty.text'
       template:             '/dev/shm/prompts-and-generations.sqlite'
       create: ( x ) ->
-        debug 'Ω___3', rpr x
         x ? @declarations.cli_db.template
     #.......................................................................................................
     cli_prompts:

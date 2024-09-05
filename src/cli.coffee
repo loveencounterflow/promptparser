@@ -139,10 +139,9 @@ class Mixa
     debug 'Ω___6', @cmd, @flags
     if @error?
       warn 'Ω___7', GUY.trm.reverse " #{@error.tag}: #{@error.message} "
-    debug 'Ω___8', rpr @cmd
     #.......................................................................................................
     ### TAINT the ordering stuff done here should be performed by a jobdef compilation step ###
-    help 'Ω___9', "The following sub-commands are available:"
+    help 'Ω___8', "The following sub-commands are available:"
     cmds = ( cmd for cmd of @jobdef.commands ).sort()
     for cmd in cmds
       flags = ( flag for flag of @jobdef.commands[ cmd ].flags ).sort()
@@ -225,18 +224,18 @@ class Promptparser_cli extends Mixa
 
   # #---------------------------------------------------------------------------------------------------------
   # cmd_nosuch: ->
-  #   help 'Ω__10', "cmd_nosuch", @flags
+  #   help 'Ω___9', "cmd_nosuch", @flags
   #   return null
 
   # #---------------------------------------------------------------------------------------------------------
   # cmd_refresh: ->
-  #   help 'Ω__11', "cmd_refresh", @flags
+  #   help 'Ω__10', "cmd_refresh", @flags
   #   pfr = @_new_prompt_file_reader()
   #   return null
 
   #---------------------------------------------------------------------------------------------------------
   cmd_build: ->
-    help 'Ω__12', "cmd_build", @flags
+    help 'Ω__11', "cmd_build", @flags
     # pfr = @_new_prompt_file_reader()
     return null
 
@@ -244,7 +243,7 @@ class Promptparser_cli extends Mixa
 #===========================================================================================================
 run = ( process_argv = null ) ->
   cli = new Promptparser_cli process_argv ? process.argv
-  info 'Ω__13', "running command: #{GUY.trm.gold cli.cmd} #{GUY.trm.lime rpr cli.flags}"
+  info 'Ω__12', "running command: #{GUY.trm.gold cli.cmd} #{GUY.trm.lime rpr cli.flags}"
   await cli.run() ### using `await` to demonstrate generally command execution may be async ###
   return null
 
