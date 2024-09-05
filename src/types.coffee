@@ -180,8 +180,7 @@ get_types = ->
     cli_db:
       test:                 'nonempty.text'
       template:             '/dev/shm/prompts-and-generations.sqlite'
-      create: ( x ) ->
-        x ? @declarations.cli_db.template
+      create: ( x ) -> x ? @declarations.cli_db.template
     #.......................................................................................................
     cli_prompts:
       test:                 'nonempty.text'
