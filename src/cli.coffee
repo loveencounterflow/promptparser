@@ -47,6 +47,8 @@ class Mixa
 
   #---------------------------------------------------------------------------------------------------------
   constructor: ( process_argv = null ) ->
+    ### TAINT monkeypatch so we can use new flag property ###
+    delete MIXA.types.specs.mixa_flagdef.tests[ "x has only keys 'type', 'alias', 'description', 'multiple', 'fallback', 'positional'" ]
     ### TAINT do these steps in MIXA ###
     @_compile_runners_and_cmds()
     @_use_hyphenated_names()
