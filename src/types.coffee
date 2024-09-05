@@ -130,7 +130,7 @@ get_types = ->
     #.......................................................................................................
     cli_max_count:
       test:                 'positive_integer_or_infinity'
-      template:             +Infinity ### TAINT `template` repeated as `fallback` in `jobdef` ###
+      template:             +Infinity
       create:               ( x ) ->
         return @declarations.cli_max_count.template unless x?
         return x unless /^\+?\d+$/.test x
