@@ -155,6 +155,14 @@ get_types = ->
             return ( ( parseFloat match.groups.numerator ) / parseFloat match.groups.denominator )
         return parseFloat x
     #.......................................................................................................
+    cli_seed:
+      test:                 'float'
+      template:             null
+      create: ( x ) ->
+        debug 'Ω___2', { x, }
+        return @declarations.cli_sample.template unless x?
+        return parseFloat x
+    #.......................................................................................................
     cli_match:
       test:                 ( x ) -> @isa.optional.regex x ### TAINT workaround due to missing feature ###
       template:             null

@@ -195,6 +195,10 @@ class Promptparser_cli extends Mixa
             description:    "a ratio to indicate the approximate ratio of prompts to randomly accept"
             expect:         "a fraction as in `20/1000` or `0.02`, or a percentage as in `2%`"
             type:           return_error 'sample',    types.create.cli_sample.bind    types.create
+          seed:
+            description:    "(when `--sample` is given) a seed to initialize the random number generator"
+            expect:         "any float, for example `-67.43` or `39382.1`"
+            type:           return_error 'seed',      types.create.cli_seed.bind    types.create
           match:
             description:    "only keep prompts that match this RegEx"
             expect:         "a legal JavaScript literal to be used in `new RegExp()`; slashes will be interpreted literally"
