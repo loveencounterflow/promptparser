@@ -140,7 +140,7 @@ class Mixa
         echo '🔴', GUY.trm.bold " #{failure.message} "
         flag_def  = @jobdef.commands[ @cmd ].flags[ flag_name ]
         if ( expect = flag_def.expect )?
-          echo GUY.trm.bold "expected #{expect}"
+          echo color.expect "expected #{expect}"
           echo GUY.trm.bold "got #{rpr failure.value}"
     #.......................................................................................................
     if failed_flags.length > 0
