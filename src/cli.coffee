@@ -123,7 +123,6 @@ class Mixa
 
   #---------------------------------------------------------------------------------------------------------
   _validate_flags: ->
-    help 'Ω___3', @flags
     failure_count         = 0
     for flag_name, flag_value of @flags
       if flag_value instanceof Failure
@@ -138,7 +137,6 @@ class Mixa
 
   #---------------------------------------------------------------------------------------------------------
   cmd_help: ->
-    debug 'Ω___6', @cmd, @flags
     if @error?
       warn 'Ω___7', GUY.trm.reverse " #{@error.tag}: #{@error.message} "
     #.......................................................................................................
@@ -233,18 +231,18 @@ class Promptparser_cli extends Mixa
 
   # #---------------------------------------------------------------------------------------------------------
   # cmd_nosuch: ->
-  #   help 'Ω___9', "cmd_nosuch", @flags
+  #   help 'Ω___5', "cmd_nosuch", @flags
   #   return null
 
   # #---------------------------------------------------------------------------------------------------------
   # cmd_refresh: ->
-  #   help 'Ω__10', "cmd_refresh", @flags
+  #   help 'Ω___6', "cmd_refresh", @flags
   #   pfr = @_new_prompt_file_reader()
   #   return null
 
   #---------------------------------------------------------------------------------------------------------
   cmd_build: ->
-    help 'Ω__11', "cmd_build", @flags
+    help 'Ω___7', "cmd_build", @flags
     # pfr = @_new_prompt_file_reader()
     return null
 
@@ -252,7 +250,7 @@ class Promptparser_cli extends Mixa
 #===========================================================================================================
 run = ( process_argv = null ) ->
   cli = new Promptparser_cli process_argv ? process.argv
-  info 'Ω__12', "running command: #{GUY.trm.gold cli.cmd} #{GUY.trm.lime rpr cli.flags}"
+  info 'Ω___8', "running command: #{GUY.trm.gold cli.cmd} #{GUY.trm.lime rpr cli.flags}"
   await cli.run() ### using `await` to demonstrate generally command execution may be async ###
   return null
 
