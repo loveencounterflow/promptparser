@@ -142,16 +142,23 @@ class Mixa
     if @error?
       warn 'Ω___7', GUY.trm.reverse " #{@error.tag}: #{@error.message} "
     #.......................................................................................................
+    cmd_color   = ( P... ) -> GUY.trm.white GUY.trm.reverse GUY.trm.bold P...
+    flag_color  = ( P... ) -> GUY.trm.grey  GUY.trm.reverse GUY.trm.bold P...
+    #.......................................................................................................
     ### TAINT the ordering stuff done here should be performed by a jobdef compilation step ###
     help 'Ω___8', "The following sub-commands are available:"
     cmds = ( cmd for cmd of @jobdef.commands ).sort()
     for cmd in cmds
-      flags = ( flag for flag of @jobdef.commands[ cmd ].flags ).sort()
-      description = @jobdef.commands[ cmd ].description ? '?'
-      help " #{cmd} #{GUY.trm.blue description}"
+      cmd_def = @jobdef.commands[ cmd ]
+      flags   = ( flag for flag of cmd_def.flags ).sort()
+      description = @jobdef.commands[ cmd ].description ? ( if cmd is 'help' then "show this message" else '?' )
+      echo " #{cmd_color cmd} #{GUY.trm.blue description}"
       for flag in flags
-        description = @jobdef.commands[ cmd ].flags[ flag ].description ? '?'
-        urge "   --#{flag} #{GUY.trm.blue description}"
+        flag_def    = cmd_def.flags[ flag ]
+        description = flag_def.description ? '?'
+        echo "   #{flag_color '--' + flag} #{GUY.trm.gold description}"
+        if ( expect = flag_def.expect )?
+          echo "     #{GUY.trm.blue 'expects ' + expect}"
     return null
 
   #---------------------------------------------------------------------------------------------------------
@@ -190,7 +197,7 @@ class Promptparser_cli extends Mixa
         description: "build DB from prompts path given"
         flags:
           max_count:
-            description:    "max_count"
+            description:    "maximum number of prompts to add to the DB after filtering and matching"
             expect:         "an integer number such as `1439`; may use exponential notation as in `1.5e3`"
             type:           return_error 'max_count', types.create.cli_max_count.bind types.create
           sample:
@@ -211,7 +218,7 @@ class Promptparser_cli extends Mixa
             type:           return_error 'overwrite', types.create.cli_overwrite.bind types.create
           db:
             description:    "path to DB"
-            expect:         "file system path that points to either an unused name in an existing folder or a valid SQLite DB file"
+            expect:         "path that points to either an unused file name in an existing folder or a valid SQLite DB file"
             type:           return_error 'db',        types.create.cli_db.bind        types.create
           prompts:
             description:    "prompts"
