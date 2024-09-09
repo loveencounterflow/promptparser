@@ -50,7 +50,6 @@ end_of_line               = Symbol 'end_of_line'
 { get_types }             = require './types'
 types                     = get_types()
 { trash }                 = require 'trash-sync'
-format_nr                 = ( new Intl.NumberFormat 'en-GB' ).format
 
 
 ###
@@ -583,8 +582,8 @@ class Prompt_file_reader extends File_mirror
       # for row from @_db SQL"""select * from datasources where line != '' order by lnr;""" ### TAINT use API ###
       for row from @_db SQL"""select * from datasources order by lnr;""" ### TAINT use API ###
         line_count++
-        whisper 'Ω__11', "Prompt_file_reader::_populate_db", GUY.trm.white \
-          "line count: #{format_nr line_count}" if line_count %% 1e3 is 0
+        whisper 'Ω__12', "Prompt_file_reader::_populate_db", GUY.trm.white \
+          "line count: #{U.format_nr line_count, 8}" if line_count %% 1e3 is 0
         #...................................................................................................
         ### --SAMPLE ###
         if Math.random() > @cfg.flags.sample
@@ -612,27 +611,27 @@ class Prompt_file_reader extends File_mirror
         #...................................................................................................
         ### --MAX-COUNT ###
         if written_prompt_count >= @cfg.flags.max_count
-          whisper 'Ω__12', "Prompt_file_reader::_populate_db", GUY.trm.white \
-            "stopping because prompt count exceeds max prompt count of #{format_nr @cfg.flags.max_count} prompts"
+          whisper 'Ω__13', "Prompt_file_reader::_populate_db", GUY.trm.white \
+            "stopping because prompt count exceeds max prompt count of #{U.format_nr @cfg.flags.max_count} prompts"
           break
       return null
     #.......................................................................................................
     written_prompt_count = @_db.single_value SQL"""select count(*) from prompts;""" ### TAINT use API ###
     #.......................................................................................................
-    whisper 'Ω__13'
-    whisper 'Ω__14', "Prompt_file_reader::_populate_db", GUY.trm.white \
-      "line count:              #{format_nr line_count}"
+    whisper 'Ω__14'
+    whisper 'Ω__15', "Prompt_file_reader::_populate_db", GUY.trm.white \
+      "line count:              +#{U.format_nr line_count, 12}"
     #.......................................................................................................
     if unsampled_line_count > 0
-      whisper 'Ω__15', "Prompt_file_reader::_populate_db", GUY.trm.white \
-        "'unsampled' line count:  #{format_nr unsampled_line_count}"
+      whisper 'Ω__16', "Prompt_file_reader::_populate_db", GUY.trm.white \
+        "'unsampled' line count:  –#{U.format_nr unsampled_line_count, 12}"
     #.......................................................................................................
     if nonmatching_line_count > 0
-      whisper 'Ω__16', "Prompt_file_reader::_populate_db", GUY.trm.white \
-        "non-matching line count: #{format_nr nonmatching_line_count}"
+      whisper 'Ω__17', "Prompt_file_reader::_populate_db", GUY.trm.white \
+        "non-matching line count: –#{U.format_nr nonmatching_line_count, 12}"
     #.......................................................................................................
-    whisper 'Ω__17', "Prompt_file_reader::_populate_db", GUY.trm.white \
-      "inserted #{format_nr written_prompt_count} rows into DB at #{@cfg.db_path}"
+    whisper 'Ω__18', "Prompt_file_reader::_populate_db", GUY.trm.white \
+      "inserted #{U.format_nr written_prompt_count} rows into DB at #{@cfg.db_path}"
     #.......................................................................................................
     return null
 

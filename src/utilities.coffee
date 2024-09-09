@@ -22,6 +22,7 @@ CRYPTO                    = require 'node:crypto'
 { DBay }                  = require 'dbay'
 { SQL  }                  = DBay
 ExifReader                = require 'exifreader'
+format_nr                 = ( new Intl.NumberFormat 'en-GB' ).format
 
 
 #===========================================================================================================
@@ -73,6 +74,19 @@ class Utilities
       R.prompt_id = @id_from_text R.prompt
       return R
 
+  #---------------------------------------------------------------------------------------------------------
+  color:
+    cmd:          ( P... ) -> GUY.trm.white GUY.trm.reverse GUY.trm.bold P...
+    flag:         ( P... ) -> GUY.trm.grey  GUY.trm.reverse GUY.trm.bold P...
+    description:  ( P... ) -> GUY.trm.lime P...
+    expect:       ( P... ) -> GUY.trm.blue P...
+    bad:          ( P... ) -> GUY.trm.red   GUY.trm.reverse GUY.trm.bold P...
+
+  #---------------------------------------------------------------------------------------------------------
+  format_nr: ( x, width = null ) ->
+    R = format_nr x
+    return R unless width?
+    return R.padStart width, ' '
 
 #===========================================================================================================
 module.exports =

@@ -27,15 +27,8 @@ GUY                       = require 'guy'
 types                     = get_types()
 MIXA                      = require 'mixa'
 WG                        = require 'webguy'
+U                         = require './utilities'
 
-
-#===========================================================================================================
-color =
-  cmd:          ( P... ) -> GUY.trm.white GUY.trm.reverse GUY.trm.bold P...
-  flag:         ( P... ) -> GUY.trm.grey  GUY.trm.reverse GUY.trm.bold P...
-  description:  ( P... ) -> GUY.trm.lime P...
-  expect:       ( P... ) -> GUY.trm.blue P...
-  bad:          ( P... ) -> GUY.trm.red   GUY.trm.reverse GUY.trm.bold P...
 
 #===========================================================================================================
 return_error = ( flag_name, create ) -> ( x ) -> try create x catch error then new Failure flag_name, x
@@ -143,7 +136,7 @@ class Mixa
         echo '🔴', GUY.trm.bold " #{failure.message} "
         flag_def  = @jobdef.commands[ @cmd ].flags[ flag_name ]
         if ( expect = flag_def.expect )?
-          echo color.expect "expected #{expect}"
+          echo U.color.expect "expected #{expect}"
           echo GUY.trm.bold "got #{rpr failure.value}"
     #.......................................................................................................
     if failed_flags.length > 0
@@ -171,7 +164,7 @@ class Mixa
         if @extra_flags.length > 0
           echo GUY.trm.red "found #{@extra_flags.length} extraneous flag(s)"
           for flag in @extra_flags
-            echo GUY.trm.red "  * extraneous flag #{color.bad rpr flag}"
+            echo GUY.trm.red "  * extraneous flag #{U.color.bad rpr flag}"
     #.......................................................................................................
     ### TAINT the ordering stuff done here should be performed by a jobdef compilation step ###
     help GUY.trm.grey 'Ω___9'
@@ -181,13 +174,13 @@ class Mixa
       cmd_def     = @jobdef.commands[ cmd ]
       flags       = @_list_of_flags_for_cmd cmd
       description = @jobdef.commands[ cmd ].description ? ( if cmd is 'help' then "show this message" else '?' )
-      echo " #{color.cmd cmd} #{color.description description}"
+      echo " #{U.color.cmd cmd} #{U.color.description description}"
       for flag in flags
         flag_def    = cmd_def.flags[ flag ]
         description = flag_def.description ? '?'
-        echo "   #{color.flag '--' + flag} #{color.description description}"
+        echo "   #{U.color.flag '--' + flag} #{U.color.description description}"
         if ( expect = flag_def.expect )?
-          echo "     #{color.expect 'expects ' + expect}"
+          echo "     #{U.color.expect 'expects ' + expect}"
     process.exit status
     return null
 
