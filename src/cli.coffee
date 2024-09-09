@@ -227,7 +227,7 @@ class Promptparser_cli extends Mixa
         description: "build DB from prompts path given"
         flags:
           max_count:
-            description:    "maximum number of prompts to add to the DB after filtering and matching"
+            description:    "maximum number of unique prompts to add to the DB after filtering and matching"
             expect:         "an integer number such as `1439`; may use exponential notation as in `1.5e3`"
             type:           return_error 'max_count', types.create.cli_max_count.bind types.create
           sample:
