@@ -274,8 +274,8 @@ class Promptparser_cli extends Mixa
 
   #---------------------------------------------------------------------------------------------------------
   cmd_build: ->
-    # pfr = @_new_prompt_file_reader()
     help 'Ω__12', "cmd_build", @flags
+    pfr = @_new_prompt_file_reader()
     return null
 
 
