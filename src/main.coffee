@@ -723,5 +723,5 @@ module.exports = {
 if module is require.main then await do =>
   # build_file_db()
   echo()
-  echo ( GUY.trm.grey 'Ω__21' ), ( GUY.trm.gold "run `node lib/cli.js help` instead of this file" )
+  echo ( GUY.trm.grey 'Ω__22' ), ( GUY.trm.gold "run `node lib/cli.js help` instead of this file" )
   echo()
