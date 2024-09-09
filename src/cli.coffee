@@ -178,8 +178,8 @@ class Mixa
     echo GUY.trm.lime "The following sub-commands are available:"
     cmds = ( cmd for cmd of @jobdef.commands ).sort()
     for cmd in cmds
-      cmd_def = @jobdef.commands[ cmd ]
-      flags       = ( flag for flag of cmd_def.flags ).sort()
+      cmd_def     = @jobdef.commands[ cmd ]
+      flags       = @_list_of_flags_for_cmd cmd
       description = @jobdef.commands[ cmd ].description ? ( if cmd is 'help' then "show this message" else '?' )
       echo " #{color.cmd cmd} #{color.description description}"
       for flag in flags
