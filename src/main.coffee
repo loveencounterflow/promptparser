@@ -576,6 +576,7 @@ class Prompt_file_reader extends File_mirror
     written_prompt_count    = 0
     unique_row_ids          = new Set()
     nonmatching_line_count  = 0
+    unsampled_line_count    = 0
     #.......................................................................................................
     @_db =>
       # for row from @_db SQL"""select * from datasources where line != '' order by lnr;""" ### TAINT use API ###
@@ -584,12 +585,15 @@ class Prompt_file_reader extends File_mirror
         whisper 'Ω__11', "Prompt_file_reader::_populate_db", GUY.trm.white \
           "line count: #{format_nr line_count}" if line_count %% 1e3 is 0
         #...................................................................................................
+        ### --SAMPLE ###
+        if Math.random() > @cfg.flags.sample
+          unsampled_line_count++
+          continue
         if @cfg.flags.match?
           @cfg.flags.match.lastIndex = 0 ### TAINT ensure when constructing match that lastIndex is never used ###
           unless @cfg.flags.match.test row.line
             nonmatching_line_count++
             continue
-        # @cfg.flags.sample
         @_pipeline.send row
         #...................................................................................................
         for record from @_pipeline.walk()
@@ -612,6 +616,9 @@ class Prompt_file_reader extends File_mirror
     whisper 'Ω__14'
     whisper 'Ω__15', "Prompt_file_reader::_populate_db", GUY.trm.white \
       "line count: #{format_nr line_count}"
+    if unsampled_line_count > 0
+      whisper 'Ω__15', "Prompt_file_reader::_populate_db", GUY.trm.white \
+        "'unsampled' line count:  #{format_nr unsampled_line_count}"
     if nonmatching_line_count > 0
       whisper 'Ω__16', "Prompt_file_reader::_populate_db", GUY.trm.white \
         "non-matching line count: #{format_nr nonmatching_line_count}"
