@@ -611,16 +611,16 @@ class Prompt_file_reader extends File_mirror
         #...................................................................................................
         ### --MAX-COUNT ###
         if written_prompt_count >= @cfg.flags.max_count
-          whisper 'Ω__13', "Prompt_file_reader::_populate_db", GUY.trm.white \
-            "stopping because prompt count exceeds `--max-count` (#{format_nr @cfg.flags.max_count})"
+          whisper 'Ω__12', "Prompt_file_reader::_populate_db", GUY.trm.white \
+            "stopping because prompt count exceeds max prompt count of #{format_nr @cfg.flags.max_count} prompts"
           break
       return null
     #.......................................................................................................
     written_prompt_count = @_db.single_value SQL"""select count(*) from prompts;""" ### TAINT use API ###
-    whisper 'Ω__14'
-    whisper 'Ω__15', "Prompt_file_reader::_populate_db", GUY.trm.white \
-      "line count: #{format_nr line_count}"
     #.......................................................................................................
+    whisper 'Ω__13'
+    whisper 'Ω__14', "Prompt_file_reader::_populate_db", GUY.trm.white \
+      "line count:              #{format_nr line_count}"
     #.......................................................................................................
     if unsampled_line_count > 0
       whisper 'Ω__15', "Prompt_file_reader::_populate_db", GUY.trm.white \
