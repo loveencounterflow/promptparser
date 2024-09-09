@@ -79,7 +79,8 @@ get_types = ->
         has_db_path:          'boolean'
         has_datasource_path:  'boolean'
         has_db:               'boolean'
-      create: ( db_path, datasource_path ) ->
+        trash_db:             'boolean'
+      create: ( db_path, datasource_path, trash_db = false ) ->
         has_db_path         = db_path?
         has_datasource_path = datasource_path?
         ### NOTE `has_db_path` could conceivably be used to optionally open a temporary DB; only when that
@@ -95,7 +96,8 @@ get_types = ->
         return {
           db_path,          has_db_path,          has_db,
           datasource_path,  has_datasource_path,  has_datasource,
-          auto_populate_db, }
+          auto_populate_db,
+          trash_db, }
     #.......................................................................................................
     fm_table_name:          'nonempty.text'
     fm_table_fields:        'object'

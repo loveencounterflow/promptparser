@@ -49,6 +49,8 @@ start_of_line             = Symbol 'start_of_line'
 end_of_line               = Symbol 'end_of_line'
 { get_types }             = require './types'
 types                     = get_types()
+{ trash }                 = require 'trash-sync'
+
 
 ###
 
@@ -363,9 +365,12 @@ class File_mirror
   @required_table_names: [ 'datasources', ]
 
   #---------------------------------------------------------------------------------------------------------
-  constructor: ( db_path, datasource_path ) ->
+  ### TAINT use CFG pattern ###
+  constructor: ( db_path, datasource_path, trash_db = false ) ->
     hide @, 'types', get_types()
-    @cfg  = @types.create.fm_constructor_cfg db_path, datasource_path
+    @cfg  = @types.create.fm_constructor_cfg db_path, datasource_path, trash_db
+    @_trash_db_if_necessary()
+    #.......................................................................................................
     hide @, '_db', new DBay { path: @cfg.db_path, }
     #.......................................................................................................
     @_prepare_db_connection()
@@ -373,6 +378,11 @@ class File_mirror
     @_populate_db_if_necessary() if new.target is File_mirror
     #.......................................................................................................
     return undefined
+
+  #---------------------------------------------------------------------------------------------------------
+  _trash_db_if_necessary: ->
+    return 0 unless @cfg.trash_db
+    return trash @cfg.db_path
 
   #---------------------------------------------------------------------------------------------------------
   _prepare_db_connection: ->
@@ -466,7 +476,7 @@ class Prompt_file_reader extends File_mirror
   constructor: ( cmd, flags = null ) ->
     db_path         = '/dev/shm/prompts-and-generations.sqlite'
     datasource_path = '../to-be-merged-from-Atlas/prompts-consolidated.md'
-    super db_path, datasource_path
+    super db_path, datasource_path, flags?.trash_db ? false
     @cfg            = @types.create.pfr_constructor_cfg @cfg, cmd, flags
     @_prompt_parser = new Prompt_parser()
     @_pipeline      = new Pipeline()
