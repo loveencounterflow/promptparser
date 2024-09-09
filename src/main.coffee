@@ -576,7 +576,6 @@ class Prompt_file_reader extends File_mirror
       for row from @_db SQL"""select * from datasources order by lnr;"""
         @_pipeline.send row
         count++
-        debug 'Ω__12', @cfg; process.exit 111
         whisper "Ω__13 #{count}" if count %% 1e3 is 0
         break if count > max_count
         for record from @_pipeline.walk()
