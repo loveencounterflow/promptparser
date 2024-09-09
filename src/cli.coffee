@@ -188,6 +188,7 @@ class Mixa
         echo "   #{color.flag '--' + flag} #{color.description description}"
         if ( expect = flag_def.expect )?
           echo "     #{color.expect 'expects ' + expect}"
+    process.exit status
     return null
 
   #---------------------------------------------------------------------------------------------------------
