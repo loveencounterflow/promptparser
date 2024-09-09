@@ -137,9 +137,6 @@ get_types = ->
         return @declarations.cli_max_count.template unless x?
         # return x unless /^\+?\d+$/.test x
         Math.round parseFloat x
-    cli_foo:
-      test:                 'text'
-      create:               ( x ) -> rpr x
     #.......................................................................................................
     normalfloat:            ( x ) -> ( @isa.float x ) and 0 <= x <= 1
     #.......................................................................................................
