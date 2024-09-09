@@ -386,7 +386,7 @@ class File_mirror
 
   #---------------------------------------------------------------------------------------------------------
   _prepare_db_connection: ->
-    # whisper "Ω___6 File_mirror._prepare_db_connection"
+    # whisper "Ω___5 File_mirror._prepare_db_connection"
     # @_db =>
     #   @_db.create_table_function
     #     name:         'file_contents_t'
@@ -408,9 +408,9 @@ class File_mirror
   #---------------------------------------------------------------------------------------------------------
   _create_db_structure_if_necessary: ->
     if U.db_has_all_table_names @_db, @constructor.required_table_names
-      whisper "Ω___7 File_mirror::_create_db_structure_if_necessary: re-using DB at #{@cfg.db_path}"
+      whisper "Ω___6 File_mirror::_create_db_structure_if_necessary: re-using DB at #{@cfg.db_path}"
     else
-      whisper "Ω___8 File_mirror::_create_db_structure_if_necessary: creating structure of DB at #{@cfg.db_path}"
+      whisper "Ω___7 File_mirror::_create_db_structure_if_necessary: creating structure of DB at #{@cfg.db_path}"
       @_create_db_structure()
     #.......................................................................................................
     return null
@@ -426,7 +426,7 @@ class File_mirror
 
   #---------------------------------------------------------------------------------------------------------
   _create_db_structure: ->
-    whisper "Ω___9 File_mirror::_create_db_structure"
+    whisper "Ω___8 File_mirror::_create_db_structure"
     @_clear_db()
     @_db =>
       ### TAINT a more general solution should accommodate more than a single source file ###
@@ -492,7 +492,7 @@ class Prompt_file_reader extends File_mirror
   #---------------------------------------------------------------------------------------------------------
   _create_db_structure: ->
     super()
-    whisper "Ω__10 Prompt_file_reader::_create_db_structure"
+    whisper "Ω___9 Prompt_file_reader::_create_db_structure"
     @_db =>
       @_db SQL"""
         create table prompts (
@@ -568,7 +568,7 @@ class Prompt_file_reader extends File_mirror
 
   #---------------------------------------------------------------------------------------------------------
   _populate_db: ->
-    whisper "Ω__11 Prompt_file_reader::_populate_db()"
+    whisper 'Ω__10', "Prompt_file_reader::_populate_db"
     super()
     count     = 0
     max_count = 3e3 ### TAINT make CLI parameter ###
