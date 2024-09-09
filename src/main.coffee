@@ -589,11 +589,14 @@ class Prompt_file_reader extends File_mirror
         if Math.random() > @cfg.flags.sample
           unsampled_line_count++
           continue
+        #...................................................................................................
+        ### --MATCH ###
         if @cfg.flags.match?
           @cfg.flags.match.lastIndex = 0 ### TAINT ensure when constructing match that lastIndex is never used ###
           unless @cfg.flags.match.test row.line
             nonmatching_line_count++
             continue
+        #...................................................................................................
         @_pipeline.send row
         #...................................................................................................
         for record from @_pipeline.walk()
@@ -606,6 +609,7 @@ class Prompt_file_reader extends File_mirror
             unique_row_ids.add TMP_result.lastInsertRowid
             written_prompt_count = unique_row_ids.size
         #...................................................................................................
+        ### --MAX-COUNT ###
         if written_prompt_count >= @cfg.flags.max_count
           whisper 'Ω__13', "Prompt_file_reader::_populate_db", GUY.trm.white \
             "stopping because prompt count exceeds `--max-count` (#{format_nr @cfg.flags.max_count})"
@@ -616,12 +620,16 @@ class Prompt_file_reader extends File_mirror
     whisper 'Ω__14'
     whisper 'Ω__15', "Prompt_file_reader::_populate_db", GUY.trm.white \
       "line count: #{format_nr line_count}"
+    #.......................................................................................................
+    #.......................................................................................................
     if unsampled_line_count > 0
       whisper 'Ω__15', "Prompt_file_reader::_populate_db", GUY.trm.white \
         "'unsampled' line count:  #{format_nr unsampled_line_count}"
+    #.......................................................................................................
     if nonmatching_line_count > 0
       whisper 'Ω__16', "Prompt_file_reader::_populate_db", GUY.trm.white \
         "non-matching line count: #{format_nr nonmatching_line_count}"
+    #.......................................................................................................
     whisper 'Ω__17', "Prompt_file_reader::_populate_db", GUY.trm.white \
       "inserted #{format_nr written_prompt_count} rows into DB at #{@cfg.db_path}"
     #.......................................................................................................
