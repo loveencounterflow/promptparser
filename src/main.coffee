@@ -398,9 +398,9 @@ class File_mirror
   #---------------------------------------------------------------------------------------------------------
   _create_db_structure_if_necessary: ->
     if U.db_has_all_table_names @_db, @constructor.required_table_names
-      help "Ω___6 re-using DB at #{@cfg.path}"
+      help "Ω___7 re-using DB at #{@cfg.db_path}"
     else
-      warn "Ω___7 creating structure of DB at #{@cfg.path}"
+      warn "Ω___8 creating structure of DB at #{@cfg.db_path}"
       @_create_db_structure()
     #.......................................................................................................
     return null
