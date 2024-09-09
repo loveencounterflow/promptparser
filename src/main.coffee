@@ -454,7 +454,7 @@ class File_mirror
         return null
     catch error
       if error.code in [ 'ENOENT', 'EACCES', 'EPERM', ]
-        whisper 'Ω__15', "File_mirror::_populate_db", U.color.bad \
+        whisper 'Ω__10', "File_mirror::_populate_db", U.color.bad \
           error.message
         process.exit 111
       throw error
@@ -501,7 +501,7 @@ class Prompt_file_reader extends File_mirror
   #---------------------------------------------------------------------------------------------------------
   _create_db_structure: ->
     super()
-    whisper 'Ω__10', "Prompt_file_reader::_create_db_structure"
+    whisper 'Ω__11', "Prompt_file_reader::_create_db_structure"
     @_db =>
       @_db SQL"""
         create table prompts (
@@ -577,7 +577,7 @@ class Prompt_file_reader extends File_mirror
 
   #---------------------------------------------------------------------------------------------------------
   _populate_db: ->
-    whisper 'Ω__11', "Prompt_file_reader::_populate_db"
+    whisper 'Ω__12', "Prompt_file_reader::_populate_db"
     super()
     line_count              = 0
     blank_line_count        = 0
@@ -591,7 +591,7 @@ class Prompt_file_reader extends File_mirror
       # for row from @_db SQL"""select * from datasources where line != '' order by lnr;""" ### TAINT use API ###
       for row from @_db SQL"""select * from datasources order by lnr;""" ### TAINT use API ###
         line_count++
-        whisper 'Ω__12', "Prompt_file_reader::_populate_db", GUY.trm.white \
+        whisper 'Ω__13', "Prompt_file_reader::_populate_db", GUY.trm.white \
           "line count: #{U.format_nr line_count, 8}" if line_count %% 1e3 is 0
         #...................................................................................................
         ### EXCLUDE EMPTY LINES ###
@@ -625,30 +625,30 @@ class Prompt_file_reader extends File_mirror
         #...................................................................................................
         ### --MAX-COUNT ###
         if written_prompt_count >= @cfg.flags.max_count
-          whisper 'Ω__13', "Prompt_file_reader::_populate_db", GUY.trm.white \
+          whisper 'Ω__14', "Prompt_file_reader::_populate_db", GUY.trm.white \
             "stopping because prompt count exceeds max prompt count of #{U.format_nr @cfg.flags.max_count} prompts"
           break
       return null
     #.......................................................................................................
     written_prompt_count = @_db.single_value SQL"""select count(*) from prompts;""" ### TAINT use API ###
     #.......................................................................................................
-    whisper 'Ω__14'
-    whisper 'Ω__15', "Prompt_file_reader::_populate_db", GUY.trm.white \
+    whisper 'Ω__15'
+    whisper 'Ω__16', "Prompt_file_reader::_populate_db", GUY.trm.white \
       "line count:              +#{U.format_nr line_count, 12}"
     #.......................................................................................................
     if blank_line_count > 0
-      whisper 'Ω__16', "Prompt_file_reader::_populate_db", GUY.trm.white \
+      whisper 'Ω__17', "Prompt_file_reader::_populate_db", GUY.trm.white \
         "blank line count:        –#{U.format_nr blank_line_count, 12}"
     #.......................................................................................................
     if unsampled_line_count > 0
-      whisper 'Ω__16', "Prompt_file_reader::_populate_db", GUY.trm.white \
+      whisper 'Ω__18', "Prompt_file_reader::_populate_db", GUY.trm.white \
         "'unsampled' line count:  –#{U.format_nr unsampled_line_count, 12}"
     #.......................................................................................................
     if nonmatching_line_count > 0
-      whisper 'Ω__17', "Prompt_file_reader::_populate_db", GUY.trm.white \
+      whisper 'Ω__19', "Prompt_file_reader::_populate_db", GUY.trm.white \
         "non-matching line count: –#{U.format_nr nonmatching_line_count, 12}"
     #.......................................................................................................
-    whisper 'Ω__18', "Prompt_file_reader::_populate_db", GUY.trm.white \
+    whisper 'Ω__20', "Prompt_file_reader::_populate_db", GUY.trm.white \
       "inserted #{U.format_nr written_prompt_count} rows into DB at #{@cfg.db_path}"
     #.......................................................................................................
     return null
@@ -723,5 +723,5 @@ module.exports = {
 if module is require.main then await do =>
   # build_file_db()
   echo()
-  echo ( GUY.trm.grey 'Ω__19' ), ( GUY.trm.gold "run `node lib/cli.js help` instead of this file" )
+  echo ( GUY.trm.grey 'Ω__21' ), ( GUY.trm.gold "run `node lib/cli.js help` instead of this file" )
   echo()
