@@ -604,9 +604,9 @@ class Prompt_file_reader extends File_mirror
           if record.table is 'prompts'
             read_prompt_count++
           #.................................................................................................
-          TMP_result = @insert_into[ record.table ] record.fields
+          { lastInsertRowid: row_id, } = @insert_into[ record.table ] record.fields
           if record.table is 'prompts'
-            unique_row_ids.add TMP_result.lastInsertRowid
+            unique_row_ids.add row_id
             written_prompt_count = unique_row_ids.size
         #...................................................................................................
         ### --MAX-COUNT ###
