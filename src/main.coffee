@@ -482,10 +482,11 @@ class Prompt_file_reader extends File_mirror
   #---------------------------------------------------------------------------------------------------------
   ### TAINT use CFG pattern, namespacing as in `file_mirror.path`, validation ###
   constructor: ( cmd, flags = null ) ->
-    db_path         = '/dev/shm/prompts-and-generations.sqlite'
-    datasource_path = '../to-be-merged-from-Atlas/prompts-consolidated.md'
-    super db_path, datasource_path, flags?.trash_db ? false
-    @cfg            = @types.create.pfr_constructor_cfg @cfg, cmd, flags
+    types           = get_types()
+    cfg             = types.create.pfr_constructor_cfg cmd, flags, null
+    super cfg.db_path, cfg.datasource_path, ( flags?.trash_db ? false )
+    ### TAINT try to avoid constructing almost the same object twice ###
+    @cfg            = @types.create.pfr_constructor_cfg cmd, flags, @cfg
     @_prompt_parser = new Prompt_parser()
     @_pipeline      = new Pipeline()
     @_pipeline.push @_prompt_parser

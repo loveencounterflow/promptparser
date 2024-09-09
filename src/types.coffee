@@ -126,8 +126,13 @@ get_types = ->
         ### own fields ###
         cmd:                  'nonempty.text'
         flags:                'object'
-      create: ( upstream_cfg, cmd, flags ) ->
-        R = { upstream_cfg..., cmd, flags, }
+      create: ( cmd, flags, upstream_cfg = null ) ->
+        db_path             = flags.db
+        has_db_path         = db_path?
+        has_db              = has_db_path
+        datasource_path     = flags.prompts
+        has_datasource_path = datasource_path?
+        R = { upstream_cfg..., cmd, db_path, has_db_path, has_db, datasource_path, has_datasource_path, flags, }
         return R
     #.......................................................................................................
     cli_max_count:
