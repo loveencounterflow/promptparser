@@ -407,6 +407,7 @@ class File_mirror
 
   #---------------------------------------------------------------------------------------------------------
   _clear_db : ->
+    ### TAINT belongs to Prompt_file_reader ###
     ### TAINT use `_required_table_names` ###
     @_db =>
       @_db SQL"drop table if exists prompts;"
