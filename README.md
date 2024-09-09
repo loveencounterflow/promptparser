@@ -108,6 +108,9 @@ left join prompts as p
       * **[+]** (optional) `--match` regex
         * **[–]** consider to rename to `--match-line` and introduce additional `--match-prompt`
       * **[–]** (optional) `--dont-match` regex
+      * **[–]** (optional) `--pre-match` regex; this defaults to `/^\[.*?\].*?\S+`, that is, prompts that
+        start with a possibly empty pair of `[]` square brackets and a non-blank tail; this is intended to
+        keep all commentaries and npn-rated prompts out of the DB.
       * **[+]** (optional) <del>`--overwrite`</del> <ins>`--trash-db`</ins>
       * **[–]** (optional) `--db` path
       * **[–]** (positional) prompts / datasource path
