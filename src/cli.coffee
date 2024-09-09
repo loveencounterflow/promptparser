@@ -241,10 +241,10 @@ class Promptparser_cli extends Mixa
             description:    "only keep prompts that match this RegEx"
             expect:         "a legal JavaScript literal to be used in `new RegExp()`; slashes will be interpreted literally"
             type:           return_error 'match',     types.create.cli_match.bind     types.create
-          overwrite:
-            description:    "whether to overwrite existing DB"
-            expect:         "may be used without value or else with either `true` or `false`"
-            type:           return_error 'overwrite', types.create.cli_overwrite.bind types.create
+          trash_db:
+            description:    "whether to move existing DB file to trash"
+            expect:         "`true` or `false`; default is `false`"
+            type:           return_error 'trash_db', types.create.cli_trash_db.bind types.create
           db:
             description:    "path to DB"
             expect:         "path that points to either an unused file name in an existing folder or a valid SQLite DB file"

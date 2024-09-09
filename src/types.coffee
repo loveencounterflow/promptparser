@@ -168,11 +168,11 @@ get_types = ->
         return null unless x?
         return new RegExp x
     #.......................................................................................................
-    cli_overwrite:
+    cli_trash_db:
       test:                 'boolean'
       template:             false
       create: ( x ) ->
-        return @declarations.cli_overwrite.template unless x?
+        return @declarations.cli_trash_db.template  unless x?
         return true                                 if x is 'true'
         return false                                if x is 'false'
         return x
