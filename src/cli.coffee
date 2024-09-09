@@ -35,6 +35,7 @@ color =
   flag:         ( P... ) -> GUY.trm.grey  GUY.trm.reverse GUY.trm.bold P...
   description:  ( P... ) -> GUY.trm.lime P...
   expect:       ( P... ) -> GUY.trm.blue P...
+  bad:          ( P... ) -> GUY.trm.red   GUY.trm.reverse GUY.trm.bold P...
 
 #===========================================================================================================
 return_error = ( flag_name, create ) -> ( x ) -> try create x catch error then new Failure flag_name, x
@@ -64,6 +65,7 @@ class Mixa
     @process_argv             = process_argv ? process.argv
     #.......................................................................................................
     job                       = MIXA.run @jobdef, @process_argv
+    @extra_flags              = job.verdict.extra_flags ? []
     @cmd                      = job.verdict.cmd
     @flags                    = job.verdict.parameters  ?= {}
     @error                    = job.verdict.error       ?= null
@@ -156,9 +158,20 @@ class Mixa
     return null
 
   #---------------------------------------------------------------------------------------------------------
+  ### TAINT the ordering stuff done here should be performed by a jobdef compilation step ###
+  _list_of_flags_for_cmd: ( cmd ) -> ( flag for flag of @jobdef.commands[ cmd ].flags ).sort()
+
+  #---------------------------------------------------------------------------------------------------------
   cmd_help: ->
+    status = 0
     if @error?
+      status = 1
       warn 'Ω___7', GUY.trm.reverse " #{@error.tag}: #{@error.message} "
+      if @error.tag is 'EXTRA_FLAGS'
+        if @extra_flags.length > 0
+          echo GUY.trm.red "found #{@extra_flags.length} extraneous flag(s)"
+          for flag in @extra_flags
+            echo GUY.trm.red "  * extraneous flag #{color.bad rpr flag}"
     #.......................................................................................................
     ### TAINT the ordering stuff done here should be performed by a jobdef compilation step ###
     help GUY.trm.grey 'Ω___9'
