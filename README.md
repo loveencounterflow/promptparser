@@ -103,9 +103,9 @@ left join prompts as p
 * **[–]** commands:
   * **[–]** sooner:
     * **[–]** `build` DB with all prompts:
-      * **[–]** (optional) up to `--max-count`
-      * **[–]** (optional) `--sample` x out of y
-      * **[–]** (optional) `--match` regex
+      * **[+]** (optional) up to `--max-count`
+      * **[+]** (optional) `--sample` x out of y
+      * **[+]** (optional) `--match` regex
         * **[–]** consider to rename to `--match-line` and introduce additional `--match-prompt`
       * **[–]** (optional) `--dont-match` regex
       * **[+]** (optional) <del>`--overwrite`</del> <ins>`--trash-db`</ins>
