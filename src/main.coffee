@@ -681,12 +681,6 @@ class Prompt_file_reader extends File_mirror
        R += change_record.changes
     return R
 
-#-----------------------------------------------------------------------------------------------------------
-demo_prompts = ->
-  # db = new Prompt_file_reader '/dev/shm/prompts-and-generations.sqlite', './data/short-prompts.md'
-  db = new Prompt_file_reader '/dev/shm/prompts-and-generations.sqlite', '../to-be-merged-from-Atlas/prompts-consolidated.md'
-  return null
-
 ###
 
 8888888888  .d88888b.  8888888888
@@ -710,4 +704,6 @@ module.exports = {
 #===========================================================================================================
 if module is require.main then await do =>
   # build_file_db()
-  demo_prompts()
+  echo()
+  echo ( GUY.trm.grey 'Ω__18' ), ( GUY.trm.gold "run `node lib/cli.js help` instead of this file" )
+  echo()
