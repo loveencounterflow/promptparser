@@ -572,6 +572,7 @@ class Prompt_file_reader extends File_mirror
     whisper 'Ω__11', "Prompt_file_reader::_populate_db"
     super()
     line_count              = 0
+    blank_line_count        = 0
     read_prompt_count       = 0
     written_prompt_count    = 0
     unique_row_ids          = new Set()
@@ -584,6 +585,11 @@ class Prompt_file_reader extends File_mirror
         line_count++
         whisper 'Ω__12', "Prompt_file_reader::_populate_db", GUY.trm.white \
           "line count: #{U.format_nr line_count, 8}" if line_count %% 1e3 is 0
+        #...................................................................................................
+        ### EXCLUDE EMPTY LINES ###
+        if /^\s*$/.test row.line
+          blank_line_count++
+          continue
         #...................................................................................................
         ### --SAMPLE ###
         if Math.random() > @cfg.flags.sample
@@ -621,6 +627,10 @@ class Prompt_file_reader extends File_mirror
     whisper 'Ω__14'
     whisper 'Ω__15', "Prompt_file_reader::_populate_db", GUY.trm.white \
       "line count:              +#{U.format_nr line_count, 12}"
+    #.......................................................................................................
+    if blank_line_count > 0
+      whisper 'Ω__16', "Prompt_file_reader::_populate_db", GUY.trm.white \
+        "blank line count:        –#{U.format_nr blank_line_count, 12}"
     #.......................................................................................................
     if unsampled_line_count > 0
       whisper 'Ω__16', "Prompt_file_reader::_populate_db", GUY.trm.white \
