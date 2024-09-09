@@ -571,13 +571,24 @@ class Prompt_file_reader extends File_mirror
   _populate_db: ->
     whisper 'Ω__10', "Prompt_file_reader::_populate_db"
     super()
-    read_prompt_count     = 0
-    written_prompt_count  = 0
-    unique_row_ids        = new Set()
+    line_count              = 0
+    read_prompt_count       = 0
+    written_prompt_count    = 0
+    unique_row_ids          = new Set()
+    nonmatching_line_count  = 0
     #.......................................................................................................
     @_db =>
-      for row from @_db SQL"""select * from datasources where line != '' order by lnr;""" ### TAINT use API ###
-        # @cfg.flags.match
+      # for row from @_db SQL"""select * from datasources where line != '' order by lnr;""" ### TAINT use API ###
+      for row from @_db SQL"""select * from datasources order by lnr;""" ### TAINT use API ###
+        line_count++
+        whisper 'Ω__11', "Prompt_file_reader::_populate_db", GUY.trm.white \
+          "line count: #{format_nr line_count}" if line_count %% 1e3 is 0
+        #...................................................................................................
+        if @cfg.flags.match?
+          @cfg.flags.match.lastIndex = 0 ### TAINT ensure when constructing match that lastIndex is never used ###
+          unless @cfg.flags.match.test row.line
+            nonmatching_line_count++
+            continue
         # @cfg.flags.sample
         @_pipeline.send row
         #...................................................................................................
@@ -585,8 +596,6 @@ class Prompt_file_reader extends File_mirror
           #.................................................................................................
           if record.table is 'prompts'
             read_prompt_count++
-            whisper 'Ω__11', "Prompt_file_reader::_populate_db", GUY.trm.white \
-              "#{format_nr read_prompt_count}" if read_prompt_count %% 1e3 is 0
           #.................................................................................................
           TMP_result = @insert_into[ record.table ] record.fields
           if record.table is 'prompts'
@@ -600,7 +609,13 @@ class Prompt_file_reader extends File_mirror
       return null
     #.......................................................................................................
     written_prompt_count = @_db.single_value SQL"""select count(*) from prompts;""" ### TAINT use API ###
-    whisper 'Ω__13', "Prompt_file_reader::_populate_db", GUY.trm.white \
+    whisper 'Ω__14'
+    whisper 'Ω__15', "Prompt_file_reader::_populate_db", GUY.trm.white \
+      "line count: #{format_nr line_count}"
+    if nonmatching_line_count > 0
+      whisper 'Ω__16', "Prompt_file_reader::_populate_db", GUY.trm.white \
+        "non-matching line count: #{format_nr nonmatching_line_count}"
+    whisper 'Ω__17', "Prompt_file_reader::_populate_db", GUY.trm.white \
       "inserted #{format_nr written_prompt_count} rows into DB at #{@cfg.db_path}"
     #.......................................................................................................
     return null
