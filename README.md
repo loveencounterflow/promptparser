@@ -105,8 +105,10 @@ left join prompts as p
     * **[–]** `build` DB with all prompts:
       * **[+]** (optional) up to `--max-count`
       * **[+]** (optional) `--sample` x out of y
-      * **[+]** (optional) `--match` regex
-        * **[–]** consider to rename to `--match-line` and introduce additional `--match-prompt`
+      * **[–]** (optional) `--match` regex<ins>; this matches only the prompt, not the entire line; a `/^.../`
+        RegEx start anchor will match the position before the first non-blank character of the prompt text
+        (to the exclusion of the generational counts in square brackets)</ins>
+        * **[+]** <del>consider to rename to `--match-line` and introduce additional `--match-prompt`</del>
       * **[–]** (optional) `--dont-match` regex
       * **[–]** (optional) `--pre-match` regex; this defaults to `/^\[.*?\].*?\S+`, that is, prompts that
         start with a possibly empty pair of `[]` square brackets and a non-blank tail; this is intended to
