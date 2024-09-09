@@ -376,7 +376,7 @@ class File_mirror
 
   #---------------------------------------------------------------------------------------------------------
   _prepare_db_connection: ->
-    # whisper "Ω___5 File_mirror._prepare_db_connection"
+    # whisper "Ω___6 File_mirror._prepare_db_connection"
     # @_db =>
     #   @_db.create_table_function
     #     name:         'file_contents_t'
@@ -415,7 +415,7 @@ class File_mirror
 
   #---------------------------------------------------------------------------------------------------------
   _create_db_structure: ->
-    whisper "Ω___8 File_mirror::_create_db_structure"
+    whisper "Ω___9 File_mirror::_create_db_structure"
     @_clear_db()
     @_db =>
       ### TAINT a more general solution should accommodate more than a single source file ###
@@ -481,7 +481,7 @@ class Prompt_file_reader extends File_mirror
   #---------------------------------------------------------------------------------------------------------
   _create_db_structure: ->
     super()
-    whisper "Ω___9 Prompt_file_reader::_create_db_structure"
+    whisper "Ω__10 Prompt_file_reader::_create_db_structure"
     @_db =>
       @_db SQL"""
         create table prompts (
@@ -557,7 +557,7 @@ class Prompt_file_reader extends File_mirror
 
   #---------------------------------------------------------------------------------------------------------
   _populate_db: ->
-    whisper "Ω__10 Prompt_file_reader::_populate_db()"
+    whisper "Ω__11 Prompt_file_reader::_populate_db()"
     super()
     count     = 0
     max_count = 3e3 ### TAINT make CLI parameter ###
@@ -565,11 +565,11 @@ class Prompt_file_reader extends File_mirror
       for row from @_db SQL"""select * from datasources order by lnr;"""
         @_pipeline.send row
         count++
-        debug 'Ω__11', @cfg; process.exit 111
-        whisper "Ω__12 #{count}" if count %% 1e3 is 0
+        debug 'Ω__12', @cfg; process.exit 111
+        whisper "Ω__13 #{count}" if count %% 1e3 is 0
         break if count > max_count
         for record from @_pipeline.walk()
-          # info 'Ω__13', record
+          # info 'Ω__14', record
           @insert_into[ record.table ] record.fields
       return null
     return null

@@ -28,6 +28,7 @@ types                     = get_types()
 MIXA                      = require 'mixa'
 WG                        = require 'webguy'
 
+
 #===========================================================================================================
 color =
   cmd:          ( P... ) -> GUY.trm.white GUY.trm.reverse GUY.trm.bold P...
@@ -86,12 +87,12 @@ class Mixa
       #.....................................................................................................
       ### disallow previously allowed 'runners' in command definitions ###
       if cmd_def.runner?
-        throw new Error "Ω___1 in declaration of cmd #{rpr cmd}, do not use property `runner`; " + \
+        throw new Error "Ω___5 in declaration of cmd #{rpr cmd}, do not use property `runner`; " + \
           "instead, declare method #{rpr runner_name} in class #{@constructor.name}"
       #.....................................................................................................
       ### validate that runner exists on instance ###
       unless ( runner = @[ runner_name ] )?
-        throw new Error "Ω___2 in declaration of cmd #{rpr cmd}: " + \
+        throw new Error "Ω___6 in declaration of cmd #{rpr cmd}: " + \
           "missing method #{rpr runner_name} in class #{@constructor.name}"
     #.......................................................................................................
     ### supply command definitions for runners without entry in jobdef ###
@@ -157,10 +158,10 @@ class Mixa
   #---------------------------------------------------------------------------------------------------------
   cmd_help: ->
     if @error?
-      warn 'Ω___3', GUY.trm.reverse " #{@error.tag}: #{@error.message} "
+      warn 'Ω___7', GUY.trm.reverse " #{@error.tag}: #{@error.message} "
     #.......................................................................................................
     ### TAINT the ordering stuff done here should be performed by a jobdef compilation step ###
-    help GUY.trm.grey 'Ω___4'
+    help GUY.trm.grey 'Ω___9'
     echo GUY.trm.lime "The following sub-commands are available:"
     cmds = ( cmd for cmd of @jobdef.commands ).sort()
     for cmd in cmds
@@ -248,26 +249,26 @@ class Promptparser_cli extends Mixa
 
   # #---------------------------------------------------------------------------------------------------------
   # cmd_nosuch: ->
-  #   help 'Ω___5', "cmd_nosuch", @flags
+  #   help 'Ω__10', "cmd_nosuch", @flags
   #   return null
 
   # #---------------------------------------------------------------------------------------------------------
   # cmd_refresh: ->
-  #   help 'Ω___6', "cmd_refresh", @flags
+  #   help 'Ω__11', "cmd_refresh", @flags
   #   pfr = @_new_prompt_file_reader()
   #   return null
 
   #---------------------------------------------------------------------------------------------------------
   cmd_build: ->
-    help 'Ω___7', "cmd_build", @flags
     # pfr = @_new_prompt_file_reader()
+    help 'Ω__12', "cmd_build", @flags
     return null
 
 
 #===========================================================================================================
 run = ( process_argv = null ) ->
   cli = new Promptparser_cli process_argv ? process.argv
-  info 'Ω___8', "running command: #{GUY.trm.gold cli.cmd} #{GUY.trm.lime rpr cli.flags}"
+  info 'Ω__13', "running command: #{GUY.trm.gold cli.cmd} #{GUY.trm.lime rpr cli.flags}"
   await cli.run() ### using `await` to demonstrate generally command execution may be async ###
   return null
 
@@ -275,5 +276,4 @@ run = ( process_argv = null ) ->
 #===========================================================================================================
 if module is require.main then  await run()                                 ### command line  use ###
 else                            module.exports = { run, Promptparser_cli, } ### programmatic  use ###
-
 
