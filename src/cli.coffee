@@ -231,7 +231,7 @@ class Promptparser_cli extends Mixa
             expect:         "an integer number such as `1439`; may use exponential notation as in `1.5e3`"
             type:           return_error 'max_count', types.create.cli_max_count.bind types.create
           sample:
-            description:    "a ratio to indicate the approximate ratio of prompts to randomly accept"
+            description:    "a ratio to indicate the approximate ratio of source lines to randomly accept; precedes `--match`es"
             expect:         "a fraction as in `20/1000` or `0.02`, or a percentage as in `2%`"
             type:           return_error 'sample',    types.create.cli_sample.bind    types.create
           seed:
@@ -239,7 +239,7 @@ class Promptparser_cli extends Mixa
             expect:         "any float, for example `-67.43` or `39382.1`"
             type:           return_error 'seed',      types.create.cli_seed.bind    types.create
           match:
-            description:    "only keep prompts that match this RegEx"
+            description:    "only keep prompts that match this RegEx; only applies to `--sample`d lines"
             expect:         "a legal JavaScript literal to be used in `new RegExp()`; slashes will be interpreted literally"
             type:           return_error 'match',     types.create.cli_match.bind     types.create
           trash_db:
