@@ -232,7 +232,7 @@ class Promptparser_cli extends Mixa
             expect:         "any float, for example `-67.43` or `39382.1`"
             type:           return_error 'seed',      types.create.cli_seed.bind    types.create
           match:
-            description:    "only keep prompts that match this RegEx; only applies to `--sample`d lines"
+            description:    "only keep prompts that match this RegEx; applies after `--pre-match`, `--sample`"
             expect:         "a legal JavaScript literal to be used in `new RegExp()`; slashes will be interpreted literally"
             type:           return_error 'match',     types.create.cli_match.bind     types.create
           trash_db:
