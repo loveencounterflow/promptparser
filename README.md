@@ -105,21 +105,25 @@ left join prompts as p
     * **[–]** `build` DB with all prompts:
       * **[+]** (optional) up to `--max-count`
       * **[+]** (optional) `--sample` x out of y
-      * **[–]** (optional) `--match` regex<ins>; this matches only the prompt, not the entire line; a `/^.../`
+      * **[+]** (optional) `--match` regex<ins>; this matches only the prompt, not the entire line; a `/^.../`
         RegEx start anchor will match the position before the first non-blank character of the prompt text
         (to the exclusion of the generational counts in square brackets)</ins>
         * **[+]** <del>consider to rename to `--match-line` and introduce additional `--match-prompt`</del>
       * **[–]** (optional) `--dont-match` regex
-      * **[–]** (optional) `--pre-match` regex; this defaults to `/^\[.*?\].*?\S+`, that is, prompts that
+      * **[+]** (optional) `--pre-match` regex; this defaults to `/^\[.*?\].*?\S+/`, that is, prompts that
         start with a possibly empty pair of `[]` square brackets and a non-blank tail; this is intended to
         keep all commentaries and npn-rated prompts out of the DB.
       * **[+]** (optional) <del>`--overwrite`</del> <ins>`--trash-db`</ins>
-      * **[–]** (optional) `--db` path
-      * **[–]** (positional) prompts / datasource path
+      * **[+]** (optional) `--db` path
+      * **[+]** (positional) prompts / datasource path
     * **[–]** `rebuild` DB; same as `build` but with `--overwrite` implied
   * **[–]** later:
     * **[–]** `refresh` DB with changed, added, deleted prompts
     * **[–]** `delete` DB
+* **[–]** implement a way to add (some) RegEx flags to `--pre-match`, `--match`, `--dont-match`; maybe
+  syntax could be changed to (optionally?) use `/.../` slashes with trailing flags, as in `--match
+  '/[a-z]/i'`
+* **[–]** use [`slevithan/regex`](https://github.com/slevithan/regex) to compile RegEx flags
 * **[–]** Metrics:
   * **[–]** fulfillment rate: ratio of possible (4 per generation) to actually produced images
   * **[–]** correlation between prompt length and fulfillment rate
