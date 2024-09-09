@@ -50,6 +50,7 @@ end_of_line               = Symbol 'end_of_line'
 { get_types }             = require './types'
 types                     = get_types()
 { trash }                 = require 'trash-sync'
+format_nr                 = ( new Intl.NumberFormat 'en-GB' ).format
 
 
 ###
@@ -570,18 +571,38 @@ class Prompt_file_reader extends File_mirror
   _populate_db: ->
     whisper 'Ω__10', "Prompt_file_reader::_populate_db"
     super()
-    count     = 0
-    max_count = 3e3 ### TAINT make CLI parameter ###
+    read_prompt_count     = 0
+    written_prompt_count  = 0
+    unique_row_ids        = new Set()
+    #.......................................................................................................
     @_db =>
-      for row from @_db SQL"""select * from datasources order by lnr;"""
+      for row from @_db SQL"""select * from datasources where line != '' order by lnr;""" ### TAINT use API ###
+        # @cfg.flags.match
+        # @cfg.flags.sample
         @_pipeline.send row
-        count++
-        whisper "Ω__13 #{count}" if count %% 1e3 is 0
-        break if count > max_count
+        #...................................................................................................
         for record from @_pipeline.walk()
-          # info 'Ω__14', record
-          @insert_into[ record.table ] record.fields
+          #.................................................................................................
+          if record.table is 'prompts'
+            read_prompt_count++
+            whisper 'Ω__11', "Prompt_file_reader::_populate_db", GUY.trm.white \
+              "#{format_nr read_prompt_count}" if read_prompt_count %% 1e3 is 0
+          #.................................................................................................
+          TMP_result = @insert_into[ record.table ] record.fields
+          if record.table is 'prompts'
+            unique_row_ids.add TMP_result.lastInsertRowid
+            written_prompt_count = unique_row_ids.size
+        #...................................................................................................
+        if written_prompt_count >= @cfg.flags.max_count
+          whisper 'Ω__12', "Prompt_file_reader::_populate_db", GUY.trm.white \
+            "stopping because prompt count exceeds `--max-count` (#{format_nr @cfg.flags.max_count})"
+          break
       return null
+    #.......................................................................................................
+    written_prompt_count = @_db.single_value SQL"""select count(*) from prompts;""" ### TAINT use API ###
+    whisper 'Ω__13', "Prompt_file_reader::_populate_db", GUY.trm.white \
+      "inserted #{format_nr written_prompt_count} rows into DB at #{@cfg.db_path}"
+    #.......................................................................................................
     return null
 
   #---------------------------------------------------------------------------------------------------------
