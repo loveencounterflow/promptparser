@@ -447,10 +447,17 @@ class File_mirror
   #---------------------------------------------------------------------------------------------------------
   _populate_db: ->
     ### TAINT throw error unless @cfg.auto_populate_db ###
-    @_db =>
-      for { lnr, line, eol, } from GUY.fs.walk_lines_with_positions @cfg.datasource_path
-        @_db @_insert_into.datasources, { lnr, line, }
-      return null
+    try
+      @_db =>
+        for { lnr, line, eol, } from GUY.fs.walk_lines_with_positions @cfg.datasource_path
+          @_db @_insert_into.datasources, { lnr, line, }
+        return null
+    catch error
+      if error.code in [ 'ENOENT', 'EACCES', 'EPERM', ]
+        whisper 'Ω__15', "File_mirror::_populate_db", U.color.bad \
+          error.message
+        process.exit 111
+      throw error
     return null
 
 ###
