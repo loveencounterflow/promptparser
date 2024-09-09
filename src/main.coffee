@@ -387,7 +387,7 @@ class File_mirror
 
   #---------------------------------------------------------------------------------------------------------
   _prepare_db_connection: ->
-    # whisper "Ω___5 File_mirror._prepare_db_connection"
+    # whisper 'Ω___5', "File_mirror._prepare_db_connection"
     # @_db =>
     #   @_db.create_table_function
     #     name:         'file_contents_t'
@@ -409,9 +409,9 @@ class File_mirror
   #---------------------------------------------------------------------------------------------------------
   _create_db_structure_if_necessary: ->
     if U.db_has_all_table_names @_db, @constructor.required_table_names
-      whisper "Ω___6 File_mirror::_create_db_structure_if_necessary: re-using DB at #{@cfg.db_path}"
+      whisper 'Ω___6', "File_mirror::_create_db_structure_if_necessary: re-using DB at #{@cfg.db_path}"
     else
-      whisper "Ω___7 File_mirror::_create_db_structure_if_necessary: creating structure of DB at #{@cfg.db_path}"
+      whisper 'Ω___7', "File_mirror::_create_db_structure_if_necessary: creating structure of DB at #{@cfg.db_path}"
       @_create_db_structure()
     #.......................................................................................................
     return null
@@ -427,7 +427,7 @@ class File_mirror
 
   #---------------------------------------------------------------------------------------------------------
   _create_db_structure: ->
-    whisper "Ω___8 File_mirror::_create_db_structure"
+    whisper 'Ω___8', "File_mirror::_create_db_structure"
     @_clear_db()
     @_db =>
       ### TAINT a more general solution should accommodate more than a single source file ###
@@ -440,6 +440,7 @@ class File_mirror
 
   #---------------------------------------------------------------------------------------------------------
   _populate_db_if_necessary: ->
+    whisper 'Ω___9', "File_mirror::_populate_db_if_necessary"
     return 0 unless @cfg.auto_populate_db
     @_populate_db()
     return 1
@@ -493,7 +494,7 @@ class Prompt_file_reader extends File_mirror
   #---------------------------------------------------------------------------------------------------------
   _create_db_structure: ->
     super()
-    whisper "Ω___9 Prompt_file_reader::_create_db_structure"
+    whisper 'Ω__10', "Prompt_file_reader::_create_db_structure"
     @_db =>
       @_db SQL"""
         create table prompts (
@@ -569,7 +570,7 @@ class Prompt_file_reader extends File_mirror
 
   #---------------------------------------------------------------------------------------------------------
   _populate_db: ->
-    whisper 'Ω__10', "Prompt_file_reader::_populate_db"
+    whisper 'Ω__11', "Prompt_file_reader::_populate_db"
     super()
     line_count              = 0
     read_prompt_count       = 0
@@ -705,5 +706,5 @@ module.exports = {
 if module is require.main then await do =>
   # build_file_db()
   echo()
-  echo ( GUY.trm.grey 'Ω__18' ), ( GUY.trm.gold "run `node lib/cli.js help` instead of this file" )
+  echo ( GUY.trm.grey 'Ω__19' ), ( GUY.trm.gold "run `node lib/cli.js help` instead of this file" )
   echo()
