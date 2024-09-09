@@ -172,6 +172,14 @@ get_types = ->
         return null unless x?
         return new RegExp x
     #.......................................................................................................
+    cli_pre_match:
+      test:                 'regex'
+      template:             /^\[.*?\].*?\S+/
+      create: ( x ) ->
+        debug 'Ω__1', ( rpr x ), rpr @declarations.cli_pre_match.template
+        return @declarations.cli_pre_match.template unless x?
+        return new RegExp x
+    #.......................................................................................................
     cli_trash_db:
       test:                 'boolean'
       template:             false

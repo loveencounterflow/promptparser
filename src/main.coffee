@@ -130,12 +130,14 @@ new_prompt_lexer = ( mode = 'plain' ) ->
 class Prompt_parser extends Transformer
 
   #---------------------------------------------------------------------------------------------------------
-  constructor: ->
+  ### TAINT use CFG pattern ###
+  constructor: ( match = null ) ->
     super()
     hide @, 'types', get_types()
     @_lexer   = new_prompt_lexer { state: 'reset', }
-    @state =
-      counts: { prompts: 0, lexemes: 0, }
+    @cfg      = { match, }
+    @state    =
+      counts: { prompts: 0, lexemes: 0, non_matches: 0, }
     return undefined
 
   #---------------------------------------------------------------------------------------------------------
@@ -199,6 +201,33 @@ class Prompt_parser extends Transformer
     send stamp d
     send lets d, ( d ) -> d.value = U.normalize_prompt d.value
     return null
+
+  #---------------------------------------------------------------------------------------------------------
+  $filter_matching_prompts: ->
+    parts = null
+    return ( d, send ) =>
+      return send d if d.$stamped
+      #.....................................................................................................
+      if d is start_of_line
+        parts = []
+        return null
+      #.....................................................................................................
+      if d is end_of_line
+        if parts?
+          send start_of_line
+          send part for part in parts
+          send end_of_line
+        return null
+      #.....................................................................................................
+      if @cfg.match? and d.$key is 'prompt'
+        @cfg.match.lastIndex = 0 ### TAINT ensure this becomes superfluous ###
+        unless @cfg.match.test d.value
+          @state.counts.non_matches++
+          parts = null
+          return null
+      #.....................................................................................................
+      parts.push d
+      return null
 
   #---------------------------------------------------------------------------------------------------------
   $consolidate_generations: ->
@@ -487,7 +516,7 @@ class Prompt_file_reader extends File_mirror
     super cfg.db_path, cfg.datasource_path, ( flags?.trash_db ? false )
     ### TAINT try to avoid constructing almost the same object twice ###
     @cfg            = @types.create.pfr_constructor_cfg cmd, flags, @cfg
-    @_prompt_parser = new Prompt_parser()
+    @_prompt_parser = new Prompt_parser @cfg.flags.match
     @_pipeline      = new Pipeline()
     @_pipeline.push @_prompt_parser
     #.......................................................................................................
@@ -605,9 +634,9 @@ class Prompt_file_reader extends File_mirror
           continue
         #...................................................................................................
         ### --MATCH ###
-        if @cfg.flags.match?
-          @cfg.flags.match.lastIndex = 0 ### TAINT ensure when constructing match that lastIndex is never used ###
-          unless @cfg.flags.match.test row.line
+        if @cfg.flags.pre_match?
+          @cfg.flags.pre_match.lastIndex = 0 ### TAINT ensure when constructing pre_match that lastIndex is never used ###
+          unless @cfg.flags.pre_match.test row.line
             nonmatching_line_count++
             continue
         #...................................................................................................
