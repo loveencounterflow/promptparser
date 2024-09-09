@@ -663,21 +663,21 @@ class Prompt_file_reader extends File_mirror
     #.......................................................................................................
     whisper 'Ω__15'
     whisper 'Ω__16', "Prompt_file_reader::_populate_db", GUY.trm.white \
-      "line count:              +#{U.format_nr line_count, 12}"
+      "line count:                    +#{U.format_nr line_count, 12}"
     #.......................................................................................................
-    if blank_line_count > 0
-      whisper 'Ω__17', "Prompt_file_reader::_populate_db", GUY.trm.white \
-        "blank line count:        –#{U.format_nr blank_line_count, 12}"
+    whisper 'Ω__17', "Prompt_file_reader::_populate_db", GUY.trm.white \
+      "blank line count:              –#{U.format_nr blank_line_count, 12}"
     #.......................................................................................................
-    if unsampled_line_count > 0
-      whisper 'Ω__18', "Prompt_file_reader::_populate_db", GUY.trm.white \
-        "'unsampled' line count:  –#{U.format_nr unsampled_line_count, 12}"
+    whisper 'Ω__18', "Prompt_file_reader::_populate_db", GUY.trm.white \
+      "'unsampled' line count:        –#{U.format_nr unsampled_line_count, 12}"
     #.......................................................................................................
-    if nonmatching_line_count > 0
-      whisper 'Ω__19', "Prompt_file_reader::_populate_db", GUY.trm.white \
-        "non-matching line count: –#{U.format_nr nonmatching_line_count, 12}"
+    whisper 'Ω__19', "Prompt_file_reader::_populate_db", GUY.trm.white \
+      "non-pre-matching line count:   –#{U.format_nr nonmatching_line_count, 12}"
     #.......................................................................................................
     whisper 'Ω__20', "Prompt_file_reader::_populate_db", GUY.trm.white \
+      "non-matching prompt count:     –#{U.format_nr @_prompt_parser.state.counts.non_matches, 12}"
+    #.......................................................................................................
+    whisper 'Ω__21', "Prompt_file_reader::_populate_db", GUY.trm.white \
       "inserted #{U.format_nr written_prompt_count} rows into DB at #{@cfg.db_path}"
     #.......................................................................................................
     return null
