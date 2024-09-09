@@ -257,9 +257,9 @@ class Promptparser_cli extends Mixa
             positional:     true
 
   #---------------------------------------------------------------------------------------------------------
-  _new_prompt_file_reader: ->
+  _new_prompt_file_reader: ( cmd = null, flags = null ) ->
     { Prompt_file_reader, } = require './main'
-    return new Prompt_file_reader @cmd, @flags
+    return new Prompt_file_reader ( cmd ? @cmd ), ( flags ? @flags )
 
   # #---------------------------------------------------------------------------------------------------------
   # cmd_nosuch: ->
