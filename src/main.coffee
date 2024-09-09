@@ -594,7 +594,7 @@ class Prompt_file_reader extends File_mirror
             written_prompt_count = unique_row_ids.size
         #...................................................................................................
         if written_prompt_count >= @cfg.flags.max_count
-          whisper 'Ω__12', "Prompt_file_reader::_populate_db", GUY.trm.white \
+          whisper 'Ω__13', "Prompt_file_reader::_populate_db", GUY.trm.white \
             "stopping because prompt count exceeds `--max-count` (#{format_nr @cfg.flags.max_count})"
           break
       return null
