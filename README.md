@@ -86,7 +86,7 @@ left join prompts as p
   * **[–]** raw words
   * **[–]** raw words normalized
   * **[–]** raw words normalized and translated
-  * **[–]** 'generativity'
+  * **[–]** 'generativity', 'density'
   * **[–]** 'acceptance' or 'appeal' i.e. absolute generativity in relation to how many pictures downloaded
   * **[–]** 'generational stability': measure for how much generation sizes vary (predictability)
 * **[–]** add tests that the following are not recorded in DB:
