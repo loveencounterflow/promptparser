@@ -33,7 +33,7 @@ get_types = ->
   #.........................................................................................................
   types.declare
     #.......................................................................................................
-    positive_integer_or_infinity: ( x ) -> ( x is Infinity ) or ( @isa.positive.integer x )
+    cardinal_or_infinity: ( x ) -> ( x is Infinity ) or ( @isa.cardinal x )
     #.......................................................................................................
     pp_linenumber:    'positive.integer'
     pp_content_id:    ( x ) -> ( @isa.text x ) and ( /^[0-9a-f]{16}$/.test x )
@@ -136,7 +136,7 @@ get_types = ->
         return R
     #.......................................................................................................
     cli_max_count:
-      test:                 'positive_integer_or_infinity'
+      test:                 'cardinal_or_infinity'
       template:             +Infinity
       create:               ( x ) ->
         return @declarations.cli_max_count.template unless x?
