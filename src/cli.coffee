@@ -27,7 +27,7 @@ GUY                       = require 'guy'
 types                     = get_types()
 MIXA                      = require 'mixa'
 WG                        = require 'webguy'
-U                         = require './utilities'
+{ U }                     = require './utilities'
 
 
 #===========================================================================================================
