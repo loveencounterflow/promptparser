@@ -106,7 +106,8 @@ left join prompts as p
       * **[–]** (optional) up to `--max-count`
       * **[–]** (optional) `--sample` x out of y
       * **[–]** (optional) `--match` regex
-      * **[–]** (optional) `--overwrite`
+      * **[–]** (optional) `--dont-match` regex
+      * **[+]** (optional) <del>`--overwrite`</del> <ins>`--trash-db`</ins>
       * **[–]** (optional) `--db` path
       * **[–]** (positional) prompts / datasource path
     * **[–]** `rebuild` DB; same as `build` but with `--overwrite` implied
