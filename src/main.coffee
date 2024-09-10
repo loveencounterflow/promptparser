@@ -617,9 +617,15 @@ class Prompt_file_reader extends File_mirror
     nonmatching_line_count  = 0
     unsampled_line_count    = 0
     #.......................................................................................................
-    @_db =>
-      # for row from @_db SQL"""select * from datasources where line != '' order by lnr;""" ### TAINT use API ###
-      for row from @_db SQL"""select * from datasources order by lnr;""" ### TAINT use API ###
+    ### NOTE pre-caching source rows because it is fast, probably fits into available RAM, and results in
+    much faster write performance. As such, concurrent writes are *still* a bit of a hurdle with SQLite. ###
+    all_rows = @_db.all_rows SQL"""select * from datasources order by lnr;""" ### TAINT use API ###
+    whisper 'Ω__13', "Prompt_file_reader::_populate_db", GUY.trm.white \
+      "read #{U.format_nr all_rows.length} lines from DB"
+    #.......................................................................................................
+    do =>
+      ### NOTE this could / should be within a transaction but runs just as fast without one ###
+      for row in all_rows
         line_count++
         whisper 'Ω__14', "Prompt_file_reader::_populate_db", GUY.trm.white \
           "line count: #{U.format_nr line_count, 8}" if line_count %% 1e3 is 0
