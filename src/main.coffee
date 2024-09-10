@@ -538,7 +538,8 @@ class Prompt_file_reader extends File_mirror
             lnr       integer not null,
             prompt    text    not null,
             comment   text        null,
-            rejected  boolean not null );"""
+            rejected  boolean not null,
+          unique( prompt ) );"""
       @_db SQL"""
         create table generations (
             prompt_id text    not null,
