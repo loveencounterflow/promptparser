@@ -82,12 +82,12 @@ class Mixa
       #.....................................................................................................
       ### disallow previously allowed 'runners' in command definitions ###
       if cmd_def.runner?
-        throw new Error "Ω___5 in declaration of cmd #{rpr cmd}, do not use property `runner`; " + \
+        throw new Error "Ω___1 in declaration of cmd #{rpr cmd}, do not use property `runner`; " + \
           "instead, declare method #{rpr runner_name} in class #{@constructor.name}"
       #.....................................................................................................
       ### validate that runner exists on instance ###
       unless ( runner = @[ runner_name ] )?
-        throw new Error "Ω___6 in declaration of cmd #{rpr cmd}: " + \
+        throw new Error "Ω___2 in declaration of cmd #{rpr cmd}: " + \
           "missing method #{rpr runner_name} in class #{@constructor.name}"
     #.......................................................................................................
     ### supply command definitions for runners without entry in jobdef ###
@@ -159,7 +159,7 @@ class Mixa
     status = 0
     if @error?
       status = 1
-      warn 'Ω___7', GUY.trm.reverse " #{@error.tag}: #{@error.message} "
+      warn 'Ω___3', GUY.trm.reverse " #{@error.tag}: #{@error.message} "
       if @error.tag is 'EXTRA_FLAGS'
         if @extra_flags.length > 0
           echo GUY.trm.red "found #{@extra_flags.length} extraneous flag(s)"
@@ -167,7 +167,6 @@ class Mixa
             echo GUY.trm.red "  * extraneous flag #{U.color.bad rpr flag}"
     #.......................................................................................................
     ### TAINT the ordering stuff done here should be performed by a jobdef compilation step ###
-    help GUY.trm.grey 'Ω___9'
     echo GUY.trm.lime "The following sub-commands are available:"
     cmds = ( cmd for cmd of @jobdef.commands ).sort()
     for cmd in cmds
@@ -260,18 +259,18 @@ class Promptparser_cli extends Mixa
 
   # #---------------------------------------------------------------------------------------------------------
   # cmd_nosuch: ->
-  #   help 'Ω__10', "cmd_nosuch", @flags
+  #   help 'Ω___5', "cmd_nosuch", @flags
   #   return null
 
   # #---------------------------------------------------------------------------------------------------------
   # cmd_refresh: ->
-  #   help 'Ω__11', "cmd_refresh", @flags
+  #   help 'Ω___6', "cmd_refresh", @flags
   #   pfr = @_new_prompt_file_reader()
   #   return null
 
   #---------------------------------------------------------------------------------------------------------
   cmd_build: ->
-    help 'Ω__12', "cmd_build", @flags
+    help 'Ω___7', "cmd_build", @flags
     pfr = @_new_prompt_file_reader()
     return null
 
@@ -279,7 +278,7 @@ class Promptparser_cli extends Mixa
 #===========================================================================================================
 run = ( process_argv = null ) ->
   cli = new Promptparser_cli process_argv ? process.argv
-  info 'Ω__13', "running command: #{GUY.trm.gold cli.cmd} #{GUY.trm.lime rpr cli.flags}"
+  info 'Ω___8', "running command: #{GUY.trm.gold cli.cmd} #{GUY.trm.lime rpr cli.flags}"
   await cli.run() ### using `await` to demonstrate generally command execution may be async ###
   return null
 
