@@ -191,7 +191,7 @@ get_types = ->
     #.......................................................................................................
     cli_db:
       test:                 'nonempty.text'
-      template:             '/dev/shm/prompts-and-generations.sqlite'
+      template:             '/dev/shm/promptparser-production-registry.sqlite'
       create: ( x ) -> x ? @declarations.cli_db.template
     #.......................................................................................................
     cli_prompts:

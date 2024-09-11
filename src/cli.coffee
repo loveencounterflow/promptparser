@@ -167,6 +167,7 @@ class Mixa
             echo GUY.trm.red "  * extraneous flag #{U.color.bad rpr flag}"
     #.......................................................................................................
     ### TAINT the ordering stuff done here should be performed by a jobdef compilation step ###
+    help GUY.trm.grey 'Ω___4'
     echo GUY.trm.lime "The following sub-commands are available:"
     cmds = ( cmd for cmd of @jobdef.commands ).sort()
     for cmd in cmds
@@ -254,7 +255,7 @@ class Promptparser_cli extends Mixa
 
   #---------------------------------------------------------------------------------------------------------
   _new_prompt_file_reader: ( cmd = null, flags = null ) ->
-    { Prompt_file_reader, } = require './main'
+    { Prompt_file_reader, } = require './production-registry'
     return new Prompt_file_reader ( cmd ? @cmd ), ( flags ? @flags )
 
   # #---------------------------------------------------------------------------------------------------------

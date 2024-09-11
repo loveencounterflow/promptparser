@@ -11,7 +11,7 @@ GUY                       = require 'guy'
   praise
   urge
   warn
-  whisper }               = GUY.trm.get_loggers 'promptparser/file-cache-builder'
+  whisper }               = GUY.trm.get_loggers 'promptparser/utilities'
 { rpr
   inspect
   echo

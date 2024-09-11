@@ -2,6 +2,7 @@
 
 'use strict'
 
+#===========================================================================================================
 GUY                       = require 'guy'
 { alert
   debug
@@ -11,7 +12,7 @@ GUY                       = require 'guy'
   praise
   urge
   warn
-  whisper }               = GUY.trm.get_loggers 'promptparser/file-cache-builder'
+  whisper }               = GUY.trm.get_loggers 'promptparser/image-registry'
 { rpr
   inspect
   echo
@@ -104,7 +105,8 @@ build_file_db = ->
 
 #-----------------------------------------------------------------------------------------------------------
 prepare_db = ->
-  path                = '/dev/shm/files-and-prompts.sqlite'
+  ### TAINT use `types`, template ###
+  path                = '/dev/shm/promptparser-image-registry.sqlite'
   db                  = new DBay { path, }
   #.........................................................................................................
   ### TAINT use `U.db_has_all_table_names()` ###
@@ -128,10 +130,18 @@ prepare_db = ->
           foreign key ( prompt_id ) references prompts ( id ) );"""
       db SQL"""
         create table prompts (
-          id      text not null primary key,
-          prompt  text not null );"""
+            id        text not null primary key,
+            prompt    text not null );"""
       db SQL"""insert into prompts ( id, prompt ) values ( ?, ? );""", [
         ( U.id_from_text U.nosuchprompt ), U.nosuchprompt, ]
+      db SQL"""
+        create view files_and_prompts as select
+            f.id      as file_id,
+            p.id      as prompt_id,
+            f.path    as path,
+            p.prompt  as prompt
+          from      prompts as p
+          left join files   as f on ( f.prompt_id = p.id );"""
       return null
     return null
   #.........................................................................................................
