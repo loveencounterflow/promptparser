@@ -141,18 +141,20 @@ left join prompts as p
 * **[–]** `TD/Ω__56` future structure:
   * Production Registry (PRD)
     * module now called `main` -> `production-registry`
-    * DB now called `prompts-and-generations.sqlite` -> `promptparser-production-registry.sqlite`
+    * <del>DB now called `prompts-and-generations.sqlite` -> `promptparser-production-registry.sqlite`</del> <ins>prefix for DB tables: `prd`</ins>
   * Image Registry (IMG)
     * module now called `file-cache-builder` -> `image-registry`
-    * DB now called `files-and-prompts.sqlite` -> `promptparser-image-registry.sqlite`
+    * <del>DB now called `files-and-prompts.sqlite` -> `promptparser-image-registry.sqlite`</del> <ins>prefix for DB tables: `img`</ins>
   * one DB to bind them all:
     * module called `main`
-    * DB called `promptparser-main.sqlite`
+    * <del>DB called `promptparser-main.sqlite`</del> <ins>prefix for DB tables: `main`</ins>
     * has `promptparser-production-registry.sqlite` attached as `prd`
     * has `promptparser-image-registry.sqlite` attached as `img`
+* **[–]** `TD/Ω__57` introduce metric for 'strength of failure' (centrality?), i.e. `[s00000]` is 'more
+  nope' than `[s0]`; this also holds true for any other fulfillment rate
 
 ## Is Done
 
-* **[+]** `TD/Ω__57` add `prompt_id` to all records so they have a common name for the central anchoring point of all
+* **[+]** add `prompt_id` to all records so they have a common name for the central anchoring point of all
   data
-* **[+]** `TD/Ω__58` make `parse_all_tokens()`, `parse_all_records()` return flat lists
+* **[+]** make `parse_all_tokens()`, `parse_all_records()` return flat lists
