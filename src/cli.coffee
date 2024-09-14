@@ -275,11 +275,17 @@ class Promptparser_cli extends Mixa
     pfr = @_new_prompt_file_reader()
     return null
 
+  #---------------------------------------------------------------------------------------------------------
+  cmd_TMP_main: ->
+    help 'Ω___8', "cmd_TMP_main", @flags
+    main = @_new_main()
+    return null
+
 
 #===========================================================================================================
 run = ( process_argv = null ) ->
   cli = new Promptparser_cli process_argv ? process.argv
-  info 'Ω___8', "running command: #{GUY.trm.gold cli.cmd} #{GUY.trm.lime rpr cli.flags}"
+  info 'Ω___9', "running command: #{GUY.trm.gold cli.cmd} #{GUY.trm.lime rpr cli.flags}"
   await cli.run() ### using `await` to demonstrate generally command execution may be async ###
   return null
 
