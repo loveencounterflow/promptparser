@@ -49,6 +49,7 @@ end_of_line               = Symbol 'end_of_line'
 { get_types }             = require './types'
 types                     = get_types()
 { trash }                 = require 'trash-sync'
+{ File_mirror }           = require './db-bases'
 
 
 ###
@@ -372,121 +373,6 @@ class Prompt_parser extends Transformer
     else                        @state.counts.lexemes++
     return null
 
-
-###
-
-8888888888 8888888 888      8888888888   888b     d888 8888888 8888888b.  8888888b.   .d88888b.  8888888b.
-888          888   888      888          8888b   d8888   888   888   Y88b 888   Y88b d88P" "Y88b 888   Y88b
-888          888   888      888          88888b.d88888   888   888    888 888    888 888     888 888    888
-8888888      888   888      8888888      888Y88888P888   888   888   d88P 888   d88P 888     888 888   d88P
-888          888   888      888          888 Y888P 888   888   8888888P"  8888888P"  888     888 8888888P"
-888          888   888      888          888  Y8P  888   888   888 T88b   888 T88b   888     888 888 T88b
-888          888   888      888          888   "   888   888   888  T88b  888  T88b  Y88b. .d88P 888  T88b
-888        8888888 88888888 8888888888   888       888 8888888 888   T88b 888   T88b  "Y88888P"  888   T88b
-
-###
-
-#===========================================================================================================
-class File_mirror
-
-  #---------------------------------------------------------------------------------------------------------
-  @required_table_names: [ 'datasources', ]
-
-  #---------------------------------------------------------------------------------------------------------
-  ### TAINT use CFG pattern ###
-  constructor: ( db_path, datasource_path, trash_db = false ) ->
-    hide @, 'types', get_types()
-    @cfg  = @types.create.fm_constructor_cfg db_path, datasource_path, trash_db
-    @_trash_db_if_necessary()
-    #.......................................................................................................
-    hide @, '_db', new DBay { path: @cfg.db_path, }
-    #.......................................................................................................
-    @_prepare_db_connection()
-    @_create_db_structure_if_necessary()
-    @_populate_db_if_necessary() if new.target is File_mirror
-    #.......................................................................................................
-    return undefined
-
-  #---------------------------------------------------------------------------------------------------------
-  _trash_db_if_necessary: ->
-    return 0 unless @cfg.trash_db
-    return trash @cfg.db_path
-
-  #---------------------------------------------------------------------------------------------------------
-  _prepare_db_connection: ->
-    # whisper 'Ω___5', "File_mirror._prepare_db_connection"
-    # @_db =>
-    #   @_db.create_table_function
-    #     name:         'file_contents_t'
-    #     columns:      [ 'lnr', 'line', 'eol', ]
-    #     parameters:   [ 'filename', ]
-    #     rows: ( filename ) ->
-    #       path  = PATH.resolve process.cwd(), filename
-    #       for { lnr, line, eol, } from GUY.fs.walk_lines_with_positions path
-    #         yield { lnr, line, eol, }
-    #       return null
-    #   return null
-    # #.......................................................................................................
-    return null
-
-  #---------------------------------------------------------------------------------------------------------
-  _get_required_table_names: -> new Set (
-    ( p.required_table_names ? [] ) for p in WG.props.get_prototype_chain @constructor ).flat()
-
-  #---------------------------------------------------------------------------------------------------------
-  _create_db_structure_if_necessary: ->
-    if U.db_has_all_table_names @_db, @constructor.required_table_names
-      whisper 'Ω___6', "File_mirror::_create_db_structure_if_necessary: re-using DB at #{@cfg.db_path}"
-    else
-      whisper 'Ω___7', "File_mirror::_create_db_structure_if_necessary: creating structure of DB at #{@cfg.db_path}"
-      @_create_db_structure()
-    #.......................................................................................................
-    return null
-
-  #---------------------------------------------------------------------------------------------------------
-  _clear_db : ->
-    ### TAINT belongs to Prompt_file_reader ###
-    ### TAINT use `_required_table_names` ###
-    @_db =>
-      @_db SQL"drop table if exists prompts;"
-    #.......................................................................................................
-    return null
-
-  #---------------------------------------------------------------------------------------------------------
-  _create_db_structure: ->
-    whisper 'Ω___8', "File_mirror::_create_db_structure"
-    @_clear_db()
-    @_db =>
-      ### TAINT a more general solution should accommodate more than a single source file ###
-      @_db SQL"""
-        create table datasources (
-            lnr       integer not null primary key,
-            line      text    not null );"""
-      return null
-    return null
-
-  #---------------------------------------------------------------------------------------------------------
-  _populate_db_if_necessary: ->
-    whisper 'Ω___9', "File_mirror::_populate_db_if_necessary"
-    return 0 unless @cfg.auto_populate_db
-    @_populate_db()
-    return 1
-
-  #---------------------------------------------------------------------------------------------------------
-  _populate_db: ->
-    ### TAINT throw error unless @cfg.auto_populate_db ###
-    try
-      @_db =>
-        for { lnr, line, eol, } from GUY.fs.walk_lines_with_positions @cfg.datasource_path
-          @_db @_insert_into.datasources, { lnr, line, }
-        return null
-    catch error
-      if error.code in [ 'ENOENT', 'EACCES', 'EPERM', ]
-        whisper 'Ω__10', "File_mirror::_populate_db", U.color.bad \
-          error.message
-        process.exit 111
-      throw error
-    return null
 
 ###
 
