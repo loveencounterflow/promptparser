@@ -38,7 +38,7 @@
 
 
 ```bash
-sqlite3pspg /dev/shm/promptparser-production-registry.sqlite "select distinct
+sqlite3pspg /dev/shm/promptparser.sqlite "select distinct
     prompt_id,
     sum( count ) over ( partition by prompt_id ) as sum,
     prompt
@@ -49,7 +49,7 @@ left join prompts as p
 ```
 
 ```bash
-sqlite3pspg /dev/shm/promptparser-production-registry.sqlite "
+sqlite3pspg /dev/shm/promptparser.sqlite "
 select distinct
     c.prompt_id                   as prompt_id,
     c.g                           as g,
@@ -67,91 +67,87 @@ left join prompts as p
 
 ## To Do
 
-* **[–]** `TD/Ω___1` unify `prompt_file_path` and `datasource_path`, which mean the same thing
-* **[–]** `TD/Ω___2` implement:
-  * **[–]** `TD/Ω___3` make prompt file path optional
-  * **[–]** `TD/Ω___4` make DB file path optional(?)
-    * **[–]** `TD/Ω___5` if DB path is not given, should a temporary location be chosen? That would mean that all
+* **[–]** unify `prompt_file_path` and `datasource_path`, which mean the same thing
+* **[–]** implement:
+  * **[–]** make prompt file path optional
+  * **[–]** make DB file path optional(?)
+    * **[–]** if DB path is not given, should a temporary location be chosen? That would mean that all
       operations can be executed in both cases, the only difference being that the temporary location will
       be deleted when the process terminates
-  * **[–]** `TD/Ω___6` allow to parse single prompts (or multiple lines, too?) and return the results w/out storing
+  * **[–]** allow to parse single prompts (or multiple lines, too?) and return the results w/out storing
     them in DB
-  * **[–]** `TD/Ω___7` allow to either store results or return them (or both?); when no DB file path is given, only
+  * **[–]** allow to either store results or return them (or both?); when no DB file path is given, only
     returning results is possible
-* **[–]** `TD/Ω___8` find solution for line number issue
-  * **[–]** `TD/Ω___9` look into lexer for solution
-  * **[–]** `TD/Ω__10` otherwise, send line numbering datoms
-* **[–]** `TD/Ω__11` add prompt with opening but missing closing bracket, test whether state is properly reset
-* **[–]** `TD/Ω__12` statistics:
-  * **[–]** `TD/Ω__13` raw words
-  * **[–]** `TD/Ω__14` raw words normalized
-  * **[–]** `TD/Ω__15` raw words normalized and translated
-  * **[–]** `TD/Ω__16` 'generativity', 'density'
-  * **[–]** `TD/Ω__17` 'acceptance' or 'appeal' i.e. absolute generativity in relation to how many pictures downloaded
-  * **[–]** `TD/Ω__18` 'generational stability': measure for how much generation sizes vary (predictability)
-* **[–]** `TD/Ω__19` add tests that the following are not recorded in DB:
-  * **[–]** `TD/Ω__20` empty lines
-  * **[–]** `TD/Ω__21` lines that do not contain a prompt
-* **[–]** `TD/Ω__22` implement searching for similar queries
-  * **[–]** `TD/Ω__23` https://unum-cloud.github.io/usearch/sqlite/
-  * **[–]** `TD/Ω__24` https://github.com/schiffma/distlib
-  * **[–]** `TD/Ω__25` https://sqlite.org/spellfix1.html
-* **[–]** `TD/Ω__26` consider to use `git blame $filename` to detect changed lines, updated linenrs when doing
+* **[–]** find solution for line number issue
+  * **[–]** look into lexer for solution
+  * **[–]** otherwise, send line numbering datoms
+* **[–]** add prompt with opening but missing closing bracket, test whether state is properly reset
+* **[–]** statistics:
+  * **[–]** raw words
+  * **[–]** raw words normalized
+  * **[–]** raw words normalized and translated
+  * **[–]** 'generativity', 'density'
+  * **[–]** 'acceptance' or 'appeal' i.e. absolute generativity in relation to how many pictures downloaded
+  * **[–]** 'generational stability': measure for how much generation sizes vary (predictability)
+* **[–]** add tests that the following are not recorded in DB:
+  * **[–]** empty lines
+  * **[–]** lines that do not contain a prompt
+* **[–]** implement searching for similar queries
+  * **[–]** https://unum-cloud.github.io/usearch/sqlite/
+  * **[–]** https://github.com/schiffma/distlib
+  * **[–]** https://sqlite.org/spellfix1.html
+* **[–]** consider to use `git blame $filename` to detect changed lines, updated linenrs when doing
   `refresh`
-  * **[–]** `TD/Ω__27` this may be simplified by only supporting refreshing everything from the first changed line
+  * **[–]** this may be simplified by only supporting refreshing everything from the first changed line
     onwards
-* **[–]** `TD/Ω__28` commands:
-  * **[–]** `TD/Ω__29` sooner:
-    * **[–]** `TD/Ω__30` `build` DB with all prompts:
-      * **[+]** `TD/Ω__31` (optional) up to `--max-count`
-      * **[+]** `TD/Ω__32` (optional) `--sample` x out of y
-      * **[+]** `TD/Ω__33` (optional) `--match` regex<ins>; this matches only the prompt, not the entire line; a `/^.../`
+* **[–]** commands:
+  * **[–]** sooner:
+    * **[–]** `build` DB with all prompts:
+      * **[+]** (optional) up to `--max-count`
+      * **[+]** (optional) `--sample` x out of y
+      * **[+]** (optional) `--match` regex<ins>; this matches only the prompt, not the entire line; a `/^.../`
         RegEx start anchor will match the position before the first non-blank character of the prompt text
         (to the exclusion of the generational counts in square brackets)</ins>
-        * **[+]** `TD/Ω__34` <del>consider to rename to `--match-line` and introduce additional `--match-prompt`</del>
-      * **[–]** `TD/Ω__35` (optional) `--dont-match` regex
-      * **[+]** `TD/Ω__36` (optional) `--pre-match` regex; this defaults to `/^\[.*?\].*?\S+/`, that is, prompts that
+        * **[+]** <del>consider to rename to `--match-line` and introduce additional `--match-prompt`</del>
+      * **[–]** (optional) `--dont-match` regex
+      * **[+]** (optional) `--pre-match` regex; this defaults to `/^\[.*?\].*?\S+/`, that is, prompts that
         start with a possibly empty pair of `[]` square brackets and a non-blank tail; this is intended to
         keep all commentaries and npn-rated prompts out of the DB.
-      * **[+]** `TD/Ω__37` (optional) <del>`--overwrite`</del> <ins>`--trash-db`</ins>
-      * **[+]** `TD/Ω__38` (optional) `--db` path
-      * **[+]** `TD/Ω__39` (positional) prompts / datasource path
-    * **[–]** `TD/Ω__40` `rebuild` DB; same as `build` but with `--overwrite` implied
-  * **[–]** `TD/Ω__41` later:
-    * **[–]** `TD/Ω__42` `refresh` DB with changed, added, deleted prompts
-    * **[–]** `TD/Ω__43` `delete` DB
-* **[–]** `TD/Ω__44` implement a way to add (some) RegEx flags to `--pre-match`, `--match`, `--dont-match`; maybe
+      * **[+]** (optional) <del>`--overwrite`</del> <ins>`--trash-db`</ins>
+      * **[+]** (optional) `--db` path
+      * **[+]** (positional) prompts / datasource path
+    * **[–]** `rebuild` DB; same as `build` but with `--overwrite` implied
+  * **[–]** later:
+    * **[–]** `refresh` DB with changed, added, deleted prompts
+    * **[–]** `delete` DB
+* **[–]** implement a way to add (some) RegEx flags to `--pre-match`, `--match`, `--dont-match`; maybe
   syntax could be changed to (optionally?) use `/.../` slashes with trailing flags, as in `--match
   '/[a-z]/i'`
-* **[–]** `TD/Ω__45` use [`slevithan/regex`](https://github.com/slevithan/regex) to compile RegEx flags
-* **[–]** `TD/Ω__46` Metrics:
-  * **[–]** `TD/Ω__47` fulfillment rate: ratio of possible (4 per generation) to actually produced images
-  * **[–]** `TD/Ω__48` correlation between prompt length and fulfillment rate
-  * **[–]** `TD/Ω__49` acceptance rate: what proportion of produced images were downloaded
-  * **[–]** `TD/Ω__50` success rate: what proportion of possible images (generation count times four) were downloaded
-* **[–]** `TD/Ω__51` in jobdefs, forbid:
-  * **[+]** `TD/Ω__52` `runner`
-  * **[–]** `TD/Ω__53` `fallback`
-* **[–]** `TD/Ω__54` in both the File Registry and the Production Registry, see to it that all prompts that equal the empty
+* **[–]** use [`slevithan/regex`](https://github.com/slevithan/regex) to compile RegEx flags
+* **[–]** Metrics:
+  * **[–]** fulfillment rate: ratio of possible (4 per generation) to actually produced images
+  * **[–]** correlation between prompt length and fulfillment rate
+  * **[–]** acceptance rate: what proportion of produced images were downloaded
+  * **[–]** success rate: what proportion of possible images (generation count times four) were downloaded
+* **[–]** in jobdefs, forbid:
+  * **[+]** `runner`
+  * **[–]** `fallback`
+* **[–]** in both the File Registry and the Production Registry, see to it that all prompts that equal the empty
   string are correctly assigned `Utilities::nosuchprompt`; this value is, ATM, the empty string, too, but
   that could change in the future
-* **[–]** `TD/Ω__55` mention that file IDs are derived from *paths* (partial or absolute paths?), *not* from content
+* **[–]** mention that file IDs are derived from *paths* (partial or absolute paths?), *not* from content
   hashes which would probably be the better and more correct (but also computationally more expensive) way
   to do it
-* **[–]** `TD/Ω__56` future structure:
-  * Production Registry (PRD)
-    * module now called `main` -> `production-registry`
-    * <del>DB now called `prompts-and-generations.sqlite` -> `promptparser-production-registry.sqlite`</del> <ins>prefix for DB tables: `prd`</ins>
-  * Image Registry (IMG)
-    * module now called `file-cache-builder` -> `image-registry`
-    * <del>DB now called `files-and-prompts.sqlite` -> `promptparser-image-registry.sqlite`</del> <ins>prefix for DB tables: `img`</ins>
-  * one DB to bind them all:
-    * module called `main`
-    * <del>DB called `promptparser-main.sqlite`</del> <ins>prefix for DB tables: `main`</ins>
-    * has `promptparser-production-registry.sqlite` attached as `prd`
-    * has `promptparser-image-registry.sqlite` attached as `img`
-* **[–]** `TD/Ω__57` introduce metric for 'strength of failure' (centrality?), i.e. `[s00000]` is 'more
+* **[–]** introduce metric for 'strength of failure' (centrality?), i.e. `[s00000]` is 'more
   nope' than `[s0]`; this also holds true for any other fulfillment rate
+* **[–]** future structure:
+  * Production Registry (PRD):
+    * table prefix `prd_`
+  * Image Registry (IMG):
+    * table prefix `img_`
+  * overarching views and tables (MAIN):
+    * table prefix `main_`
+* **[–]** add CLI flag to specify globs for images
 
 ## Is Done
 
