@@ -331,7 +331,7 @@ class Prompt_parser extends Transformer
       #.....................................................................................................
       for count in d.generations
         nr++
-        send { $key: 'record', prompt_id, table: 'generations', fields: { prompt_id, nr, count, }, }
+        send { $key: 'record', prompt_id, table: 'prd_generations', fields: { prompt_id, nr, count, }, }
       nrs.set prompt_id, nr
       return null
 
@@ -391,7 +391,7 @@ class Prompt_parser extends Transformer
 class Prompt_file_reader extends File_mirror
 
   #---------------------------------------------------------------------------------------------------------
-  @required_table_names = [ 'prompts', 'generations', ]
+  @required_table_names = [ 'prd_prompts', 'prd_generations', ]
 
   #---------------------------------------------------------------------------------------------------------
   ### TAINT use CFG pattern, namespacing as in `file_mirror.path`, validation ###
@@ -426,7 +426,7 @@ class Prompt_file_reader extends File_mirror
             rejected  boolean not null,
           unique( prompt ) );"""
       @_db SQL"""
-        create table generations (
+        create table prd_generations (
             prompt_id text    not null,
             nr        integer not null,
             count     integer not null,
@@ -437,7 +437,7 @@ class Prompt_file_reader extends File_mirror
             prompt_id             as prompt_id,
             count(*)      over w  as generations,
             sum( count )  over w  as images
-          from generations as g
+          from prd_generations as g
           window w as ( partition by prompt_id );"""
       @_db SQL"""
         create view densities as select
@@ -445,7 +445,7 @@ class Prompt_file_reader extends File_mirror
             c.generations                                                                       as generations,
             c.images                                                                            as images,
             cast( ( ( cast( c.images as real ) / c.generations / 4 ) * 100 + 0.5 ) as integer ) as density
-          from generations as g
+          from prd_generations as g
           left join counts as c on ( g.prompt_id = c.prompt_id );"""
       @_db SQL"""
         create view promptstats as select distinct
@@ -461,15 +461,15 @@ class Prompt_file_reader extends File_mirror
         create view rowcounts as
           select            null as name,         null as rowcount where false
           union all select  'prompts',            count(*)                from prd_prompts
-          union all select  'generations',        count(*)                from generations
+          union all select  'generations',        count(*)                from prd_generations
           union all select  'counts',             count(*)                from counts
           union all select  'densities',          count(*)                from densities
           ;"""
       ### TAINT auto-generate ###
       hide @, '_insert_into',
-        datasources:  @_db.create_insert { into: 'datasources',                                  }
-        prd_prompts:  @_db.create_insert { into: 'prd_prompts',  on_conflict: { update: true, }, }
-        generations:  @_db.create_insert { into: 'generations',                                  }
+        datasources:      @_db.create_insert { into: 'datasources',                                  }
+        prd_prompts:      @_db.create_insert { into: 'prd_prompts',  on_conflict: { update: true, }, }
+        prd_generations:  @_db.create_insert { into: 'prd_generations',                              }
       return null
     return null
 
@@ -487,9 +487,9 @@ class Prompt_file_reader extends File_mirror
       return @_db.alt @_insert_into.prd_prompts, lets d, ( d ) ->
         d.rejected = if d.rejected is true then 1 else 0
     #.......................................................................................................
-    generations: ( d ) ->
+    prd_generations: ( d ) ->
       ### TAINT validate? ###
-      return @_db.alt @_insert_into.generations, d
+      return @_db.alt @_insert_into.prd_generations, d
 
   #---------------------------------------------------------------------------------------------------------
   _populate_db: ->
