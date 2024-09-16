@@ -216,7 +216,7 @@ class Promptparser_main extends Dbay_autopop
     #.......................................................................................................
     @_trash_db_if_necessary()
     #.......................................................................................................
-    hide @, '_db', new DBay { path: '/dev/shm/promptparser-main.sqlite', }
+    hide @, '_db', new DBay { path: '/dev/shm/promptparser.sqlite', }
     # hide @, '_db', new DBay { path: @cfg.db_path, }
     #.......................................................................................................
     ### NOTE stuff like the below could go into a DBay utility class ###
@@ -257,8 +257,6 @@ class Promptparser_main extends Dbay_autopop
   _create_db_structure: ->
     whisper 'Ω___9', "Promptparser_main::_create_db_structure"
     @_clear_db()
-    @_db.open { schema: 'prd', path: '/dev/shm/promptparser-image-registry.sqlite', }
-    @_db.open { schema: 'img', path: '/dev/shm/promptparser-production-registry.sqlite', }
     # @_db =>
     #   @_db SQL"""
     #     create table datasources (

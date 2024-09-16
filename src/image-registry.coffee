@@ -106,7 +106,7 @@ build_file_db = ->
 #-----------------------------------------------------------------------------------------------------------
 prepare_db = ->
   ### TAINT use `types`, template ###
-  path                = '/dev/shm/promptparser-image-registry.sqlite'
+  path                = '/dev/shm/promptparser.sqlite'
   db                  = new DBay { path, }
   #.........................................................................................................
   ### TAINT use `U.db_has_all_table_names()` ###
