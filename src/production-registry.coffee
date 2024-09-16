@@ -433,7 +433,7 @@ class Prompt_file_reader extends File_mirror
           primary key ( prompt_id, nr ),
           foreign key ( prompt_id ) references prd_prompts ( id ) );"""
       @_db SQL"""
-        create view counts as select distinct
+        create view prd_counts as select distinct
             prompt_id             as prompt_id,
             count(*)      over w  as generations,
             sum( count )  over w  as images
@@ -446,7 +446,7 @@ class Prompt_file_reader extends File_mirror
             c.images                                                                            as images,
             cast( ( ( cast( c.images as real ) / c.generations / 4 ) * 100 + 0.5 ) as integer ) as density
           from prd_generations as g
-          left join counts as c on ( g.prompt_id = c.prompt_id );"""
+          left join prd_counts as c on ( g.prompt_id = c.prompt_id );"""
       @_db SQL"""
         create view promptstats as select distinct
             d.prompt_id     as prompt_id,
@@ -462,7 +462,7 @@ class Prompt_file_reader extends File_mirror
           select            null as name,         null as rowcount where false
           union all select  'prompts',            count(*)                from prd_prompts
           union all select  'generations',        count(*)                from prd_generations
-          union all select  'counts',             count(*)                from counts
+          union all select  'counts',             count(*)                from prd_counts
           union all select  'densities',          count(*)                from densities
           ;"""
       ### TAINT auto-generate ###
