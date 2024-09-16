@@ -37,7 +37,7 @@ build_file_db = ->
   PATH            = require 'node:path'
   { glob
     globSync  }   = require 'glob'
-  patterns        = [ '**/*.png', '**/*.jpg', ]
+  patterns        = [ '**/*.png', '**/*.jpg', '**/*.jpeg', ]
   cfg             = { dot: true }
   base_path       = set_path()
   count           = 0
