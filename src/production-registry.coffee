@@ -346,7 +346,7 @@ class Prompt_parser extends Transformer
       prompt:     d.prompt
       comment:    d.comment
       rejected:   d.rejected
-    send { $key: 'record', prompt_id: d.prompt_id, table: 'prompts', fields, }
+    send { $key: 'record', prompt_id: d.prompt_id, table: 'prd_prompts', fields, }
     return null
 
   #---------------------------------------------------------------------------------------------------------
@@ -418,7 +418,7 @@ class Prompt_file_reader extends File_mirror
     whisper 'Ω__11', "Prompt_file_reader::_create_db_structure"
     @_db =>
       @_db SQL"""
-        create table prompts (
+        create table prd_prompts (
             id        text    not null primary key,
             lnr       integer not null,
             prompt    text    not null,
@@ -431,7 +431,7 @@ class Prompt_file_reader extends File_mirror
             nr        integer not null,
             count     integer not null,
           primary key ( prompt_id, nr ),
-          foreign key ( prompt_id ) references prompts ( id ) );"""
+          foreign key ( prompt_id ) references prd_prompts ( id ) );"""
       @_db SQL"""
         create view counts as select distinct
             prompt_id             as prompt_id,
@@ -455,12 +455,12 @@ class Prompt_file_reader extends File_mirror
             d.density       as density,
             p.lnr           as lnr,
             p.prompt        as prompt
-          from prompts    as p
-          join densities  as d on ( p.id = d.prompt_id );"""
+          from prd_prompts    as p
+          join densities      as d on ( p.id = d.prompt_id );"""
       @_db SQL"""
         create view rowcounts as
           select            null as name,         null as rowcount where false
-          union all select  'prompts',            count(*)                from prompts
+          union all select  'prompts',            count(*)                from prd_prompts
           union all select  'generations',        count(*)                from generations
           union all select  'counts',             count(*)                from counts
           union all select  'densities',          count(*)                from densities
@@ -468,7 +468,7 @@ class Prompt_file_reader extends File_mirror
       ### TAINT auto-generate ###
       hide @, '_insert_into',
         datasources:  @_db.create_insert { into: 'datasources',                                  }
-        prompts:      @_db.create_insert { into: 'prompts',      on_conflict: { update: true, }, }
+        prd_prompts:  @_db.create_insert { into: 'prd_prompts',  on_conflict: { update: true, }, }
         generations:  @_db.create_insert { into: 'generations',                                  }
       return null
     return null
@@ -482,9 +482,9 @@ class Prompt_file_reader extends File_mirror
       ### TAINT validate? ###
       return @_db.alt @_insert_into.datasources, d
     #.......................................................................................................
-    prompts: ( d ) ->
+    prd_prompts: ( d ) ->
       ### TAINT validate? ###
-      return @_db.alt @_insert_into.prompts, lets d, ( d ) ->
+      return @_db.alt @_insert_into.prd_prompts, lets d, ( d ) ->
         d.rejected = if d.rejected is true then 1 else 0
     #.......................................................................................................
     generations: ( d ) ->
@@ -537,11 +537,11 @@ class Prompt_file_reader extends File_mirror
         #...................................................................................................
         for record from @_pipeline.walk()
           #.................................................................................................
-          if record.table is 'prompts'
+          if record.table is 'prd_prompts'
             read_prompt_count++
           #.................................................................................................
           { lastInsertRowid: row_id, } = @insert_into[ record.table ] record.fields
-          if record.table is 'prompts'
+          if record.table is 'prd_prompts'
             unique_row_ids.add row_id
             written_prompt_count = unique_row_ids.size
         #...................................................................................................
@@ -552,7 +552,7 @@ class Prompt_file_reader extends File_mirror
           break
       return null
     #.......................................................................................................
-    written_prompt_count = @_db.single_value SQL"""select count(*) from prompts;""" ### TAINT use API ###
+    written_prompt_count = @_db.single_value SQL"""select count(*) from prd_prompts;""" ### TAINT use API ###
     #.......................................................................................................
     whisper 'Ω__16'
     whisper 'Ω__17', "Prompt_file_reader::_populate_db", GUY.trm.white \
