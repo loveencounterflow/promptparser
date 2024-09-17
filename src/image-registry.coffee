@@ -43,63 +43,65 @@ build_file_db = ->
   count           = 0
   DB              = prepare_db()
   #.........................................................................................................
-  do =>
-    DB.db ->
-      console.time 'build_file_db'
-      counts    =
-        skipped:  0
-        added:    0
-        deleted:  0
-      rel_paths = globSync patterns, cfg
-      info 'Ω___2', "found #{rel_paths.length} matching files"
-      for rel_path in rel_paths
-        count++; whisper count if ( count %% 1000 ) is 0
-        # break if count > 10000 ### !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! ###
-        abs_path  = PATH.resolve base_path, rel_path
-        path_id   = U.id_from_text abs_path
-        #...................................................................................................
-        if DB.known_path_ids.has path_id
-          # help "Ω___3 skipping path ID #{rpr path_id}"
-          counts.skipped++
-          ### NOTE we know that in the present run we will not again have to test against the current
-          `path_id`, so we also know we can safely delete it from the pool of known IDs (thereby making it
-          smaller and potentially a tad faster); after having gone through all `path_ids` in the file
-          system, we will then effectively have turned `DB.known_path_ids` into `extraneous_path_ids`, i.e.
-          those that could be deleted from the DB if deemed necessary. ###
-          DB.known_path_ids.delete path_id
-        else
-          ##################################################################################################
-          ##################################################################################################
-          ### TAINT factor this into method ###
-          # warn "Ω___4 inserting path ID #{rpr path_id}"
-          counts.added++
-          #.................................................................................................
-          exif = U.exif_from_path abs_path
-          ### TAINT use prepared statement ###
-          try
-            DB.db SQL"""
-              insert into img_prompts ( id, prompt ) values ( ?, ? )
-                on conflict ( id ) do nothing;""", [
-              exif.prompt_id, exif.prompt, ]
-          catch error
-            warn 'Ω___5', "error: #{error.message}"
-            warn 'Ω___6', "error happened with this data: #{rpr exif}"
-          #.................................................................................................
-          ### TAINT use prepared statement ###
-          try
-            DB.db SQL"""insert into img_files ( id, prompt_id, path ) values ( ?, ?, ? );""", [
-              path_id, exif.prompt_id, abs_path, ]
-          catch error
-            warn 'Ω___7', "error: #{error.message}"
-            warn 'Ω___8', "error happened with this data: #{rpr { path_id, prompt_id: exif.prompt_id, abs_path, }}"
-          ##################################################################################################
-          ##################################################################################################
-      #.....................................................................................................
-      info "Ω___9 changes to DB at #{DB.path}: #{rpr counts}"
-      #.....................................................................................................
-      return null
-    console.timeEnd 'build_file_db'
-    return null
+  # DB.db ->
+  console.time 'build_file_db'
+  counts    =
+    skipped:  0
+    added:    0
+    deleted:  0
+  rel_paths = globSync patterns, cfg
+  info 'Ω___2', GUY.trm.reverse "found #{rel_paths.length} matching files"
+  for rel_path in rel_paths
+    count++; whisper count if ( count %% 1000 ) is 0
+    # break if count > 10000 ### !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! ###
+    abs_path  = PATH.resolve base_path, rel_path
+    path_id   = U.id_from_text abs_path
+    #...................................................................................................
+    if DB.known_path_ids.has path_id
+      # help "Ω___3 skipping path ID #{rpr path_id}"
+      counts.skipped++
+      ### NOTE we know that in the present run we will not again have to test against the current
+      `path_id`, so we also know we can safely delete it from the pool of known IDs (thereby making it
+      smaller and potentially a tad faster); after having gone through all `path_ids` in the file
+      system, we will then effectively have turned `DB.known_path_ids` into `extraneous_path_ids`, i.e.
+      those that could be deleted from the DB if deemed necessary. ###
+      DB.known_path_ids.delete path_id
+    else
+      ##################################################################################################
+      ##################################################################################################
+      ### TAINT factor this into method ###
+      # warn "Ω___4 inserting path ID #{rpr path_id}"
+      counts.added++
+      #.................................................................................................
+      exif = U.exif_from_path abs_path
+      fields = { id: exif.prompt_id, prompt: exif.prompt, }
+      yield { $key: 'record', table: 'img_prompts', fields, }
+      #.................................................................................................
+      fields = { id: path_id, prompt_id: exif.prompt_id, path: abs_path, }
+      yield { $key: 'record', table: 'img_files', fields, }
+      #.................................................................................................
+      # ### TAINT use prepared statement ###
+      # try
+      #   DB.db SQL"""
+      #     insert into img_prompts ( id, prompt ) values ( ?, ? )
+      #       on conflict ( id ) do nothing;""", [
+      #     exif.prompt_id, exif.prompt, ]
+      # catch error
+      #   warn 'Ω___5', "error: #{error.message}"
+      #   warn 'Ω___6', "error happened with this data: #{rpr exif}"
+      # #.................................................................................................
+      # ### TAINT use prepared statement ###
+      # try
+      #   DB.db SQL"""insert into img_files ( id, prompt_id, path ) values ( ?, ?, ? );""", [
+      #     path_id, exif.prompt_id, abs_path, ]
+      # catch error
+      #   warn 'Ω___7', "error: #{error.message}"
+      #   warn 'Ω___8', "error happened with this data: #{rpr { path_id, prompt_id: exif.prompt_id, abs_path, }}"
+      # ##################################################################################################
+      # ##################################################################################################
+  #.....................................................................................................
+  info "Ω___9 changes to DB at #{DB.path}: #{rpr counts}"
+  console.timeEnd 'build_file_db'
   #.........................................................................................................
   return null
 
@@ -172,6 +174,17 @@ prepare_db = ->
 
 
 #===========================================================================================================
+class Image_iterator
+
+  #---------------------------------------------------------------------------------------------------------
+  constructor: ( cmd, flags ) ->
+    return undefined
+
+  #---------------------------------------------------------------------------------------------------------
+  [Symbol.iterator]: ->
+    yield from build_file_db()
+
+#===========================================================================================================
 module.exports = { build_file_db, }
 
 
@@ -182,4 +195,9 @@ if module is require.main then await do =>
   # await demo_exifr()
   # await demo_exiftool_vendored()
   # demo_dbay_with_exifdata()
-  build_file_db()
+  iterator = new Image_iterator()
+  debug 'Ω__12', iterator[Symbol.iterator]
+  debug 'Ω__13', d for d from iterator
+  debug 'Ω__14', [ iterator..., ].length
+
+
