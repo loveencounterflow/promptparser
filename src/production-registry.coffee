@@ -468,6 +468,7 @@ class Prompt_file_reader extends File_mirror
           union all select  'prd_counts',         count(*)          from prd_counts
           union all select  'prd_densities',      count(*)          from prd_densities
           ;"""
+      #.....................................................................................................
       ### TAINT auto-generate ###
       hide @, '_insert_into',
         datasources:      @_db.create_insert { into: 'datasources',                                  }

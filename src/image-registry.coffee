@@ -78,7 +78,7 @@ build_file_db = ->
           ### TAINT use prepared statement ###
           try
             DB.db SQL"""
-              insert into prompts ( id, prompt ) values ( ?, ? )
+              insert into img_prompts ( id, prompt ) values ( ?, ? )
                 on conflict ( id ) do nothing;""", [
               exif.prompt_id, exif.prompt, ]
           catch error
@@ -87,7 +87,7 @@ build_file_db = ->
           #.................................................................................................
           ### TAINT use prepared statement ###
           try
-            DB.db SQL"""insert into files ( id, prompt_id, path ) values ( ?, ?, ? );""", [
+            DB.db SQL"""insert into img_files ( id, prompt_id, path ) values ( ?, ?, ? );""", [
               path_id, exif.prompt_id, abs_path, ]
           catch error
             warn 'Ω___7', "error: #{error.message}"
@@ -114,34 +114,45 @@ prepare_db = ->
     tables    = db.first_values SQL"select name from sqlite_schema where type = 'table' order by name;"
     tables    = [ tables..., ]
     R         = false
-    R       or= 'files'    not in tables
-    R       or= 'prompts'  not in tables
+    R       or= 'img_files'   not in tables
+    R       or= 'img_prompts' not in tables
     return R
   #.........................................................................................................
   initialize_db = ( db ) ->
     db ->
-      db SQL"drop table if exists files;"
-      db SQL"drop table if exists prompts;"
+      db SQL"drop table if exists img_files;"
+      db SQL"drop table if exists img_prompts;"
       db SQL"""
-        create table files (
+        create table img_files (
             id        text not null primary key,
             prompt_id text not null,
             path      text not null,
-          foreign key ( prompt_id ) references prompts ( id ) );"""
+          foreign key ( prompt_id ) references img_prompts ( id ) );"""
       db SQL"""
-        create table prompts (
+        create table img_prompts (
             id        text not null primary key,
             prompt    text not null );"""
-      db SQL"""insert into prompts ( id, prompt ) values ( ?, ? );""", [
+      db SQL"""insert into img_prompts ( id, prompt ) values ( ?, ? );""", [
         ( U.id_from_text U.nosuchprompt ), U.nosuchprompt, ]
       db SQL"""
-        create view files_and_prompts as select
+        create view img_files_and_prompts as select
             f.id      as file_id,
             p.id      as prompt_id,
             f.path    as path,
             p.prompt  as prompt
-          from      prompts as p
-          left join files   as f on ( f.prompt_id = p.id );"""
+          from      img_prompts as p
+          left join img_files   as f on ( f.prompt_id = p.id );"""
+      #.....................................................................................................
+      ### TAINT auto-generate? ###
+      ### NOTE will contain counts for all relations ###
+      db SQL"""
+        create view rowcounts as
+          select            null as name,             null as rowcount where false
+          union all select  'img_files',              count(*)          from img_files
+          union all select  'img_prompts',            count(*)          from img_prompts
+          union all select  'img_files_and_prompts',  count(*)          from img_files_and_prompts
+          ;"""
+      #.....................................................................................................
       return null
     return null
   #.........................................................................................................
@@ -154,7 +165,7 @@ prepare_db = ->
   ### TAINT can we use an API call to get a set? ###
   known_path_ids = do =>
     R = new Set()
-    R.add id for id from db.first_values SQL"select * from files;"
+    R.add id for id from db.first_values SQL"select * from img_files;"
     return R
   #.........................................................................................................
   return { path, db, known_path_ids, }
