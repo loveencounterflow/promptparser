@@ -149,11 +149,17 @@ class File_mirror extends Dbay_autopop
     whisper 'Ω___4', "File_mirror::_create_db_structure"
     @_clear_db()
     @_db =>
+      #.....................................................................................................
       ### TAINT a more general solution should accommodate more than a single source file ###
       @_db SQL"""
         create table datasources (
             lnr       integer not null primary key,
             line      text    not null );"""
+      #.....................................................................................................
+      ### TAINT auto-generate ###
+      hide @, '_insert_into',
+        datasources:      @_db.create_insert { into: 'datasources',                                  }
+      #.....................................................................................................
       return null
     return null
 

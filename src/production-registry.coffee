@@ -388,7 +388,7 @@ class Prompt_parser extends Transformer
 ###
 
 #===========================================================================================================
-class Prompt_file_reader extends File_mirror
+class Prompt_file_reader
 
   #---------------------------------------------------------------------------------------------------------
   @required_table_names = [ 'prd_prompts', 'prd_generations', ]
@@ -396,11 +396,11 @@ class Prompt_file_reader extends File_mirror
   #---------------------------------------------------------------------------------------------------------
   ### TAINT use CFG pattern, namespacing as in `file_mirror.path`, validation ###
   constructor: ( cmd, flags = null ) ->
-    types           = get_types()
-    cfg             = types.create.pfr_constructor_cfg cmd, flags, null
-    super cfg.db_path, cfg.datasource_path, ( flags?.trash_db ? false )
+    debug 'Ω___5', cmd, flags
+    hide @, 'types', get_types()
+    @cfg            = @types.create.pfr_constructor_cfg cmd, flags, null
+    @_file_mirror   = new File_mirror @cfg.db_path, @cfg.datasource_path, ( flags?.trash_db ? false )
     ### TAINT try to avoid constructing almost the same object twice ###
-    @cfg            = @types.create.pfr_constructor_cfg cmd, flags, @cfg
     @_prompt_parser = new Prompt_parser @cfg.flags.match
     @_pipeline      = new Pipeline()
     @_pipeline.push @_prompt_parser
@@ -409,13 +409,13 @@ class Prompt_file_reader extends File_mirror
     hide @, 'insert_into', insert_into = {}
     insert_into[ key ] = ( f.bind @ ) for key, f of @constructor.insert_into
     #.......................................................................................................
-    @_populate_db_if_necessary() if new.target is Prompt_file_reader
+    # @_populate_db_if_necessary() if new.target is Prompt_file_reader
     return undefined
 
   #---------------------------------------------------------------------------------------------------------
   _create_db_structure: ->
     super()
-    whisper 'Ω__11', "Prompt_file_reader::_create_db_structure"
+    whisper 'Ω___6', "Prompt_file_reader::_create_db_structure"
     @_db =>
       @_db SQL"""
         create table prd_prompts (
@@ -496,8 +496,12 @@ class Prompt_file_reader extends File_mirror
       return @_db.alt @_insert_into.prd_generations, d
 
   #---------------------------------------------------------------------------------------------------------
+  _populate_db: ->
+    whisper 'Ω___7', "Prompt_file_reader::_populate_db"
+
+  #---------------------------------------------------------------------------------------------------------
   [Symbol.iterator]: ->
-    whisper 'Ω__12', "Prompt_file_reader::_populate_db"
+    whisper 'Ω___8', "Prompt_file_reader::[Symbol.iterator]"
     # super()
     line_count              = 0
     blank_line_count        = 0
@@ -507,16 +511,18 @@ class Prompt_file_reader extends File_mirror
     nonmatching_line_count  = 0
     unsampled_line_count    = 0
     #.......................................................................................................
+    # datasources = @_file_mirror._db.all_rows SQL"""select * from datasources;"""
+    # debug 'Ω___9', "datasources:", datasources.length
     ### NOTE pre-caching source rows because it is fast, probably fits into available RAM, and results in
     much faster write performance. As such, concurrent writes are *still* a bit of a hurdle with SQLite. ###
-    all_rows = @_db.all_rows SQL"""select * from datasources order by lnr;""" ### TAINT use API ###
-    whisper 'Ω__13', "Prompt_file_reader::_populate_db", GUY.trm.white \
+    all_rows = @_file_mirror._db.all_rows SQL"""select * from datasources order by lnr;""" ### TAINT use API ###
+    whisper 'Ω__10', "Prompt_file_reader::_populate_db", GUY.trm.white \
       "read #{U.format_nr all_rows.length} lines from DB"
     #.......................................................................................................
     ### NOTE this could / should be within a transaction but runs just as fast without one ###
     for row in all_rows
       line_count++
-      whisper 'Ω__14', "Prompt_file_reader::_populate_db", GUY.trm.white \
+      whisper 'Ω__11', "Prompt_file_reader::_populate_db", GUY.trm.white \
         "line count: #{U.format_nr line_count, 8}" if line_count %% 1e3 is 0
       #.....................................................................................................
       ### EXCLUDE EMPTY LINES ###
@@ -552,30 +558,30 @@ class Prompt_file_reader extends File_mirror
       #.....................................................................................................
       ### --MAX-COUNT ###
       if written_prompt_count >= @cfg.flags.max_count
-        whisper 'Ω__15', "Prompt_file_reader::_populate_db", GUY.trm.white \
+        whisper 'Ω__12', "Prompt_file_reader::_populate_db", GUY.trm.white \
           "stopping because prompt count exceeds max prompt count of #{U.format_nr @cfg.flags.max_count} prompts"
         break
     #.......................................................................................................
-    written_prompt_count = @_db.single_value SQL"""select count(*) from prd_prompts;""" ### TAINT use API ###
+    # written_prompt_count = @_file_mirror._db.single_value SQL"""select count(*) from prd_prompts;""" ### TAINT use API ###
     #.......................................................................................................
-    whisper 'Ω__16'
-    whisper 'Ω__17', "Prompt_file_reader::_populate_db", GUY.trm.white \
+    whisper 'Ω__13'
+    whisper 'Ω__14', "Prompt_file_reader::_populate_db", GUY.trm.white \
       "line count:                    +#{U.format_nr line_count, 12}"
     #.......................................................................................................
-    whisper 'Ω__18', "Prompt_file_reader::_populate_db", GUY.trm.white \
+    whisper 'Ω__15', "Prompt_file_reader::_populate_db", GUY.trm.white \
       "blank line count:              –#{U.format_nr blank_line_count, 12}"
     #.......................................................................................................
-    whisper 'Ω__19', "Prompt_file_reader::_populate_db", GUY.trm.white \
+    whisper 'Ω__16', "Prompt_file_reader::_populate_db", GUY.trm.white \
       "'unsampled' line count:        –#{U.format_nr unsampled_line_count, 12}"
     #.......................................................................................................
-    whisper 'Ω__20', "Prompt_file_reader::_populate_db", GUY.trm.white \
+    whisper 'Ω__17', "Prompt_file_reader::_populate_db", GUY.trm.white \
       "non-pre-matching line count:   –#{U.format_nr nonmatching_line_count, 12}"
     #.......................................................................................................
-    whisper 'Ω__21', "Prompt_file_reader::_populate_db", GUY.trm.white \
+    whisper 'Ω__18', "Prompt_file_reader::_populate_db", GUY.trm.white \
       "non-matching prompt count:     –#{U.format_nr @_prompt_parser.state.counts.non_matches, 12}"
-    #.......................................................................................................
-    whisper 'Ω__22', "Prompt_file_reader::_populate_db", GUY.trm.white \
-      "inserted #{U.format_nr written_prompt_count} rows into DB at #{@cfg.db_path}"
+    # #.......................................................................................................
+    # whisper 'Ω__19', "Prompt_file_reader::_populate_db", GUY.trm.white \
+    #   "inserted #{U.format_nr written_prompt_count} rows into DB at #{@cfg.db_path}"
     #.......................................................................................................
     return null
 
@@ -662,7 +668,19 @@ module.exports = {
 
 #===========================================================================================================
 if module is require.main then await do =>
+
+  cmd   = 'build'
+  flags = { match: /(?:)/, trash_db: true, sample: 0.01, max_count: 75000, prompts:  \
+  '../to-be-merged-from-Atlas/prompts-consolidated.md', seed: 1, pre_match: /^\[.*?\].*?\S+/, db:  \
+  '/dev/shm/promptparser.sqlite' }
+
+  for d from new Prompt_file_reader cmd, flags
+    debug 'Ω__20', d
+
+  return
+
+
   echo()
-  echo ( GUY.trm.grey 'Ω__23' ), ( GUY.trm.gold "run `node lib/cli.js help` instead of this file" )
+  echo ( GUY.trm.grey 'Ω__21' ), ( GUY.trm.gold "run `node lib/cli.js help` instead of this file" )
   echo()
   process.exit 111
