@@ -496,14 +496,14 @@ class Prompt_file_reader extends File_mirror
       return @_db.alt @_insert_into.prd_generations, d
 
   #---------------------------------------------------------------------------------------------------------
-  _populate_db: ->
+  [Symbol.iterator]: ->
     whisper 'Ω__12', "Prompt_file_reader::_populate_db"
-    super()
+    # super()
     line_count              = 0
     blank_line_count        = 0
     read_prompt_count       = 0
     written_prompt_count    = 0
-    unique_row_ids          = new Set()
+    # unique_row_ids          = new Set()
     nonmatching_line_count  = 0
     unsampled_line_count    = 0
     #.......................................................................................................
@@ -513,48 +513,48 @@ class Prompt_file_reader extends File_mirror
     whisper 'Ω__13', "Prompt_file_reader::_populate_db", GUY.trm.white \
       "read #{U.format_nr all_rows.length} lines from DB"
     #.......................................................................................................
-    do =>
-      ### NOTE this could / should be within a transaction but runs just as fast without one ###
-      for row in all_rows
-        line_count++
-        whisper 'Ω__14', "Prompt_file_reader::_populate_db", GUY.trm.white \
-          "line count: #{U.format_nr line_count, 8}" if line_count %% 1e3 is 0
-        #...................................................................................................
-        ### EXCLUDE EMPTY LINES ###
-        if /^\s*$/.test row.line
-          blank_line_count++
+    ### NOTE this could / should be within a transaction but runs just as fast without one ###
+    for row in all_rows
+      line_count++
+      whisper 'Ω__14', "Prompt_file_reader::_populate_db", GUY.trm.white \
+        "line count: #{U.format_nr line_count, 8}" if line_count %% 1e3 is 0
+      #.....................................................................................................
+      ### EXCLUDE EMPTY LINES ###
+      if /^\s*$/.test row.line
+        blank_line_count++
+        continue
+      #.....................................................................................................
+      ### --SAMPLE ###
+      if Math.random() > @cfg.flags.sample
+        unsampled_line_count++
+        continue
+      #.....................................................................................................
+      ### --MATCH ###
+      if @cfg.flags.pre_match?
+        @cfg.flags.pre_match.lastIndex = 0 ### TAINT ensure when constructing pre_match that lastIndex is never used ###
+        unless @cfg.flags.pre_match.test row.line
+          nonmatching_line_count++
           continue
+      #.....................................................................................................
+      @_pipeline.send row
+      #.....................................................................................................
+      for record from @_pipeline.walk()
         #...................................................................................................
-        ### --SAMPLE ###
-        if Math.random() > @cfg.flags.sample
-          unsampled_line_count++
-          continue
+        if record.table is 'prd_prompts'
+          read_prompt_count++
+        written_prompt_count++
+        yield record
         #...................................................................................................
-        ### --MATCH ###
-        if @cfg.flags.pre_match?
-          @cfg.flags.pre_match.lastIndex = 0 ### TAINT ensure when constructing pre_match that lastIndex is never used ###
-          unless @cfg.flags.pre_match.test row.line
-            nonmatching_line_count++
-            continue
-        #...................................................................................................
-        @_pipeline.send row
-        #...................................................................................................
-        for record from @_pipeline.walk()
-          #.................................................................................................
-          if record.table is 'prd_prompts'
-            read_prompt_count++
-          #.................................................................................................
-          { lastInsertRowid: row_id, } = @insert_into[ record.table ] record.fields
-          if record.table is 'prd_prompts'
-            unique_row_ids.add row_id
-            written_prompt_count = unique_row_ids.size
-        #...................................................................................................
-        ### --MAX-COUNT ###
-        if written_prompt_count >= @cfg.flags.max_count
-          whisper 'Ω__15', "Prompt_file_reader::_populate_db", GUY.trm.white \
-            "stopping because prompt count exceeds max prompt count of #{U.format_nr @cfg.flags.max_count} prompts"
-          break
-      return null
+        # { lastInsertRowid: row_id, } = @insert_into[ record.table ] record.fields
+        # if record.table is 'prd_prompts'
+        #   unique_row_ids.add row_id
+        #   written_prompt_count = unique_row_ids.size
+      #.....................................................................................................
+      ### --MAX-COUNT ###
+      if written_prompt_count >= @cfg.flags.max_count
+        whisper 'Ω__15', "Prompt_file_reader::_populate_db", GUY.trm.white \
+          "stopping because prompt count exceeds max prompt count of #{U.format_nr @cfg.flags.max_count} prompts"
+        break
     #.......................................................................................................
     written_prompt_count = @_db.single_value SQL"""select count(*) from prd_prompts;""" ### TAINT use API ###
     #.......................................................................................................
@@ -579,6 +579,7 @@ class Prompt_file_reader extends File_mirror
     #.......................................................................................................
     return null
 
+  ###
   #---------------------------------------------------------------------------------------------------------
   parse_all_records: ( source ) ->
     R = []
@@ -624,6 +625,20 @@ class Prompt_file_reader extends File_mirror
        change_record = @insert_into[ insertion_record.table ] insertion_record.fields
        R += change_record.changes
     return R
+  ###
+
+
+#===========================================================================================================
+class Production_iterator
+
+  #---------------------------------------------------------------------------------------------------------
+  constructor: ( cmd, flags ) ->
+    return undefined
+
+  #---------------------------------------------------------------------------------------------------------
+  [Symbol.iterator]: ->
+    yield from build_file_db()
+
 
 ###
 
