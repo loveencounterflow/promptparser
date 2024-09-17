@@ -141,10 +141,12 @@ left join prompts as p
 * **[–]** introduce metric for 'strength of failure' (centrality?), i.e. `[s00000]` is 'more
   nope' than `[s0]`; this also holds true for any other fulfillment rate
 * **[–]** future structure:
-  * Production Registry (PRD):
-    * table prefix `prd_`
-  * Image Registry (IMG):
-    * table prefix `img_`
+  * two iterators over 'records' (i.e. objects with attributes `table` and `fields` ready to be used in
+    suitable `insert` statements):
+    * table prefix `prd_`: Production Registry (PRD): reads prompts and generation counts from prompts file;
+      iterates over records for tables `prd_prompts`, `prd_generations`
+    * table prefix `img_`: Image Registry (IMG): reads EXIF data from image files; iterates over records for
+      tables `img_files`, `img_prompts`
   * overarching views and tables (MAIN):
     * table prefix `main_`
 * **[–]** add CLI flag to specify globs for images
