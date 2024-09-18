@@ -252,24 +252,11 @@ class Promptparser_cli extends Mixa
             expect:         "file system path that points to a file containing the prompts to be processed"
             type:           return_error 'prompts',   types.create.cli_prompts.bind   types.create
             positional:     true
-      TMP_main:
-        description: "build main DB"
-        flags:
-          db:
-            description:    "db"
-            expect:         "file system path"
-            type:           return_error 'db',   types.create.cli_db.bind   types.create
-            positional:     true
 
   #---------------------------------------------------------------------------------------------------------
   _new_prompt_file_reader: ( cmd = null, flags = null ) ->
     { Prompt_file_reader, } = require './production-registry'
     return new Prompt_file_reader ( cmd ? @cmd ), ( flags ? @flags )
-
-  #---------------------------------------------------------------------------------------------------------
-  _new_main: ( cmd = null, flags = null ) ->
-    { Promptparser_main, } = require './db-bases'
-    return new Promptparser_main ( cmd ? @cmd ), ( flags ? @flags )
 
   # #---------------------------------------------------------------------------------------------------------
   # cmd_nosuch: ->
@@ -286,12 +273,6 @@ class Promptparser_cli extends Mixa
   cmd_build: ->
     help 'Ω___7', "cmd_build", @flags
     pfr = @_new_prompt_file_reader()
-    return null
-
-  #---------------------------------------------------------------------------------------------------------
-  cmd_TMP_main: ->
-    help 'Ω___8', "cmd_TMP_main", @flags
-    main = @_new_main()
     return null
 
 

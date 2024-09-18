@@ -49,7 +49,7 @@ end_of_line               = Symbol 'end_of_line'
 { get_types }             = require './types'
 types                     = get_types()
 { trash }                 = require 'trash-sync'
-{ File_mirror }           = require './db-bases'
+{ File_mirror }           = require './file-mirror'
 
 
 ###

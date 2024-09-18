@@ -199,30 +199,6 @@ get_types = ->
       template:             null
       create: ( x ) -> x
 
-    #=======================================================================================================
-    # TYPES FOR PROMPTPARSER_MAIN
-    #-------------------------------------------------------------------------------------------------------
-    ppm_constructor_cfg:
-      test:   'object'
-      fields:
-        ### inherited from fm_constructor_cfg ###
-        db_path:              'nonempty.text'
-        datasource_path:      ( x ) -> @isa.optional.nonempty.text x ### TAINT workaround due to missing feature ###
-        has_db_path:          'boolean'
-        has_datasource_path:  'boolean'
-        has_db:               'boolean'
-        ### own fields ###
-        cmd:                  'nonempty.text'
-        flags:                'object'
-      create: ( cmd, flags, upstream_cfg = null ) ->
-        db_path             = flags.db
-        has_db_path         = db_path?
-        has_db              = has_db_path
-        datasource_path     = flags.prompts
-        has_datasource_path = datasource_path?
-        R = { upstream_cfg..., cmd, db_path, has_db_path, has_db, datasource_path, has_datasource_path, flags, }
-        return R
-
   #.........................................................................................................
   return types
 
