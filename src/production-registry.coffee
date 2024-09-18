@@ -670,7 +670,7 @@ module.exports = {
 if module is require.main then await do =>
 
   cmd   = 'build'
-  flags = { match: /(?:)/, trash_db: true, sample: 0.01, max_count: 75000, prompts:  \
+  flags = { match: /(?:)/, trash_db: true, sample: 0.01, max_count: 3, prompts:  \
   '../to-be-merged-from-Atlas/prompts-consolidated.md', seed: 1, pre_match: /^\[.*?\].*?\S+/, db:  \
   '/dev/shm/promptparser.sqlite' }
 
