@@ -471,7 +471,7 @@ class Prompt_file_reader
       #.....................................................................................................
       ### TAINT auto-generate ###
       hide @, '_insert_into',
-        datasources:      @_db.create_insert { into: 'datasources',                                  }
+        fm_datasources:   @_db.create_insert { into: 'fm_datasources',                               }
         prd_prompts:      @_db.create_insert { into: 'prd_prompts',  on_conflict: { update: true, }, }
         prd_generations:  @_db.create_insert { into: 'prd_generations',                              }
       return null
@@ -482,9 +482,9 @@ class Prompt_file_reader
   one should walk the prototype chain ###
   @insert_into:
     #.......................................................................................................
-    datasources: ( d ) ->
+    fm_datasources: ( d ) ->
       ### TAINT validate? ###
-      return @_db.alt @_insert_into.datasources, d
+      return @_db.alt @_insert_into.fm_datasources, d
     #.......................................................................................................
     prd_prompts: ( d ) ->
       ### TAINT validate? ###
@@ -511,11 +511,9 @@ class Prompt_file_reader
     nonmatching_line_count  = 0
     unsampled_line_count    = 0
     #.......................................................................................................
-    # datasources = @_file_mirror._db.all_rows SQL"""select * from datasources;"""
-    # debug 'Ω___9', "datasources:", datasources.length
     ### NOTE pre-caching source rows because it is fast, probably fits into available RAM, and results in
     much faster write performance. As such, concurrent writes are *still* a bit of a hurdle with SQLite. ###
-    all_rows = @_file_mirror._db.all_rows SQL"""select * from datasources order by lnr;""" ### TAINT use API ###
+    all_rows = @_file_mirror._db.all_rows SQL"""select * from fm_datasources order by lnr;""" ### TAINT use API ###
     whisper 'Ω__10', "Prompt_file_reader::_populate_db", GUY.trm.white \
       "read #{U.format_nr all_rows.length} lines from DB"
     #.......................................................................................................

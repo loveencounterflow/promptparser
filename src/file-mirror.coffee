@@ -52,7 +52,7 @@ types                     = get_types()
 class Dbay_autopop
 
   #---------------------------------------------------------------------------------------------------------
-  # @required_table_names: [ 'datasources', ]
+  # @required_table_names: [ 'fm_datasources', ]
 
   #---------------------------------------------------------------------------------------------------------
   ### TAINT use CFG pattern ###
@@ -80,7 +80,7 @@ class Dbay_autopop
 class File_mirror extends Dbay_autopop
 
   #---------------------------------------------------------------------------------------------------------
-  @required_table_names: [ 'datasources', ]
+  @required_table_names: [ 'fm_datasources', ]
 
   #---------------------------------------------------------------------------------------------------------
   ### TAINT use CFG pattern ###
@@ -152,13 +152,13 @@ class File_mirror extends Dbay_autopop
       #.....................................................................................................
       ### TAINT a more general solution should accommodate more than a single source file ###
       @_db SQL"""
-        create table datasources (
+        create table fm_datasources (
             lnr       integer not null primary key,
             line      text    not null );"""
       #.....................................................................................................
       ### TAINT auto-generate ###
       hide @, '_insert_into',
-        datasources:      @_db.create_insert { into: 'datasources',                                  }
+        fm_datasources:      @_db.create_insert { into: 'fm_datasources',                                  }
       #.....................................................................................................
       return null
     return null
@@ -176,7 +176,7 @@ class File_mirror extends Dbay_autopop
     try
       @_db =>
         for { lnr, line, eol, } from GUY.fs.walk_lines_with_positions @cfg.datasource_path
-          @_db @_insert_into.datasources, { lnr, line, }
+          @_db @_insert_into.fm_datasources, { lnr, line, }
         return null
     catch error
       if error.code in [ 'ENOENT', 'EACCES', 'EPERM', ]
