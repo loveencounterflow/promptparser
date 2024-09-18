@@ -141,6 +141,7 @@ left join prompts as p
 * **[–]** introduce metric for 'strength of failure' (centrality?), i.e. `[s00000]` is 'more
   nope' than `[s0]`; this also holds true for any other fulfillment rate
 * **[–]** future structure:
+  * DB built from base `File_mirror`, table prefix `fm_`
   * two iterators over 'records' (i.e. objects with attributes `table` and `fields` ready to be used in
     suitable `insert` statements):
     * table prefix `prd_`: Production Registry (PRD): reads prompts and generation counts from prompts file;
