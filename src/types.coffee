@@ -72,35 +72,22 @@ get_types = ->
         return x unless @isa.object x
         return x
     #.......................................................................................................
+    fm_table_name:          'nonempty.text'
+    fm_datasource_path:     'nonempty.text'
+    fm_table_fields:        'object'
+    #.......................................................................................................
     fm_constructor_cfg:
       fields:
-        db_path:              'nonempty.text'
-        datasource_path:      ( x ) -> @isa.optional.nonempty.text x ### TAINT workaround due to missing feature ###
-        has_db_path:          'boolean'
-        has_datasource_path:  'boolean'
-        has_db:               'boolean'
-        trash_db:             'boolean'
-      create: ( db_path, datasource_path, trash_db = false ) ->
-        has_db_path         = db_path?
-        has_datasource_path = datasource_path?
-        ### NOTE `has_db_path` could conceivably be used to optionally open a temporary DB; only when that
-        DB actually exists would `has_db` be set to true; FTTB we don't do that so we here assume that in
-        case there's a `db_path` there will be a (functional, writable &c) DB file to access, and otherwise,
-        there will be no DB file. Observe that in any case, even if we did check for a file, we would still
-        have to test its fitness for the purpose, so other than a given `db_path` pointing to an unsuitable
-        location, there will remain failure modes that won't be captured by `has_db`. As such, `has_db` is
-        more of an advisory, informative property: 'act as if there is / there is no DB file'. ###
-        has_db              = has_db_path
-        has_datasource      = has_datasource_path
-        auto_populate_db    = has_db and has_datasource
-        return {
-          db_path,          has_db_path,          has_db,
-          datasource_path,  has_datasource_path,  has_datasource,
-          auto_populate_db,
-          trash_db, }
+        db:                   'object'
+        datasource_path:      'fm_datasource_path'
+        table_name:           'fm_table_name'
+      template:
+        db:                   null
+        datasource_path:      null
+        table_name:           'fm_lines'
+      create: ( cfg ) ->
+        return { @declarations.fm_constructor_cfg.template..., db, datasource_path, table_name, }
     #.......................................................................................................
-    fm_table_name:          'nonempty.text'
-    fm_table_fields:        'object'
     fm_insertion_record_object:
       fields:
         table:              'fm_table_name'
