@@ -101,25 +101,19 @@ get_types = ->
     #     return x if @isa.fm_insertion_record_list x
     #     return [ x, ]
     #.......................................................................................................
+    list_or_iterator:  ( x ) ->
+      return true if @isa.list      x
+      return true if @isa.generator x
+      return false
+    #.......................................................................................................
     pfr_constructor_cfg:
       test:   'object'
       fields:
-        ### inherited from fm_constructor_cfg ###
-        db_path:              'nonempty.text'
-        datasource_path:      ( x ) -> @isa.optional.nonempty.text x ### TAINT workaround due to missing feature ###
-        has_db_path:          'boolean'
-        has_datasource_path:  'boolean'
-        has_db:               'boolean'
-        ### own fields ###
         cmd:                  'nonempty.text'
         flags:                'object'
-      create: ( cmd, flags, upstream_cfg = null ) ->
-        db_path             = flags.db
-        has_db_path         = db_path?
-        has_db              = has_db_path
-        datasource_path     = flags.prompts
-        has_datasource_path = datasource_path?
-        R = { upstream_cfg..., cmd, db_path, has_db_path, has_db, datasource_path, has_datasource_path, flags, }
+        lines:                'list_or_iterator'
+      create: ( cfg ) ->
+        R = { @declarations.pfr_constructor_cfg.template..., cfg..., }
         return R
     #.......................................................................................................
     cli_max_count:

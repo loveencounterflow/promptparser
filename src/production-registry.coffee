@@ -393,12 +393,10 @@ class Prompt_file_reader
   @required_table_names = [ 'prd_prompts', 'prd_generations', ]
 
   #---------------------------------------------------------------------------------------------------------
-  ### TAINT use CFG pattern, namespacing as in `file_mirror.path`, validation ###
-  constructor: ( cmd, flags = null ) ->
-    debug 'Ω___5', cmd, flags
+  constructor: ( cfg ) ->
+    debug 'Ω___5', cfg
     hide @, 'types', get_types()
-    @cfg            = @types.create.pfr_constructor_cfg cmd, flags, null
-    ### TAINT try to avoid constructing almost the same object twice ###
+    @cfg            = @types.create.pfr_constructor_cfg cfg
     @_prompt_parser = new Prompt_parser @cfg.flags.match
     @_pipeline      = new Pipeline()
     @_pipeline.push @_prompt_parser
@@ -511,7 +509,7 @@ class Prompt_file_reader
     #.......................................................................................................
     for row from @cfg.lines
       line_count++
-      whisper 'Ω__11', "Prompt_file_reader::_populate_db", GUY.trm.white \
+      whisper 'Ω___9', "Prompt_file_reader::_populate_db", GUY.trm.white \
         "line count: #{U.format_nr line_count, 8}" if line_count %% 1e3 is 0
       #.....................................................................................................
       ### EXCLUDE EMPTY LINES ###
@@ -547,27 +545,27 @@ class Prompt_file_reader
       #.....................................................................................................
       ### --MAX-COUNT ###
       if written_prompt_count >= @cfg.flags.max_count
-        whisper 'Ω__12', "Prompt_file_reader::_populate_db", GUY.trm.white \
+        whisper 'Ω__10', "Prompt_file_reader::_populate_db", GUY.trm.white \
           "stopping because prompt count exceeds max prompt count of #{U.format_nr @cfg.flags.max_count} prompts"
         break
     #.......................................................................................................
-    whisper 'Ω__13'
-    whisper 'Ω__14', "Prompt_file_reader::_populate_db", GUY.trm.white \
+    whisper 'Ω__11'
+    whisper 'Ω__12', "Prompt_file_reader::_populate_db", GUY.trm.white \
       "line count:                    +#{U.format_nr line_count, 12}"
     #.......................................................................................................
-    whisper 'Ω__15', "Prompt_file_reader::_populate_db", GUY.trm.white \
+    whisper 'Ω__13', "Prompt_file_reader::_populate_db", GUY.trm.white \
       "blank line count:              –#{U.format_nr blank_line_count, 12}"
     #.......................................................................................................
-    whisper 'Ω__16', "Prompt_file_reader::_populate_db", GUY.trm.white \
+    whisper 'Ω__14', "Prompt_file_reader::_populate_db", GUY.trm.white \
       "'unsampled' line count:        –#{U.format_nr unsampled_line_count, 12}"
     #.......................................................................................................
-    whisper 'Ω__17', "Prompt_file_reader::_populate_db", GUY.trm.white \
+    whisper 'Ω__15', "Prompt_file_reader::_populate_db", GUY.trm.white \
       "non-pre-matching line count:   –#{U.format_nr nonmatching_line_count, 12}"
     #.......................................................................................................
-    whisper 'Ω__18', "Prompt_file_reader::_populate_db", GUY.trm.white \
+    whisper 'Ω__16', "Prompt_file_reader::_populate_db", GUY.trm.white \
       "non-matching prompt count:     –#{U.format_nr @_prompt_parser.state.counts.non_matches, 12}"
     # #.......................................................................................................
-    # whisper 'Ω__19', "Prompt_file_reader::_populate_db", GUY.trm.white \
+    # whisper 'Ω__17', "Prompt_file_reader::_populate_db", GUY.trm.white \
     #   "inserted #{U.format_nr written_prompt_count} rows into DB at #{@cfg.db_path}"
     #.......................................................................................................
     return null
@@ -656,14 +654,22 @@ module.exports = {
 if module is require.main then await do =>
 
   cmd   = 'build'
-  flags = { match: /(?:)/, trash_db: true, sample: 0.01, max_count: 3, prompts:  \
-  '../to-be-merged-from-Atlas/prompts-consolidated.md', seed: 1, pre_match: /^\[.*?\].*?\S+/, db:  \
-  '/dev/shm/promptparser.sqlite' }
+  flags =
+    match:      /(?:)/,
+    trash_db:   true,
+    sample:     0.01,
+    max_count:  3,
+    prompts:    '../to-be-merged-from-Atlas/prompts-consolidated.md'
+    seed:       1,
+    pre_match:  /^\[.*?\].*?\S+/,
+    db:         '/dev/shm/promptparser.sqlite'
 
-  for d from new Prompt_file_reader cmd, flags
+  lines = GUY.fs.walk_lines_with_positions flags.prompts
+
+  for d from new Prompt_file_reader { cmd, flags, lines, }
     debug 'Ω__20', d
 
-  return
+  return null
 
 
   echo()
