@@ -49,7 +49,6 @@ end_of_line               = Symbol 'end_of_line'
 { get_types }             = require './types'
 types                     = get_types()
 { trash }                 = require 'trash-sync'
-{ File_mirror }           = require './file-mirror'
 
 
 ###
@@ -399,7 +398,6 @@ class Prompt_file_reader
     debug 'Ω___5', cmd, flags
     hide @, 'types', get_types()
     @cfg            = @types.create.pfr_constructor_cfg cmd, flags, null
-    @_file_mirror   = new File_mirror { db: @cfg.db_path, @cfg.datasource_path, table_}
     ### TAINT try to avoid constructing almost the same object twice ###
     @_prompt_parser = new Prompt_parser @cfg.flags.match
     @_pipeline      = new Pipeline()
@@ -511,14 +509,7 @@ class Prompt_file_reader
     nonmatching_line_count  = 0
     unsampled_line_count    = 0
     #.......................................................................................................
-    ### NOTE pre-caching source rows because it is fast, probably fits into available RAM, and results in
-    much faster write performance. As such, concurrent writes are *still* a bit of a hurdle with SQLite. ###
-    all_rows = @_file_mirror._db.all_rows SQL"""select * from fm_datasources order by lnr;""" ### TAINT use API ###
-    whisper 'Ω__10', "Prompt_file_reader::_populate_db", GUY.trm.white \
-      "read #{U.format_nr all_rows.length} lines from DB"
-    #.......................................................................................................
-    ### NOTE this could / should be within a transaction but runs just as fast without one ###
-    for row in all_rows
+    for row from @cfg.lines
       line_count++
       whisper 'Ω__11', "Prompt_file_reader::_populate_db", GUY.trm.white \
         "line count: #{U.format_nr line_count, 8}" if line_count %% 1e3 is 0
@@ -559,8 +550,6 @@ class Prompt_file_reader
         whisper 'Ω__12', "Prompt_file_reader::_populate_db", GUY.trm.white \
           "stopping because prompt count exceeds max prompt count of #{U.format_nr @cfg.flags.max_count} prompts"
         break
-    #.......................................................................................................
-    # written_prompt_count = @_file_mirror._db.single_value SQL"""select count(*) from prd_prompts;""" ### TAINT use API ###
     #.......................................................................................................
     whisper 'Ω__13'
     whisper 'Ω__14', "Prompt_file_reader::_populate_db", GUY.trm.white \
@@ -661,7 +650,6 @@ class Production_iterator
 #===========================================================================================================
 module.exports = {
   new_prompt_lexer,
-  File_mirror,
   Prompt_file_reader, }
 
 #===========================================================================================================

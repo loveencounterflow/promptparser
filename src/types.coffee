@@ -71,35 +71,35 @@ get_types = ->
       create: ( x ) ->
         return x unless @isa.object x
         return x
-    #.......................................................................................................
-    fm_table_name:          'nonempty.text'
-    fm_datasource_path:     'nonempty.text'
-    fm_table_fields:        'object'
-    #.......................................................................................................
-    fm_constructor_cfg:
-      fields:
-        db:                   'object'
-        datasource_path:      'fm_datasource_path'
-        table_name:           'fm_table_name'
-      template:
-        db:                   null
-        datasource_path:      null
-        table_name:           'fm_lines'
-      create: ( cfg ) ->
-        return { @declarations.fm_constructor_cfg.template..., cfg..., }
-    #.......................................................................................................
-    fm_insertion_record_object:
-      fields:
-        table:              'fm_table_name'
-        fields:             'fm_table_fields'
-    fm_insertion_record_list: ( x ) ->
-      return false unless @isa.list x
-      return x.every ( e ) => @isa.fm_insertion_record_object e
-    fm_insertion_records:
-      test:     ( x ) -> ( @isa.fm_insertion_record_object x ) or ( @isa.fm_insertion_record_list x )
-      create:   ( x ) ->
-        return x if @isa.fm_insertion_record_list x
-        return [ x, ]
+    # #.......................................................................................................
+    # fm_table_name:          'nonempty.text'
+    # fm_datasource_path:     'nonempty.text'
+    # fm_table_fields:        'object'
+    # #.......................................................................................................
+    # fm_constructor_cfg:
+    #   fields:
+    #     db:                   'object'
+    #     datasource_path:      'fm_datasource_path'
+    #     table_name:           'fm_table_name'
+    #   template:
+    #     db:                   null
+    #     datasource_path:      null
+    #     table_name:           'fm_lines'
+    #   create: ( cfg ) ->
+    #     return { @declarations.fm_constructor_cfg.template..., cfg..., }
+    # #.......................................................................................................
+    # fm_insertion_record_object:
+    #   fields:
+    #     table:              'fm_table_name'
+    #     fields:             'fm_table_fields'
+    # fm_insertion_record_list: ( x ) ->
+    #   return false unless @isa.list x
+    #   return x.every ( e ) => @isa.fm_insertion_record_object e
+    # fm_insertion_records:
+    #   test:     ( x ) -> ( @isa.fm_insertion_record_object x ) or ( @isa.fm_insertion_record_list x )
+    #   create:   ( x ) ->
+    #     return x if @isa.fm_insertion_record_list x
+    #     return [ x, ]
     #.......................................................................................................
     pfr_constructor_cfg:
       test:   'object'
