@@ -394,19 +394,17 @@ class Prompt_file_reader
 
   #---------------------------------------------------------------------------------------------------------
   [Symbol.iterator]: ->
-    whisper 'Ω___8', "Prompt_file_reader::[Symbol.iterator]"
-    # super()
+    whisper 'Ω___5', "Prompt_file_reader::[Symbol.iterator]"
     line_count              = 0
     blank_line_count        = 0
     read_prompt_count       = 0
     written_prompt_count    = 0
-    # unique_row_ids          = new Set()
     nonmatching_line_count  = 0
     unsampled_line_count    = 0
     #.......................................................................................................
     for row from @cfg.lines
       line_count++
-      whisper 'Ω___9', "Prompt_file_reader::_populate_db", GUY.trm.white \
+      whisper 'Ω___6', "Prompt_file_reader::_populate_db", GUY.trm.white \
         "line count: #{U.format_nr line_count, 8}" if line_count %% 1e3 is 0
       #.....................................................................................................
       ### EXCLUDE EMPTY LINES ###
@@ -434,36 +432,28 @@ class Prompt_file_reader
           read_prompt_count++
         written_prompt_count++
         yield record
-        #...................................................................................................
-        # { lastInsertRowid: row_id, } = @insert_into[ record.table ] record.fields
-        # if record.table is 'prd_prompts'
-        #   unique_row_ids.add row_id
-        #   written_prompt_count = unique_row_ids.size
       #.....................................................................................................
       ### --MAX-COUNT ###
       if written_prompt_count >= @cfg.flags.max_count
-        whisper 'Ω__10', "Prompt_file_reader::_populate_db", GUY.trm.white \
+        whisper 'Ω___7', "Prompt_file_reader::_populate_db", GUY.trm.white \
           "stopping because prompt count exceeds max prompt count of #{U.format_nr @cfg.flags.max_count} prompts"
         break
     #.......................................................................................................
-    whisper 'Ω__11'
-    whisper 'Ω__12', "Prompt_file_reader::_populate_db", GUY.trm.white \
+    whisper 'Ω___8'
+    whisper 'Ω___9', "Prompt_file_reader::_populate_db", GUY.trm.white \
       "line count:                    +#{U.format_nr line_count, 12}"
     #.......................................................................................................
-    whisper 'Ω__13', "Prompt_file_reader::_populate_db", GUY.trm.white \
+    whisper 'Ω__10', "Prompt_file_reader::_populate_db", GUY.trm.white \
       "blank line count:              –#{U.format_nr blank_line_count, 12}"
     #.......................................................................................................
-    whisper 'Ω__14', "Prompt_file_reader::_populate_db", GUY.trm.white \
+    whisper 'Ω__11', "Prompt_file_reader::_populate_db", GUY.trm.white \
       "'unsampled' line count:        –#{U.format_nr unsampled_line_count, 12}"
     #.......................................................................................................
-    whisper 'Ω__15', "Prompt_file_reader::_populate_db", GUY.trm.white \
+    whisper 'Ω__12', "Prompt_file_reader::_populate_db", GUY.trm.white \
       "non-pre-matching line count:   –#{U.format_nr nonmatching_line_count, 12}"
     #.......................................................................................................
-    whisper 'Ω__16', "Prompt_file_reader::_populate_db", GUY.trm.white \
+    whisper 'Ω__13', "Prompt_file_reader::_populate_db", GUY.trm.white \
       "non-matching prompt count:     –#{U.format_nr @prompt_parser.state.counts.non_matches, 12}"
-    # #.......................................................................................................
-    # whisper 'Ω__17', "Prompt_file_reader::_populate_db", GUY.trm.white \
-    #   "inserted #{U.format_nr written_prompt_count} rows into DB at #{@cfg.db_path}"
     #.......................................................................................................
     return null
 
@@ -505,12 +495,12 @@ if module is require.main then await do =>
   lines = GUY.fs.walk_lines_with_positions flags.prompts
 
   for d from new Prompt_file_reader { cmd, flags, lines, }
-    debug 'Ω__20', d
+    debug 'Ω__14', d
 
   return null
 
 
   echo()
-  echo ( GUY.trm.grey 'Ω__21' ), ( GUY.trm.gold "run `node lib/cli.js help` instead of this file" )
+  echo ( GUY.trm.grey 'Ω__15' ), ( GUY.trm.gold "run `node lib/cli.js help` instead of this file" )
   echo()
   process.exit 111
