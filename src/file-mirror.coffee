@@ -20,9 +20,10 @@ GUY                       = require 'guy'
   log     }               = GUY.trm
 { hide }                  = GUY.props
 { U }                     = require './utilities'
+{ DBay }                  = require 'dbay'
 { SQL  }                  = DBay
-PATH                      = require 'node:path'
-FS                        = require 'node:fs'
+# PATH                      = require 'node:path'
+# FS                        = require 'node:fs'
 { get_types }             = require './types'
 types                     = get_types()
 
@@ -35,6 +36,7 @@ class File_mirror
   constructor: ( cfg ) ->
     hide @, 'types', get_types()
     @cfg  = @types.create.fm_constructor_cfg cfg
+    hide @, 'db', @cfg.db; delete @cfg.db
     @_create_db_structure()
     @_populate_db()
     #.......................................................................................................

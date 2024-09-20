@@ -86,7 +86,7 @@ get_types = ->
         datasource_path:      null
         table_name:           'fm_lines'
       create: ( cfg ) ->
-        return { @declarations.fm_constructor_cfg.template..., db, datasource_path, table_name, }
+        return { @declarations.fm_constructor_cfg.template..., cfg..., }
     #.......................................................................................................
     fm_insertion_record_object:
       fields:

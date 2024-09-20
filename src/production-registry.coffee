@@ -399,7 +399,7 @@ class Prompt_file_reader
     debug 'Ω___5', cmd, flags
     hide @, 'types', get_types()
     @cfg            = @types.create.pfr_constructor_cfg cmd, flags, null
-    @_file_mirror   = new File_mirror @cfg.db_path, @cfg.datasource_path, ( flags?.trash_db ? false )
+    @_file_mirror   = new File_mirror { db: @cfg.db_path, @cfg.datasource_path, table_}
     ### TAINT try to avoid constructing almost the same object twice ###
     @_prompt_parser = new Prompt_parser @cfg.flags.match
     @_pipeline      = new Pipeline()
