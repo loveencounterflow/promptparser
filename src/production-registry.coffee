@@ -21,7 +21,6 @@ GUY                       = require 'guy'
 { hide }                  = GUY.props
 #...........................................................................................................
 { DATOM }                 = require 'datom'
-WG                        = require 'webguy'
 #...........................................................................................................
 { new_datom
   lets
@@ -31,24 +30,15 @@ WG                        = require 'webguy'
   Syntax
   compose  }              = require 'intertext-lexer'
 #...........................................................................................................
-# { misfit
-#   get_base_types }        = require './types'
-# E                         = require './errors'
-#...........................................................................................................
 { Pipeline
   $
   Transformer
   transforms }            = require 'moonriver'
 { U }                     = require './utilities'
-{ DBay }                  = require 'dbay'
-{ SQL  }                  = DBay
-PATH                      = require 'node:path'
-FS                        = require 'node:fs'
 start_of_line             = Symbol 'start_of_line'
 end_of_line               = Symbol 'end_of_line'
 { get_types }             = require './types'
 types                     = get_types()
-{ trash }                 = require 'trash-sync'
 
 
 ###
@@ -394,106 +384,13 @@ class Prompt_file_reader
 
   #---------------------------------------------------------------------------------------------------------
   constructor: ( cfg ) ->
-    debug 'Ω___5', cfg
-    hide @, 'types', get_types()
-    @cfg            = @types.create.pfr_constructor_cfg cfg
-    @_prompt_parser = new Prompt_parser @cfg.flags.match
-    @_pipeline      = new Pipeline()
-    @_pipeline.push @_prompt_parser
+    hide @, 'types',          get_types()
+    @cfg                      = @types.create.pfr_constructor_cfg cfg
+    hide @, 'prompt_parser',  new Prompt_parser @cfg.flags.match
+    hide @, 'pipeline',       new Pipeline()
+    @pipeline.push @prompt_parser
     #.......................................................................................................
-    ### TAINT rather ad-hoc ###
-    hide @, 'insert_into', insert_into = {}
-    insert_into[ key ] = ( f.bind @ ) for key, f of @constructor.insert_into
-    #.......................................................................................................
-    # @_populate_db_if_necessary() if new.target is Prompt_file_reader
     return undefined
-
-  #---------------------------------------------------------------------------------------------------------
-  _create_db_structure: ->
-    super()
-    whisper 'Ω___6', "Prompt_file_reader::_create_db_structure"
-    @_db =>
-      @_db SQL"""
-        create table prd_prompts (
-            id        text    not null primary key,
-            lnr       integer not null,
-            prompt    text    not null,
-            comment   text        null,
-            rejected  boolean not null,
-          unique( prompt ) );"""
-      @_db SQL"""
-        create table prd_generations (
-            prompt_id text    not null,
-            nr        integer not null,
-            count     integer not null,
-          primary key ( prompt_id, nr ),
-          foreign key ( prompt_id ) references prd_prompts ( id ) );"""
-      @_db SQL"""
-        create view prd_counts as select distinct
-            prompt_id             as prompt_id,
-            count(*)      over w  as generations,
-            sum( count )  over w  as images
-          from prd_generations as g
-          window w as ( partition by prompt_id );"""
-      @_db SQL"""
-        create view prd_densities as select
-            c.prompt_id                                                                         as prompt_id,
-            c.generations                                                                       as generations,
-            c.images                                                                            as images,
-            cast( ( ( cast( c.images as real ) / c.generations / 4 ) * 100 + 0.5 ) as integer ) as density
-          from prd_generations as g
-          left join prd_counts as c on ( g.prompt_id = c.prompt_id );"""
-      @_db SQL"""
-        create view promptstats as select distinct
-            d.prompt_id     as prompt_id,
-            d.generations   as generations,
-            d.images        as images,
-            d.density       as density,
-            p.lnr           as lnr,
-            p.prompt        as prompt
-          from prd_prompts    as p
-          join prd_densities  as d on ( p.id = d.prompt_id );"""
-      #.....................................................................................................
-      ### TAINT auto-generate? ###
-      ### NOTE will contain counts for all relations ###
-      @_db SQL"""
-        create view rowcounts as
-          select            null as name,         null as rowcount where false
-          union all select  'prd_prompts',        count(*)          from prd_prompts
-          union all select  'prd_generations',    count(*)          from prd_generations
-          union all select  'prd_counts',         count(*)          from prd_counts
-          union all select  'prd_densities',      count(*)          from prd_densities
-          ;"""
-      #.....................................................................................................
-      ### TAINT auto-generate ###
-      hide @, '_insert_into',
-        fm_datasources:   @_db.create_insert { into: 'fm_datasources',                               }
-        prd_prompts:      @_db.create_insert { into: 'prd_prompts',  on_conflict: { update: true, }, }
-        prd_generations:  @_db.create_insert { into: 'prd_generations',                              }
-      return null
-    return null
-
-  #---------------------------------------------------------------------------------------------------------
-  ### TAINT this should become a standard part of `DBay`; note that as with `@_required_table_names`,
-  one should walk the prototype chain ###
-  @insert_into:
-    #.......................................................................................................
-    fm_datasources: ( d ) ->
-      ### TAINT validate? ###
-      return @_db.alt @_insert_into.fm_datasources, d
-    #.......................................................................................................
-    prd_prompts: ( d ) ->
-      ### TAINT validate? ###
-      return @_db.alt @_insert_into.prd_prompts, lets d, ( d ) ->
-        d.rejected = if d.rejected is true then 1 else 0
-    #.......................................................................................................
-    prd_generations: ( d ) ->
-      ### TAINT validate? ###
-      return @_db.alt @_insert_into.prd_generations, d
-
-  #---------------------------------------------------------------------------------------------------------
-  _populate_db: ->
-    whisper 'Ω___7', "Prompt_file_reader::_populate_db"
 
   #---------------------------------------------------------------------------------------------------------
   [Symbol.iterator]: ->
@@ -529,9 +426,9 @@ class Prompt_file_reader
           nonmatching_line_count++
           continue
       #.....................................................................................................
-      @_pipeline.send row
+      @pipeline.send row
       #.....................................................................................................
-      for record from @_pipeline.walk()
+      for record from @pipeline.walk()
         #...................................................................................................
         if record.table is 'prd_prompts'
           read_prompt_count++
@@ -563,72 +460,12 @@ class Prompt_file_reader
       "non-pre-matching line count:   –#{U.format_nr nonmatching_line_count, 12}"
     #.......................................................................................................
     whisper 'Ω__16', "Prompt_file_reader::_populate_db", GUY.trm.white \
-      "non-matching prompt count:     –#{U.format_nr @_prompt_parser.state.counts.non_matches, 12}"
+      "non-matching prompt count:     –#{U.format_nr @prompt_parser.state.counts.non_matches, 12}"
     # #.......................................................................................................
     # whisper 'Ω__17', "Prompt_file_reader::_populate_db", GUY.trm.white \
     #   "inserted #{U.format_nr written_prompt_count} rows into DB at #{@cfg.db_path}"
     #.......................................................................................................
     return null
-
-  ###
-  #---------------------------------------------------------------------------------------------------------
-  parse_all_records: ( source ) ->
-    R = []
-    for { lnr, line, eol, } from GUY.str.walk_lines_with_positions source
-      @_pipeline.send { lnr, line, }
-      R = R.concat @_pipeline.run()
-    return R
-
-  #---------------------------------------------------------------------------------------------------------
-  parse_first_records: ( source ) ->
-    prompt_id = null
-    R         = []
-    for record from @parse_all_records source
-      prompt_id ?= record.prompt_id
-      break unless prompt_id is record.prompt_id
-      R.push record
-    return R
-
-  #---------------------------------------------------------------------------------------------------------
-  parse_all_tokens: ( source ) ->
-    R = []
-    for { lnr, line, eol, } from GUY.str.walk_lines_with_positions source
-      for token from @_prompt_parser._lexer.walk line
-        continue if @types.isa.symbol token
-        R.push @_prompt_parser._cast_token lnr, token
-    return R
-
-  #---------------------------------------------------------------------------------------------------------
-  parse_first_tokens: ( source ) ->
-    R     = []
-    lnr1  = null
-    for token from @parse_all_tokens source
-      lnr1 ?= token.lnr1
-      break if lnr1 isnt token.lnr1
-      R.push token
-    return R
-
-  #---------------------------------------------------------------------------------------------------------
-  insert: ( insertion_records ) ->
-    insertion_records = @types.create.fm_insertion_records insertion_records
-    R = 0
-    for insertion_record in insertion_records
-       change_record = @insert_into[ insertion_record.table ] insertion_record.fields
-       R += change_record.changes
-    return R
-  ###
-
-
-#===========================================================================================================
-class Production_iterator
-
-  #---------------------------------------------------------------------------------------------------------
-  constructor: ( cmd, flags ) ->
-    return undefined
-
-  #---------------------------------------------------------------------------------------------------------
-  [Symbol.iterator]: ->
-    yield from build_file_db()
 
 
 ###
@@ -649,6 +486,7 @@ class Production_iterator
 module.exports = {
   new_prompt_lexer,
   Prompt_file_reader, }
+
 
 #===========================================================================================================
 if module is require.main then await do =>
