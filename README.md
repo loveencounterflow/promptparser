@@ -141,11 +141,21 @@ left join prompts as p
 * **[–]** introduce metric for 'strength of failure' (centrality?), i.e. `[s00000]` is 'more
   nope' than `[s0]`; this also holds true for any other fulfillment rate
 * **[–]** future structure:
-  * DB built from base `File_mirror`, table prefix `fm_`
+  * <ins>no more `File_mirror`, instead iterator over file lines<ins> <del>`File_mirror` becomes a 'DB
+    shaper' (for lack of a better word); given a `DBay` instance (as `db`), a table prefix (default `fm_`)
+    and source file path (`datasource_path`), it augments the DB by adding tables containing the file
+    contents</del>
+    * alternative solution: just iterate over file lines and cutting out `File_mirror` altogether
+      * **pro**: one less module, (at least) one less table
+      * **con**: now the source file paths and the verbatim raw lines live outside the DB; relational access
+        is not possible without specialized means such as table-valued functions
   * two iterators over 'records' (i.e. objects with attributes `table` and `fields` ready to be used in
     suitable `insert` statements):
     * table prefix `prd_`: Production Registry (PRD): reads prompts and generation counts from prompts file;
       iterates over records for tables `prd_prompts`, `prd_generations`
+      * the production registry does not get to see a `DBay` instance (a DB); instead, it is initialized
+        with a list of / an iterator over prompts (we choose to use a list to circumvent concurrent writes
+        concerns)
     * table prefix `img_`: Image Registry (IMG): reads EXIF data from image files; iterates over records for
       tables `img_files`, `img_prompts`
   * overarching views and tables (MAIN):
