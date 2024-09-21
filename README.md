@@ -161,6 +161,8 @@ left join prompts as p
   * overarching views and tables (MAIN):
     * table prefix `main_`
 * **[–]** add CLI flag to specify globs for images
+* **[–]** instead of *production* (**PRD**): <del>*ledger* (**LGR**, **LED**), *journal* (**JNL**,
+  **JRN**)</del> <ins>*journal* (**JNL**)</ins>
 
 ## Is Done
 
