@@ -377,7 +377,7 @@ class Prompt_parser extends Transformer
 ###
 
 #===========================================================================================================
-class Prompt_file_reader
+class Journal_walker
 
   #---------------------------------------------------------------------------------------------------------
   @required_table_names = [ 'prd_prompts', 'prd_generations', ]
@@ -394,7 +394,7 @@ class Prompt_file_reader
 
   #---------------------------------------------------------------------------------------------------------
   [Symbol.iterator]: ->
-    whisper 'Ω___5', "Prompt_file_reader::[Symbol.iterator]"
+    whisper 'Ω___5', "Journal_walker::[Symbol.iterator]"
     line_count              = 0
     blank_line_count        = 0
     read_prompt_count       = 0
@@ -404,7 +404,7 @@ class Prompt_file_reader
     #.......................................................................................................
     for row from @cfg.lines
       line_count++
-      whisper 'Ω___6', "Prompt_file_reader::_populate_db", GUY.trm.white \
+      whisper 'Ω___6', "Journal_walker::_populate_db", GUY.trm.white \
         "line count: #{U.format_nr line_count, 8}" if line_count %% 1e3 is 0
       #.....................................................................................................
       ### EXCLUDE EMPTY LINES ###
@@ -435,24 +435,24 @@ class Prompt_file_reader
       #.....................................................................................................
       ### --MAX-COUNT ###
       if written_prompt_count >= @cfg.flags.max_count
-        whisper 'Ω___7', "Prompt_file_reader::_populate_db", GUY.trm.white \
+        whisper 'Ω___7', "Journal_walker::_populate_db", GUY.trm.white \
           "stopping because prompt count exceeds max prompt count of #{U.format_nr @cfg.flags.max_count} prompts"
         break
     #.......................................................................................................
     whisper 'Ω___8'
-    whisper 'Ω___9', "Prompt_file_reader::_populate_db", GUY.trm.white \
+    whisper 'Ω___9', "Journal_walker::_populate_db", GUY.trm.white \
       "line count:                    +#{U.format_nr line_count, 12}"
     #.......................................................................................................
-    whisper 'Ω__10', "Prompt_file_reader::_populate_db", GUY.trm.white \
+    whisper 'Ω__10', "Journal_walker::_populate_db", GUY.trm.white \
       "blank line count:              –#{U.format_nr blank_line_count, 12}"
     #.......................................................................................................
-    whisper 'Ω__11', "Prompt_file_reader::_populate_db", GUY.trm.white \
+    whisper 'Ω__11', "Journal_walker::_populate_db", GUY.trm.white \
       "'unsampled' line count:        –#{U.format_nr unsampled_line_count, 12}"
     #.......................................................................................................
-    whisper 'Ω__12', "Prompt_file_reader::_populate_db", GUY.trm.white \
+    whisper 'Ω__12', "Journal_walker::_populate_db", GUY.trm.white \
       "non-pre-matching line count:   –#{U.format_nr nonmatching_line_count, 12}"
     #.......................................................................................................
-    whisper 'Ω__13', "Prompt_file_reader::_populate_db", GUY.trm.white \
+    whisper 'Ω__13', "Journal_walker::_populate_db", GUY.trm.white \
       "non-matching prompt count:     –#{U.format_nr @prompt_parser.state.counts.non_matches, 12}"
     #.......................................................................................................
     return null
@@ -475,7 +475,7 @@ class Prompt_file_reader
 #===========================================================================================================
 module.exports = {
   new_prompt_lexer,
-  Prompt_file_reader, }
+  Journal_walker, }
 
 
 #===========================================================================================================
@@ -494,7 +494,7 @@ if module is require.main then await do =>
 
   lines = GUY.fs.walk_lines_with_positions flags.prompts
 
-  for d from new Prompt_file_reader { cmd, flags, lines, }
+  for d from new Journal_walker { cmd, flags, lines, }
     debug 'Ω__14', d
 
   return null

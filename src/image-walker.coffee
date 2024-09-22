@@ -174,7 +174,7 @@ prepare_db = ->
 
 
 #===========================================================================================================
-class Image_iterator
+class Image_walker
 
   #---------------------------------------------------------------------------------------------------------
   constructor: ( cmd, flags ) ->
@@ -186,7 +186,7 @@ class Image_iterator
 
 
 #===========================================================================================================
-module.exports = { Image_iterator, }
+module.exports = { Image_walker, }
 
 
 #===========================================================================================================
@@ -196,7 +196,7 @@ if module is require.main then await do =>
   # await demo_exifr()
   # await demo_exiftool_vendored()
   # demo_dbay_with_exifdata()
-  iterator = new Image_iterator()
+  iterator = new Image_walker()
   debug 'Ω__12', iterator[Symbol.iterator]
   debug 'Ω__13', d for d from iterator
   debug 'Ω__14', [ iterator..., ].length
