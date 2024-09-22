@@ -320,7 +320,7 @@ class Prompt_parser extends Transformer
       #.....................................................................................................
       for count in d.generations
         nr++
-        send { $key: 'record', prompt_id, table: 'prd_generations', fields: { prompt_id, nr, count, }, }
+        send { $key: 'record', prompt_id, table: 'jnl_generations', fields: { prompt_id, nr, count, }, }
       nrs.set prompt_id, nr
       return null
 
@@ -335,7 +335,7 @@ class Prompt_parser extends Transformer
       prompt:     d.prompt
       comment:    d.comment
       rejected:   d.rejected
-    send { $key: 'record', prompt_id: d.prompt_id, table: 'prd_prompts', fields, }
+    send { $key: 'record', prompt_id: d.prompt_id, table: 'jnl_prompts', fields, }
     return null
 
   #---------------------------------------------------------------------------------------------------------
@@ -425,7 +425,7 @@ class Journal_walker
       #.....................................................................................................
       for record from @pipeline.walk()
         #...................................................................................................
-        if record.table is 'prd_prompts'
+        if record.table is 'jnl_prompts'
           read_prompt_count++
         written_prompt_count++
         yield record
