@@ -87,6 +87,21 @@ get_types = ->
         R = { @declarations.pfr_constructor_cfg.template..., cfg..., }
         return R
     #.......................................................................................................
+    prompt_db_cfg:
+      test:   'object'
+      fields:
+        cmd:                  'nonempty.text'
+        flags:                'object'
+        # lines:                'list_or_iterator'
+      template:
+        cmd:                  null
+        flags:                null
+        # lines:                null
+      create: ( cfg ) ->
+        debug 'Ω___1', cfg
+        R = { @declarations.prompt_db_cfg.template..., cfg..., }
+        return R
+    #.......................................................................................................
     cli_max_count:
       test:                 'cardinal_or_infinity'
       template:             +Infinity
@@ -128,7 +143,7 @@ get_types = ->
       test:                 'regex'
       template:             /^\[.*?\].*?\S+/
       create: ( x ) ->
-        debug 'Ω__1', ( rpr x ), rpr @declarations.cli_pre_match.template
+        debug 'Ω___2', ( rpr x ), rpr @declarations.cli_pre_match.template
         return @declarations.cli_pre_match.template unless x?
         return new RegExp x
     #.......................................................................................................

@@ -18,10 +18,17 @@ GUY                       = require 'guy'
   reverse
   log     }               = GUY.trm
 #...........................................................................................................
+{ hide }                  = GUY.props
 pluck                     = ( o, k ) -> R = o[ k ]; delete o[ k ]; R
+{ get_types }             = require './types'
 #...........................................................................................................
 { Journal_walker  }       = require './journal-walker'
 { Image_walker    }       = require './image-walker'
+{ DBay            }       = require 'dbay'
+{ SQL             }       = DBay
+{ U               }       = require './utilities'
+{ trash           }       = require 'trash-sync'
+
 
 #===========================================================================================================
 class Prompt_db
@@ -29,22 +36,17 @@ class Prompt_db
   #---------------------------------------------------------------------------------------------------------
   constructor: ( cfg ) ->
     hide @, 'types',  get_types()
-    @cfg = @types.create.prompt_db.cfg cfg
-    @trash_db_if_necessary()
-    hide @, 'db',     pluck @cfg, 'db'
+    @cfg = @types.create.prompt_db_cfg cfg
+    path = pluck @cfg.flags, 'db'
+    trash path if @cfg.flags.trash_db
+    hide @, 'db', new DBay { path, }
     @create_db_structure()
-    # @_populate_db() ???
     return undefined
-
-  #---------------------------------------------------------------------------------------------------------
-  trash_db_if_necessary: ->
-    return 0 unless @cfg.trash_db
-    return trash @cfg.db_path
 
   #---------------------------------------------------------------------------------------------------------
   create_db_structure: ->
     # super()
-    whisper 'Ω___1', "Prompt_file_reader::create_db_structure"
+    whisper 'Ω___4', "Prompt_file_reader::create_db_structure"
     #.......................................................................................................
     @db SQL"""
       create table jnl_prompts (
@@ -115,6 +117,7 @@ class Prompt_db
       insert_stmt = @db.create_insert { into: 'jnl_generations', }
       return ( d ) => @db insert_stmt, lets d, ( d ) ->
         d.rejected = if d.rejected is true then 1 else 0 ### TAINT should be auto-converted ###
+    # debug 'Ω___5', row for row from @db SQL"""select name from sqlite_schema where type in ( 'table', 'view' );"""
     return null
 
 
@@ -139,11 +142,12 @@ if module is require.main then await do =>
 
   lines = GUY.fs.walk_lines_with_positions flags.prompts
 
-  debug 'Ω___3', new Prompt_db { cmd, flags, }
+  prompt_db = new Prompt_db { cmd, flags, }
+  debug 'Ω___6', name for { name, } from prompt_db.db SQL"""select name from sqlite_schema where type in ( 'table', 'view' );"""
 
   return null
 
   echo()
-  echo ( GUY.trm.grey 'Ω___4' ), ( GUY.trm.gold "run `node lib/cli.js help` instead of this file" )
+  echo ( GUY.trm.grey 'Ω___8' ), ( GUY.trm.gold "run `node lib/cli.js help` instead of this file" )
   echo()
   process.exit 111
