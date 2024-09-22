@@ -380,9 +380,6 @@ class Prompt_parser extends Transformer
 class Journal_walker
 
   #---------------------------------------------------------------------------------------------------------
-  @required_table_names = [ 'prd_prompts', 'prd_generations', ]
-
-  #---------------------------------------------------------------------------------------------------------
   constructor: ( cfg ) ->
     hide @, 'types',          get_types()
     @cfg                      = @types.create.pfr_constructor_cfg cfg
