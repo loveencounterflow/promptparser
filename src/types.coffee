@@ -141,7 +141,7 @@ get_types = ->
     #.......................................................................................................
     cli_pre_match:
       test:                 'regex'
-      template:             /^\[.*?\].*?\S+/
+      template:             /^\[.*?\]\s*\S+/
       create: ( x ) ->
         debug 'Ω___2', ( rpr x ), rpr @declarations.cli_pre_match.template
         return @declarations.cli_pre_match.template unless x?
