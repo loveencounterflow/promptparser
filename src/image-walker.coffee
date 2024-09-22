@@ -144,16 +144,16 @@ prepare_db = ->
             p.prompt  as prompt
           from      img_prompts as p
           left join img_files   as f on ( f.prompt_id = p.id );"""
-      #.....................................................................................................
-      ### TAINT auto-generate? ###
-      ### NOTE will contain counts for all relations ###
-      db SQL"""
-        create view rowcounts as
-          select            null as name,             null as rowcount where false
-          union all select  'img_files',              count(*)          from img_files
-          union all select  'img_prompts',            count(*)          from img_prompts
-          union all select  'img_files_and_prompts',  count(*)          from img_files_and_prompts
-          ;"""
+      # #.....................................................................................................
+      # ### TAINT auto-generate? ###
+      # ### NOTE will contain counts for all relations ###
+      # db SQL"""
+      #   create view rowcounts as
+      #     select            null as name,             null as rowcount where false
+      #     union all select  'img_files',              count(*)          from img_files
+      #     union all select  'img_prompts',            count(*)          from img_prompts
+      #     union all select  'img_files_and_prompts',  count(*)          from img_files_and_prompts
+      #     ;"""
       #.....................................................................................................
       return null
     return null
