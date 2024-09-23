@@ -37,45 +37,47 @@ pluck                     = ( o, k ) -> R = o[ k ]; delete o[ k ]; R
 
 
 #===========================================================================================================
-cmd   = 'build'
-flags =
+known_path_ids  = null
+lines           = null
+cmd             = 'build'
+flags           =
   match:      /(?:)/,
   trash_db:   true,
   sample:     0.01,
   max_count:  3,
-  prompts:    '../../jzr/to-be-merged-from-Atlas/prompts-consolidated.md'
+  prompts:    '../../../jzr/to-be-merged-from-Atlas/prompts-consolidated.md'
   seed:       1,
   pre_match:  /^\[.*?\].*?\S+/,
   db:         '/dev/shm/promptparser.sqlite'
 
 #===========================================================================================================
-run_journal_walker = ->
+run_journal_walker = ( prompt_db ) ->
   lines = GUY.fs.walk_lines_with_positions flags.prompts
   yield from new Journal_walker { cmd, flags, lines, }
   return null
 
 #===========================================================================================================
-run_image_walker = ->
-  yield from new Image_walker()
+run_image_walker = ( prompt_db ) ->
+  known_path_ids  = prompt_db.img_get_known_path_ids()
+  yield from new Image_walker { known_path_ids, }
   return null
 
 #===========================================================================================================
 if module is require.main then await do =>
-  lines = GUY.fs.walk_lines_with_positions flags.prompts
   prompt_db = new Prompt_db { cmd, flags, }
-  debug 'Ω___1', name for { name, } from prompt_db.db SQL"""select name from sqlite_schema where type in ( 'table', 'view' );"""
   do =>
     count = 0
-    for d from run_journal_walker()
+    for d from run_journal_walker prompt_db
       count++; break if count > 10
       info 'Ω___2', d
       prompt_db.insert_into[ d.table ] d.fields
     return null
   do =>
     count = 0
-    for d from run_image_walker()
+    for d from run_image_walker prompt_db
       count++; break if count > 10
       help 'Ω___3', d
+      prompt_db.insert_into[ d.table ] d.fields
     return null
 
 
