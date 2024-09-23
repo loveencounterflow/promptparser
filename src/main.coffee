@@ -44,8 +44,9 @@ flags           =
   match:      /(?:)/,
   trash_db:   true,
   sample:     0.01,
-  max_count:  3,
-  prompts:    '../../../jzr/to-be-merged-from-Atlas/prompts-consolidated.md'
+  # max_count:  20,
+  max_count:  Infinity,
+  prompts:    '../../jzr/to-be-merged-from-Atlas/prompts-consolidated.md'
   seed:       1,
   pre_match:  /^\[.*?\].*?\S+/,
   db:         '/dev/shm/promptparser.sqlite'
@@ -66,17 +67,16 @@ run_image_walker = ( prompt_db ) ->
 if module is require.main then await do =>
   prompt_db = new Prompt_db { cmd, flags, }
   do =>
-    count = 0
     for d from run_journal_walker prompt_db
-      count++; break if count > 10
-      info 'Ω___2', d
+      # info 'Ω___1', d
       prompt_db.insert_into[ d.table ] d.fields
     return null
   do =>
     count = 0
     for d from run_image_walker prompt_db
-      count++; break if count > 10
-      help 'Ω___3', d
+      count++; break if count > flags.max_count
+      # debug 'Ω___2', count if count %% 1000 is 0
+      # help 'Ω___3', d
       prompt_db.insert_into[ d.table ] d.fields
     return null
 

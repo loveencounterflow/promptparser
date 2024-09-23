@@ -81,7 +81,7 @@ class Image_walker
         fields = { id: path_id, prompt_id: exif.prompt_id, path: abs_path, }
         yield { $key: 'record', table: 'img_files', fields, }
     #.....................................................................................................
-    info "Ω___8 changes to DB at #{DB.path}: #{rpr counts}"
+    # info "Ω___8 changes to DB at #{DB.path}: #{rpr counts}"
     console.timeEnd 'TMP_RENAME_build_file_db'
     #.........................................................................................................
     return null
