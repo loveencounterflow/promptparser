@@ -61,10 +61,6 @@ run_image_walker = ->
 
 #===========================================================================================================
 if module is require.main then await do =>
-
-
-
-
   lines = GUY.fs.walk_lines_with_positions flags.prompts
   prompt_db = new Prompt_db { cmd, flags, }
   debug 'Ω___1', name for { name, } from prompt_db.db SQL"""select name from sqlite_schema where type in ( 'table', 'view' );"""
@@ -73,7 +69,7 @@ if module is require.main then await do =>
     for d from run_journal_walker()
       count++; break if count > 10
       info 'Ω___2', d
-      info 'Ω___2', prompt_db.insert_into[ d.table ]
+      prompt_db.insert_into[ d.table ] d.fields
     return null
   do =>
     count = 0
