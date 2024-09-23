@@ -75,13 +75,13 @@ if module is require.main then await do =>
     count = 0
     for d from run_image_walker()
       count++; break if count > 10
-      help 'Ω___4', d
+      help 'Ω___3', d
     return null
 
 
   return null
 
   echo()
-  echo ( GUY.trm.grey 'Ω___5' ), ( GUY.trm.gold "run `node lib/cli.js help` instead of this file" )
+  echo ( GUY.trm.grey 'Ω___4' ), ( GUY.trm.gold "run `node lib/cli.js help` instead of this file" )
   echo()
   process.exit 111
