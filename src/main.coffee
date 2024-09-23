@@ -22,6 +22,11 @@ GUY                       = require 'guy'
 pluck                     = ( o, k ) -> R = o[ k ]; delete o[ k ]; R
 { get_types }             = require './types'
 #...........................................................................................................
+{ DATOM }                 = require 'datom'
+{ new_datom
+  lets
+  stamp }                 = DATOM
+#...........................................................................................................
 { Journal_walker  }       = require './journal-walker'
 { Image_walker    }       = require './image-walker'
 { DBay            }       = require 'dbay'
