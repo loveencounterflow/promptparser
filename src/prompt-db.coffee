@@ -51,7 +51,7 @@ class Prompt_db
   #---------------------------------------------------------------------------------------------------------
   create_db_structure: ->
     # super()
-    whisper 'Ω___4', "Prompt_file_reader::create_db_structure"
+    whisper 'Ω___1', "Prompt_file_reader::create_db_structure"
     #.......................................................................................................
     @db SQL"""
       create table jnl_prompts (
@@ -97,18 +97,48 @@ class Prompt_db
           p.prompt        as prompt
         from jnl_prompts    as p
         join jnl_densities  as d on ( p.id = d.prompt_id );"""
+    #-------------------------------------------------------------------------------------------------------
+    @db SQL"""
+      create table img_files (
+          id        text not null primary key,
+          prompt_id text not null,
+          path      text not null,
+        foreign key ( prompt_id ) references img_prompts ( id ) );"""
     #.......................................................................................................
+    @db SQL"""
+      create table img_prompts (
+          id        text not null primary key,
+          prompt    text not null );"""
+    #.......................................................................................................
+    @db SQL"""insert into img_prompts ( id, prompt ) values ( ?, ? );""", [
+      ( U.id_from_text U.nosuchprompt ), U.nosuchprompt, ]
+    #.......................................................................................................
+    @db SQL"""
+      create view img_files_and_prompts as select
+          f.id      as file_id,
+          p.id      as prompt_id,
+          f.path    as path,
+          p.prompt  as prompt
+        from      img_prompts as p
+        left join img_files   as f on ( f.prompt_id = p.id );"""
+    #=======================================================================================================
     ### TAINT auto-generate? ###
     ### NOTE will contain counts for all relations ###
     @db SQL"""
       create view rowcounts as
         select            null as name,         null as rowcount where false
+        -- -------------------------------------------------------------------------------------------------
         union all select  'jnl_prompts',        count(*)          from jnl_prompts
         union all select  'jnl_generations',    count(*)          from jnl_generations
         union all select  'jnl_counts',         count(*)          from jnl_counts
         union all select  'jnl_densities',      count(*)          from jnl_densities
+        -- -------------------------------------------------------------------------------------------------
+        union all select  'img_files',              count(*)          from img_files
+        union all select  'img_prompts',            count(*)          from img_prompts
+        union all select  'img_files_and_prompts',  count(*)          from img_files_and_prompts
+        -- -------------------------------------------------------------------------------------------------
         ;"""
-    #.......................................................................................................
+    #=======================================================================================================
     ### TAINT this should become a standard part of `DBay`; note that as with `@_required_table_names`,
     one should walk the prototype chain ###
     hide @, 'insert_into', insert_into = {}
@@ -122,9 +152,29 @@ class Prompt_db
       insert_stmt = @db.create_insert { into: 'jnl_generations', }
       return ( d ) => @db insert_stmt, lets d, ( d ) ->
         d.rejected = if d.rejected is true then 1 else 0 ### TAINT should be auto-converted ###
-    # debug 'Ω___5', row for row from @db SQL"""select name from sqlite_schema where type in ( 'table', 'view' );"""
+    #-------------------------------------------------------------------------------------------------------
+    insert_into.img_prompts = do =>
+      insert_stmt = @db.create_insert { into: 'img_prompts', on_conflict: 'do nothing', }
+      return ( d ) => @db insert_stmt, d
+    #.......................................................................................................
+    insert_into.img_files = do =>
+      insert_stmt = @db.create_insert { into: 'img_files', }
+      return ( d ) => @db insert_stmt, d
+    #.......................................................................................................
+    # wrap inserts like this:
+    #   try
+    #     (insert)
+    #   catch error
+    #     warn 'Ω___2', "error: #{error.message}"
+    #     warn 'Ω___3', "error happened with this data: #{rpr { path_id, prompt_id: exif.prompt_id, abs_path, }}"
+    #.......................................................................................................
     return null
 
+  #---------------------------------------------------------------------------------------------------------
+  img_get_known_path_ids: ->
+    R = new Set()
+    R.add id for id from @db.first_values SQL"select id from img_files;"
+    return R
 
 #===========================================================================================================
 module.exports = {
