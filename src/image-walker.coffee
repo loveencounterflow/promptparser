@@ -24,13 +24,6 @@ FS                        = require 'node:fs'
 { U }                     = require './utilities'
 
 
-#-----------------------------------------------------------------------------------------------------------
-### TAINT this should become part of command line handling with [M.I.X.A.](https://github.com/loveencounterflow/mixa) ###
-set_path = ->
-  process.chdir path if ( path = process.argv[ 2 ] ? null )?
-  R = process.cwd()
-  info "Ω___1 CWD: #{R}"
-  return R
 
 #-----------------------------------------------------------------------------------------------------------
 build_file_db = ->
@@ -39,7 +32,7 @@ build_file_db = ->
     globSync  }   = require 'glob'
   patterns        = [ '**/*.png', '**/*.jpg', '**/*.jpeg', ]
   cfg             = { dot: true }
-  base_path       = set_path()
+  base_path       = '.'
   count           = 0
   DB              = prepare_db()
   #.........................................................................................................
