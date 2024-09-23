@@ -38,7 +38,7 @@ flags =
   trash_db:   true,
   sample:     0.01,
   max_count:  3,
-  prompts:    '../to-be-merged-from-Atlas/prompts-consolidated.md'
+  prompts:    '../../jzr/to-be-merged-from-Atlas/prompts-consolidated.md'
   seed:       1,
   pre_match:  /^\[.*?\].*?\S+/,
   db:         '/dev/shm/promptparser.sqlite'
