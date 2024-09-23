@@ -115,7 +115,7 @@ class Prompt_db
     #.......................................................................................................
     insert_into.jnl_prompts = do =>
       insert_stmt = @db.create_insert { into: 'jnl_prompts',  on_conflict: { update: true, }, }
-      return ( d ) -> @db insert_stmt, lets d, ( d ) ->
+      return ( d ) => @db insert_stmt, lets d, ( d ) ->
         d.rejected = if d.rejected is true then 1 else 0 ### TAINT should be auto-converted ###
     #.......................................................................................................
     insert_into.jnl_generations = do =>
