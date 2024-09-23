@@ -163,6 +163,10 @@ left join prompts as p
 * **[–]** add CLI flag to specify globs for images
 * **[–]** instead of *production* (**PRD**): <del>*ledger* (**LGR**, **LED**), *journal* (**JNL**,
   **JRN**)</del> <ins>*journal* (**JNL**)</ins>
+* **[–]** in the CLI, if DB path and / or prompts journal are not indicated, try to resolve standard names
+  and extensions by globbing the current working directory
+* **[–]** invariants for error / fault detection:
+  * **[–]** more actual images with a prompt than in journal
 
 ## Is Done
 
