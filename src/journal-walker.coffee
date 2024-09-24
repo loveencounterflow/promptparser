@@ -409,6 +409,7 @@ class Journal_walker
         blank_line_count++
         continue
       #.....................................................................................................
+      ### TAINT use method that honors `seed` ###
       ### --SAMPLE ###
       if Math.random() > @cfg.flags.sample
         unsampled_line_count++
