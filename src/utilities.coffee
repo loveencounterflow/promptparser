@@ -88,6 +88,21 @@ class Utilities
     return R unless width?
     return R.padStart width, ' '
 
+  #---------------------------------------------------------------------------------------------------------
+  wrap_insert: ( insert_method ) -> ( d ) ->
+    try
+      insert_method d
+    catch error
+      name  = GUY.trm.reverse GUY.trm.bold " #{rpr insert_method.name} "
+      row   = GUY.trm.reverse GUY.trm.bold " #{rpr d} "
+      warn()
+      warn 'Ω___1', "error: #{error.message}"
+      warn 'Ω___2', "error happened in insert method #{name} with this data:"
+      warn()
+      warn 'Ω___3', row
+      warn()
+      throw error
+
 #===========================================================================================================
 module.exports =
   Utilities:  Utilities

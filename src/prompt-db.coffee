@@ -145,28 +145,21 @@ class Prompt_db
     #.......................................................................................................
     insert_into.jnl_prompts = do =>
       insert_stmt = @db.create_insert { into: 'jnl_prompts',  on_conflict: { update: true, }, }
-      return ( d ) => @db insert_stmt, lets d, ( d ) ->
+      return U.wrap_insert insert_into_jnl_prompts = ( d ) => @db insert_stmt, lets d, ( d ) ->
         d.rejected = if d.rejected is true then 1 else 0 ### TAINT should be auto-converted ###
     #.......................................................................................................
     insert_into.jnl_generations = do =>
       insert_stmt = @db.create_insert { into: 'jnl_generations', }
-      return ( d ) => @db insert_stmt, lets d, ( d ) ->
+      return U.wrap_insert insert_into_jnl_generations = ( d ) => @db insert_stmt, lets d, ( d ) ->
         d.rejected = if d.rejected is true then 1 else 0 ### TAINT should be auto-converted ###
     #-------------------------------------------------------------------------------------------------------
     insert_into.img_prompts = do =>
       insert_stmt = @db.create_insert { into: 'img_prompts', on_conflict: 'do nothing', }
-      return ( d ) => @db insert_stmt, d
+      return U.wrap_insert insert_into_img_prompts = ( d ) => @db insert_stmt, d
     #.......................................................................................................
     insert_into.img_files = do =>
       insert_stmt = @db.create_insert { into: 'img_files', }
-      return ( d ) => @db insert_stmt, d
-    #.......................................................................................................
-    # wrap inserts like this:
-    #   try
-    #     (insert)
-    #   catch error
-    #     warn 'Ω___2', "error: #{error.message}"
-    #     warn 'Ω___3', "error happened with this data: #{rpr { path_id, prompt_id: exif.prompt_id, abs_path, }}"
+      return U.wrap_insert insert_into_img_files = ( d ) => @db insert_stmt, d
     #.......................................................................................................
     return null
 
