@@ -173,3 +173,10 @@ left join prompts as p
 * **[+]** add `prompt_id` to all records so they have a common name for the central anchoring point of all
   data
 * **[+]** make `parse_all_tokens()`, `parse_all_records()` return flat lists
+* **[+]** keeep in-memory set of `known_prompt_ids` to avoid unnecessary `insert`s; `known_prompt_ids` could
+  be used to block the construction of extraneous records in `$assemble_prompt_records()` and in
+  `Image_walker`
+* **[+]** modify DB schema: use only one table for `prompt`s and `prompt_id`s, other tables only refer to
+  `prompt_id`s
+
+
