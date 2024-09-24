@@ -402,7 +402,7 @@ class Journal_walker
     for row from @cfg.lines
       line_count++
       whisper 'Ω___6', "Journal_walker::_populate_db", GUY.trm.white \
-        "line count: #{U.format_nr line_count, 8}" if line_count %% 1e3 is 0
+        "line count: #{U.format_nr line_count, 8}" if line_count %% 5e3 is 0
       #.....................................................................................................
       ### EXCLUDE EMPTY LINES ###
       if /^\s*$/.test row.line
