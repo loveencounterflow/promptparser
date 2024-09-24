@@ -171,10 +171,7 @@ class Prompt_db
     return null
 
   #---------------------------------------------------------------------------------------------------------
-  img_get_known_path_ids: ->
-    R = new Set()
-    R.add id for id from @db.first_values SQL"select id from img_files;"
-    return R
+  img_get_known_path_ids: -> new Set @db.first_values SQL"select path_id from img_files;"
 
 #===========================================================================================================
 module.exports = {
