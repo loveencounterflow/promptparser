@@ -46,26 +46,36 @@ class Image_walker
   TMP_RENAME_build_file_db: ->
     { glob
       globSync  }   = require 'glob'
+    base_path       = PATH.resolve ( @cfg.flags.images ? process.cwd() )
     patterns        = [ '**/*.png', '**/*.jpg', '**/*.jpeg', ]
-    cfg             = { dot: true }
-    base_path       = '.'
+    glob_cfg        =
+      dot:      true
+      cwd:      base_path
     count           = 0
     #.........................................................................................................
     # DB.db ->
     console.time 'TMP_RENAME_build_file_db'
     counts    =
-      skipped:  0
-      added:    0
-      deleted:  0
-    rel_paths = globSync patterns, cfg
-    info 'Ω___1', GUY.trm.reverse "found #{rel_paths.length} matching files"
+      skipped:          0
+      added:            0
+      deleted:          0
+      unsampled_files:  0
+    info 'Ω___1', GUY.trm.reverse "globbing files at #{glob_cfg.cwd} using #{rpr patterns}"
+    rel_paths = globSync patterns, glob_cfg
+    info 'Ω___2', GUY.trm.reverse "found #{rel_paths.length} matching files"
     for rel_path in rel_paths
-      count++; whisper count if ( count %% 1000 ) is 0
-      abs_path  = PATH.resolve base_path, rel_path
-      path_id   = U.id_from_text abs_path
+      count++; whisper count if ( count %% 5e3 ) is 0
+      path    = PATH.resolve base_path, rel_path
+      path_id = U.id_from_text path
+      #.....................................................................................................
+      ### TAINT use method that honors `seed` ###
+      ### --SAMPLE ###
+      if Math.random() > @cfg.flags.sample
+        counts.unsampled_files++
+        continue
       #...................................................................................................
       if @known_path_ids.has path_id
-        # help "Ω___2 skipping path ID #{rpr path_id}"
+        # help "Ω___3 skipping path ID #{rpr path_id}"
         counts.skipped++
         ### NOTE we know that in the present run we will not again have to test against the current
         `path_id`, so we also know we can safely delete it from the pool of known IDs (thereby making it
