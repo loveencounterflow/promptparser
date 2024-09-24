@@ -43,9 +43,9 @@ cmd             = 'build'
 flags           =
   match:      /(?:)/,
   trash_db:   true,
-  # sample:     0.01,
+  sample:     0.1,
+  # sample:     1,
   # max_count:  20,
-  sample:     0.01,
   max_count:  Infinity,
   prompts:    '../../jzr/to-be-merged-from-Atlas/prompts-consolidated.md'
   images:     '../../Downloads/b-from-downloader'
