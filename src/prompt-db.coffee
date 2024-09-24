@@ -113,7 +113,7 @@ class Prompt_db
       ( U.id_from_text U.nosuchprompt ), U.nosuchprompt, ]
     #.......................................................................................................
     @db SQL"""
-      create view img_files_and_prompts as select
+      create view img_files_and_img_prompts as select
           f.path_id     as path_id,
           p.prompt_id   as prompt_id,
           f.path        as path,
@@ -121,32 +121,55 @@ class Prompt_db
         from      img_prompts as p
         left join img_files   as f using ( prompt_id );"""
     #=======================================================================================================
-    # @db SQL"""
-    #   create view img_files_and_jnl_prompts as select
-    #     j
-    #     from jnl_prompts as j
-    #     join img_prompts as i using ( prompt_id )
-    #     """
-    # #.......................................................................................................
-    # @db SQL"""
-    #   create view img_files_and_prompts as select
-    #     """
+    @db SQL"""
+      create view img_files_with_empty_prompts as select
+          i.path_id         as path_id,
+          i.prompt_id       as prompt_id,
+          i.path            as path,
+          i.prompt          as prompt
+        from img_files_and_img_prompts as i
+        where i.prompt = '';"""
+    #.......................................................................................................
+    @db SQL"""
+      create view img_files_with_jnl_prompts as select
+          i.path_id         as path_id,
+          j.prompt_id       as prompt_id,
+          i.path            as path,
+          j.prompt          as prompt
+        from jnl_prompts                as j
+        join img_files_and_img_prompts  as i using ( prompt_id );"""
+    #.......................................................................................................
+    @db SQL"""
+      create view img_files_without_jnl_prompts as select
+          i.path_id         as path_id,
+          i.prompt_id       as prompt_id,
+          i.path            as path,
+          i.prompt          as prompt
+        from img_files_and_img_prompts  as i
+        where true
+          and prompt != ''
+          and not exists ( select 1 from jnl_prompts as j where i.prompt_id = j.prompt_id );
+        """
     #=======================================================================================================
     ### TAINT auto-generate? ###
     ### NOTE will contain counts for all relations ###
     @db SQL"""
       create view rowcounts as
-        select            null as name,             null as rowcount where false
+        select            null as name,                 null as rowcount where false
         -- -------------------------------------------------------------------------------------------------
-        union all select  'jnl_prompts',            count(*)          from jnl_prompts
-        union all select  'jnl_generations',        count(*)          from jnl_generations
-        union all select  'jnl_counts',             count(*)          from jnl_counts
-        union all select  'jnl_densities',          count(*)          from jnl_densities
-        union all select  'promptstats',            count(*)          from promptstats
+        union all select  'jnl_prompts',                count(*)  from jnl_prompts
+        union all select  'jnl_generations',            count(*)  from jnl_generations
+        union all select  'jnl_counts',                 count(*)  from jnl_counts
+        union all select  'jnl_densities',              count(*)  from jnl_densities
+        union all select  'promptstats',                count(*)  from promptstats
         -- -------------------------------------------------------------------------------------------------
-        union all select  'img_files',              count(*)          from img_files
-        union all select  'img_prompts',            count(*)          from img_prompts
-        union all select  'img_files_and_prompts',  count(*)          from img_files_and_prompts
+        union all select  'img_files',                  count(*)  from img_files
+        union all select  'img_prompts',                count(*)  from img_prompts
+        union all select  'img_files_and_img_prompts',      count(*)  from img_files_and_img_prompts
+        -- -------------------------------------------------------------------------------------------------
+        union all select  'img_files_with_empty_prompts',  count(*)  from img_files_with_empty_prompts
+        union all select  'img_files_with_jnl_prompts',  count(*)  from img_files_with_jnl_prompts
+        union all select  'img_files_without_jnl_prompts',  count(*)  from img_files_without_jnl_prompts
         -- -------------------------------------------------------------------------------------------------
         ;"""
     #=======================================================================================================
