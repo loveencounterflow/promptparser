@@ -251,7 +251,10 @@ class Promptparser_cli extends Mixa
             description:    "prompts"
             expect:         "file system path that points to a file containing the prompts to be processed"
             type:           return_error 'prompts',   types.create.cli_prompts.bind   types.create
-            positional:     true
+          images:
+            description:    "images"
+            expect:         "file system path that points to a folder containing the images to be processed"
+            type:           return_error 'images',   types.create.cli_prompts.bind   types.create
 
   #---------------------------------------------------------------------------------------------------------
   _new_prompt_file_reader: ( cmd = null, flags = null ) ->
