@@ -330,11 +330,11 @@ class Prompt_parser extends Transformer
     return send d unless d.$key is 'prerecord'
     send d
     fields =
-      id:         d.prompt_id
-      lnr:        d.lnr
-      prompt:     d.prompt
-      comment:    d.comment
-      rejected:   d.rejected
+      prompt_id:    d.prompt_id
+      lnr:          d.lnr
+      prompt:       d.prompt
+      comment:      d.comment
+      rejected:     d.rejected
     send { $key: 'record', prompt_id: d.prompt_id, table: 'jnl_prompts', fields, }
     return null
 

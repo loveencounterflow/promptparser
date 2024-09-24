@@ -86,14 +86,15 @@ class Image_walker
       else
         counts.added++
         #.................................................................................................
-        exif = U.exif_from_path abs_path
-        fields = { id: exif.prompt_id, prompt: exif.prompt, }
+        { prompt_id
+          prompt    } = U.exif_from_path path
+        fields        = { prompt_id, prompt, }
         yield { $key: 'record', table: 'img_prompts', fields, }
         #.................................................................................................
-        fields = { id: path_id, prompt_id: exif.prompt_id, path: abs_path, }
+        fields = { path_id, prompt_id, path, }
         yield { $key: 'record', table: 'img_files', fields, }
     #.....................................................................................................
-    # info "Ω___8 changes to DB at #{DB.path}: #{rpr counts}"
+    info 'Ω___4', counts
     console.timeEnd 'TMP_RENAME_build_file_db'
     #.........................................................................................................
     return null

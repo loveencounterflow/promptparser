@@ -54,11 +54,11 @@ class Prompt_db
     #.......................................................................................................
     @db SQL"""
       create table jnl_prompts (
-          id        text    not null primary key,
-          lnr       integer not null,
-          prompt    text    not null,
-          comment   text        null,
-          rejected  boolean not null,
+          prompt_id text    unique not null primary key,
+          lnr       integer unique not null,
+          prompt    text    unique not null,
+          comment   text               null,
+          rejected  boolean        not null,
         unique( prompt ) );"""
     #.......................................................................................................
     @db SQL"""
@@ -67,11 +67,11 @@ class Prompt_db
           nr        integer not null,
           count     integer not null,
         primary key ( prompt_id, nr ),
-        foreign key ( prompt_id ) references jnl_prompts ( id ) );"""
+        foreign key ( prompt_id ) references jnl_prompts ( prompt_id ) );"""
     #.......................................................................................................
     @db SQL"""
       create view jnl_counts as select distinct
-          prompt_id             as prompt_id,
+          g.prompt_id           as prompt_id,
           count(*)      over w  as generations,
           sum( count )  over w  as images
         from jnl_generations as g
@@ -84,7 +84,7 @@ class Prompt_db
           c.images                                                                            as images,
           cast( ( ( cast( c.images as real ) / c.generations / 4 ) * 100 + 0.5 ) as integer ) as density
         from jnl_generations as g
-        left join jnl_counts as c on ( g.prompt_id = c.prompt_id );"""
+        left join jnl_counts as c using ( prompt_id );"""
     #.......................................................................................................
     @db SQL"""
       create view promptstats as select distinct
@@ -95,42 +95,54 @@ class Prompt_db
           p.lnr           as lnr,
           p.prompt        as prompt
         from jnl_prompts    as p
-        join jnl_densities  as d on ( p.id = d.prompt_id );"""
+        join jnl_densities  as d using ( prompt_id );"""
     #-------------------------------------------------------------------------------------------------------
     @db SQL"""
       create table img_files (
-          id        text not null primary key,
-          prompt_id text not null,
-          path      text not null,
-        foreign key ( prompt_id ) references img_prompts ( id ) );"""
+          path_id   text unique not null primary key,
+          prompt_id text        not null,
+          path      text unique not null,
+        foreign key ( prompt_id ) references img_prompts ( prompt_id ) );"""
     #.......................................................................................................
     @db SQL"""
       create table img_prompts (
-          id        text not null primary key,
-          prompt    text not null );"""
+          prompt_id text unique not null primary key,
+          prompt    text unique not null );"""
     #.......................................................................................................
-    @db SQL"""insert into img_prompts ( id, prompt ) values ( ?, ? );""", [
+    @db SQL"""insert into img_prompts ( prompt_id, prompt ) values ( ?, ? );""", [
       ( U.id_from_text U.nosuchprompt ), U.nosuchprompt, ]
     #.......................................................................................................
     @db SQL"""
       create view img_files_and_prompts as select
-          f.id      as file_id,
-          p.id      as prompt_id,
-          f.path    as path,
-          p.prompt  as prompt
+          f.path_id     as path_id,
+          p.prompt_id   as prompt_id,
+          f.path        as path,
+          p.prompt      as prompt
         from      img_prompts as p
-        left join img_files   as f on ( f.prompt_id = p.id );"""
+        left join img_files   as f using ( prompt_id );"""
+    #=======================================================================================================
+    # @db SQL"""
+    #   create view img_files_and_jnl_prompts as select
+    #     j
+    #     from jnl_prompts as j
+    #     join img_prompts as i using ( prompt_id )
+    #     """
+    # #.......................................................................................................
+    # @db SQL"""
+    #   create view img_files_and_prompts as select
+    #     """
     #=======================================================================================================
     ### TAINT auto-generate? ###
     ### NOTE will contain counts for all relations ###
     @db SQL"""
       create view rowcounts as
-        select            null as name,         null as rowcount where false
+        select            null as name,             null as rowcount where false
         -- -------------------------------------------------------------------------------------------------
-        union all select  'jnl_prompts',        count(*)          from jnl_prompts
-        union all select  'jnl_generations',    count(*)          from jnl_generations
-        union all select  'jnl_counts',         count(*)          from jnl_counts
-        union all select  'jnl_densities',      count(*)          from jnl_densities
+        union all select  'jnl_prompts',            count(*)          from jnl_prompts
+        union all select  'jnl_generations',        count(*)          from jnl_generations
+        union all select  'jnl_counts',             count(*)          from jnl_counts
+        union all select  'jnl_densities',          count(*)          from jnl_densities
+        union all select  'promptstats',            count(*)          from promptstats
         -- -------------------------------------------------------------------------------------------------
         union all select  'img_files',              count(*)          from img_files
         union all select  'img_prompts',            count(*)          from img_prompts
