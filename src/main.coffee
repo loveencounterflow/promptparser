@@ -62,7 +62,7 @@ run_journal_walker = ( prompt_db ) ->
 #===========================================================================================================
 run_image_walker = ( prompt_db ) ->
   known_path_ids  = prompt_db.img_get_known_path_ids()
-  yield from new Image_walker { known_path_ids, }
+  yield from new Image_walker { cmd, flags, known_path_ids, }
   return null
 
 #===========================================================================================================

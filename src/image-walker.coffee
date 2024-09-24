@@ -33,8 +33,9 @@ class Image_walker
 
   #---------------------------------------------------------------------------------------------------------
   constructor: ( cfg ) ->
-    ### TAINT use types ###
-    @known_path_ids = cfg?.known_path_ids ? new Set()
+    hide @, 'types',  get_types()
+    @cfg            = @types.create.image_walker_cfg cfg
+    hide @, 'known_path_ids', U.pluck @cfg, 'known_path_ids', new Set()
     return undefined
 
   #---------------------------------------------------------------------------------------------------------
