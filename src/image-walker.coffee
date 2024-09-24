@@ -21,7 +21,8 @@ GUY                       = require 'guy'
 FS                        = require 'node:fs'
 PATH                      = require 'node:path'
 { U }                     = require './utilities'
-
+{ hide }                  = GUY.props
+{ get_types }             = require './types'
 
 
 
