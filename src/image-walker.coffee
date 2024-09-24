@@ -104,14 +104,7 @@ module.exports = { Image_walker, }
 
 #===========================================================================================================
 if module is require.main then await do =>
-  # await demo_fast_glob()
-  # await demo_node_glob()
-  # await demo_exifr()
-  # await demo_exiftool_vendored()
-  # demo_dbay_with_exifdata()
-  iterator = new Image_walker()
-  debug 'Ω__11', iterator[Symbol.iterator]
-  debug 'Ω__12', d for d from iterator
-  debug 'Ω__13', [ iterator..., ].length
-
-
+  echo()
+  echo ( GUY.trm.grey 'Ω___5' ), ( GUY.trm.gold "run `node lib/cli.js help` instead of this file" )
+  echo()
+  process.exit 111
