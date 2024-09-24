@@ -12,7 +12,7 @@ GUY                       = require 'guy'
   praise
   urge
   warn
-  whisper }               = GUY.trm.get_loggers 'promptparser/image-registry'
+  whisper }               = GUY.trm.get_loggers 'promptparser/image-walker'
 { rpr
   inspect
   echo

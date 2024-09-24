@@ -12,7 +12,7 @@ GUY                       = require 'guy'
   praise
   urge
   warn
-  whisper }               = GUY.trm.get_loggers 'promptparser/production-registry'
+  whisper }               = GUY.trm.get_loggers 'promptparser/journal-walker'
 #...........................................................................................................
 { rpr
   inspect
