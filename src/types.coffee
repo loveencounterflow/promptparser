@@ -167,6 +167,7 @@ get_types = ->
         cmd:                  'nonempty.text'
         flags:                'object'
         lines:                'list_or_iterator'
+        known_prompt_ids:     ( x ) -> @isa.optional.set x ### TAINT workaround due to missing feature ###
       create: ( cfg ) ->
         R = { @declarations.pfr_constructor_cfg.template..., cfg..., }
         return R
@@ -177,6 +178,7 @@ get_types = ->
         cmd:                  'nonempty.text'
         flags:                'object'
         known_path_ids:       ( x ) -> @isa.optional.set x ### TAINT workaround due to missing feature ###
+        known_prompt_ids:     ( x ) -> @isa.optional.set x ### TAINT workaround due to missing feature ###
       create: ( cfg ) ->
         R = { @declarations.pfr_constructor_cfg.template..., cfg..., }
         return R

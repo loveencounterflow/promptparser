@@ -120,11 +120,12 @@ class Prompt_parser extends Transformer
 
   #---------------------------------------------------------------------------------------------------------
   ### TAINT use CFG pattern ###
-  constructor: ( match = null ) ->
+  constructor: ( match, known_prompt_ids ) ->
     super()
     hide @, 'types', get_types()
     @_lexer   = new_prompt_lexer { state: 'reset', }
     @cfg      = { match, }
+    hide @cfg, 'known_prompt_ids', known_prompt_ids
     @state    =
       counts: { prompts: 0, lexemes: 0, non_matches: 0, }
     return undefined
@@ -329,13 +330,20 @@ class Prompt_parser extends Transformer
     return send d if d.$stamped
     return send d unless d.$key is 'prerecord'
     send d
-    fields =
-      prompt_id:    d.prompt_id
-      lnr:          d.lnr
-      prompt:       d.prompt
-      comment:      d.comment
-      rejected:     d.rejected
-    send { $key: 'record', prompt_id: d.prompt_id, table: 'jnl_prompts', fields, }
+    do =>
+      fields =
+        prompt_id:    d.prompt_id
+        lnr:          d.lnr
+        comment:      d.comment
+        rejected:     d.rejected
+      send { $key: 'record', prompt_id: d.prompt_id, table: 'jnl_prompts', fields, }
+    do =>
+      return null if @cfg.known_prompt_ids.has d.prompt_id
+      @cfg.known_prompt_ids.add d.prompt_id
+      fields =
+        prompt_id:    d.prompt_id
+        prompt:       d.prompt
+      send { $key: 'record', prompt_id: d.prompt_id, table: 'all_prompts', fields, }
     return null
 
   #---------------------------------------------------------------------------------------------------------
@@ -381,10 +389,12 @@ class Journal_walker
 
   #---------------------------------------------------------------------------------------------------------
   constructor: ( cfg ) ->
-    hide @, 'types',          get_types()
-    @cfg                      = @types.create.pfr_constructor_cfg cfg
-    hide @, 'prompt_parser',  new Prompt_parser @cfg.flags.match
-    hide @, 'pipeline',       new Pipeline()
+    hide @, 'types',            get_types()
+    @cfg                        = @types.create.pfr_constructor_cfg cfg
+    # hide @, 'known_path_ids',   U.pluck @cfg, 'known_path_ids',   new Set()
+    hide @, 'known_prompt_ids', U.pluck @cfg, 'known_prompt_ids', new Set()
+    hide @, 'prompt_parser',    new Prompt_parser @cfg.flags.match, @known_prompt_ids
+    hide @, 'pipeline',         new Pipeline()
     @pipeline.push @prompt_parser
     #.......................................................................................................
     return undefined

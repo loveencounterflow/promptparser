@@ -33,9 +33,10 @@ class Image_walker
 
   #---------------------------------------------------------------------------------------------------------
   constructor: ( cfg ) ->
-    hide @, 'types',  get_types()
-    @cfg            = @types.create.image_walker_cfg cfg
-    hide @, 'known_path_ids', U.pluck @cfg, 'known_path_ids', new Set()
+    hide @, 'types',              get_types()
+    @cfg                        = @types.create.image_walker_cfg cfg
+    hide @, 'known_path_ids',   U.pluck @cfg, 'known_path_ids',   new Set()
+    hide @, 'known_prompt_ids', U.pluck @cfg, 'known_prompt_ids', new Set()
     return undefined
 
   #---------------------------------------------------------------------------------------------------------
@@ -88,11 +89,10 @@ class Image_walker
         #.................................................................................................
         { prompt_id
           prompt    } = U.exif_from_path path
-        fields        = { prompt_id, prompt, }
-        yield { $key: 'record', table: 'img_prompts', fields, }
-        #.................................................................................................
-        fields = { path_id, prompt_id, path, }
-        yield { $key: 'record', table: 'img_files', fields, }
+        unless @known_prompt_ids.has prompt_id
+          @known_path_ids.add prompt_id
+          yield { $key: 'record', table: 'all_prompts', fields: { prompt_id, prompt, }, }
+        yield { $key: 'record', table: 'img_files', fields: { path_id, prompt_id, path, }, }
     #.....................................................................................................
     info 'Ω___4', counts
     console.timeEnd 'TMP_RENAME_build_file_db'

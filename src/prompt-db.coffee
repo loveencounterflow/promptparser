@@ -53,13 +53,19 @@ class Prompt_db
     whisper 'Ω___1', "Prompt_file_reader::create_db_structure"
     #.......................................................................................................
     @db SQL"""
+      create table all_prompts (
+          prompt_id text    unique not null primary key,
+          prompt    text    unique not null );"""
+    #.......................................................................................................
+    @db SQL"""insert into all_prompts ( prompt_id, prompt ) values ( ?, ? );""", [
+      ( U.id_from_text U.nosuchprompt ), U.nosuchprompt, ]
+    #.......................................................................................................
+    @db SQL"""
       create table jnl_prompts (
           prompt_id text    unique not null primary key,
           lnr       integer unique not null,
-          prompt    text    unique not null,
           comment   text               null,
-          rejected  boolean        not null,
-        unique( prompt ) );"""
+          rejected  boolean        not null );"""
     #.......................................................................................................
     @db SQL"""
       create table jnl_generations (
@@ -93,32 +99,25 @@ class Prompt_db
           d.images        as images,
           d.density       as density,
           p.lnr           as lnr,
-          p.prompt        as prompt
+          a.prompt        as prompt
         from jnl_prompts    as p
-        join jnl_densities  as d using ( prompt_id );"""
+        join jnl_densities  as d using ( prompt_id )
+        join all_prompts    as a using ( prompt_id );"""
     #-------------------------------------------------------------------------------------------------------
     @db SQL"""
       create table img_files (
           path_id   text unique not null primary key,
           prompt_id text        not null,
           path      text unique not null,
-        foreign key ( prompt_id ) references img_prompts ( prompt_id ) );"""
+        foreign key ( prompt_id ) references all_prompts ( prompt_id ) );"""
     #.......................................................................................................
     @db SQL"""
-      create table img_prompts (
-          prompt_id text unique not null primary key,
-          prompt    text unique not null );"""
-    #.......................................................................................................
-    @db SQL"""insert into img_prompts ( prompt_id, prompt ) values ( ?, ? );""", [
-      ( U.id_from_text U.nosuchprompt ), U.nosuchprompt, ]
-    #.......................................................................................................
-    @db SQL"""
-      create view img_files_and_img_prompts as select
+      create view img_files_and_prompts as select
           f.path_id     as path_id,
-          p.prompt_id   as prompt_id,
+          a.prompt_id   as prompt_id,
           f.path        as path,
-          p.prompt      as prompt
-        from      img_prompts as p
+          a.prompt      as prompt
+        from      all_prompts as a
         left join img_files   as f using ( prompt_id );"""
     #=======================================================================================================
     @db SQL"""
@@ -127,17 +126,17 @@ class Prompt_db
           i.prompt_id       as prompt_id,
           i.path            as path,
           i.prompt          as prompt
-        from img_files_and_img_prompts as i
+        from img_files_and_prompts as i
         where i.prompt = '';"""
     #.......................................................................................................
     @db SQL"""
       create view img_files_with_jnl_prompts as select
           i.path_id         as path_id,
-          j.prompt_id       as prompt_id,
+          a.prompt_id       as prompt_id,
           i.path            as path,
-          j.prompt          as prompt
-        from jnl_prompts                as j
-        join img_files_and_img_prompts  as i using ( prompt_id );"""
+          a.prompt          as prompt
+        from all_prompts                as a
+        join img_files_and_prompts  as i using ( prompt_id );"""
     #.......................................................................................................
     @db SQL"""
       create view img_files_without_jnl_prompts as select
@@ -145,7 +144,7 @@ class Prompt_db
           i.prompt_id       as prompt_id,
           i.path            as path,
           i.prompt          as prompt
-        from img_files_and_img_prompts  as i
+        from img_files_and_prompts  as i
         where true
           and prompt != ''
           and not exists ( select 1 from jnl_prompts as j where i.prompt_id = j.prompt_id );
@@ -157,18 +156,19 @@ class Prompt_db
       create view rowcounts as
         select            null as name,                 null as rowcount where false
         -- -------------------------------------------------------------------------------------------------
-        union all select  'jnl_prompts',                count(*)  from jnl_prompts
-        union all select  'jnl_generations',            count(*)  from jnl_generations
-        union all select  'jnl_counts',                 count(*)  from jnl_counts
-        union all select  'jnl_densities',              count(*)  from jnl_densities
-        union all select  'promptstats',                count(*)  from promptstats
+        union all select  'all_prompts',                    count(*)  from all_prompts
         -- -------------------------------------------------------------------------------------------------
-        union all select  'img_files',                  count(*)  from img_files
-        union all select  'img_prompts',                count(*)  from img_prompts
-        union all select  'img_files_and_img_prompts',      count(*)  from img_files_and_img_prompts
+        union all select  'jnl_prompts',                    count(*)  from jnl_prompts
+        union all select  'jnl_generations',                count(*)  from jnl_generations
+        union all select  'jnl_counts',                     count(*)  from jnl_counts
+        union all select  'jnl_densities',                  count(*)  from jnl_densities
+        union all select  'promptstats',                    count(*)  from promptstats
         -- -------------------------------------------------------------------------------------------------
-        union all select  'img_files_with_empty_prompts',  count(*)  from img_files_with_empty_prompts
-        union all select  'img_files_with_jnl_prompts',  count(*)  from img_files_with_jnl_prompts
+        union all select  'img_files',                      count(*)  from img_files
+        union all select  'img_files_and_prompts',          count(*)  from img_files_and_prompts
+        -- -------------------------------------------------------------------------------------------------
+        union all select  'img_files_with_empty_prompts',   count(*)  from img_files_with_empty_prompts
+        union all select  'img_files_with_jnl_prompts',     count(*)  from img_files_with_jnl_prompts
         union all select  'img_files_without_jnl_prompts',  count(*)  from img_files_without_jnl_prompts
         -- -------------------------------------------------------------------------------------------------
         ;"""
@@ -177,6 +177,10 @@ class Prompt_db
     one should walk the prototype chain ###
     hide @, 'insert_into', insert_into = {}
     #.......................................................................................................
+    insert_into.all_prompts = do =>
+      insert_stmt = @db.create_insert { into: 'all_prompts',  on_conflict: { update: true, }, }
+      return U.wrap_insert insert_into_all_prompts = ( d ) => @db insert_stmt, d
+    #.......................................................................................................
     insert_into.jnl_prompts = do =>
       insert_stmt = @db.create_insert { into: 'jnl_prompts',  on_conflict: { update: true, }, }
       return U.wrap_insert insert_into_jnl_prompts = ( d ) => @db insert_stmt, lets d, ( d ) ->
@@ -184,12 +188,7 @@ class Prompt_db
     #.......................................................................................................
     insert_into.jnl_generations = do =>
       insert_stmt = @db.create_insert { into: 'jnl_generations', }
-      return U.wrap_insert insert_into_jnl_generations = ( d ) => @db insert_stmt, lets d, ( d ) ->
-        d.rejected = if d.rejected is true then 1 else 0 ### TAINT should be auto-converted ###
-    #-------------------------------------------------------------------------------------------------------
-    insert_into.img_prompts = do =>
-      insert_stmt = @db.create_insert { into: 'img_prompts', on_conflict: 'do nothing', }
-      return U.wrap_insert insert_into_img_prompts = ( d ) => @db insert_stmt, d
+      return U.wrap_insert insert_into_jnl_generations = ( d ) => @db insert_stmt, d
     #.......................................................................................................
     insert_into.img_files = do =>
       insert_stmt = @db.create_insert { into: 'img_files', }
@@ -198,7 +197,8 @@ class Prompt_db
     return null
 
   #---------------------------------------------------------------------------------------------------------
-  img_get_known_path_ids: -> new Set @db.first_values SQL"select path_id from img_files;"
+  get_known_img_path_ids: -> new Set @db.first_values SQL"select path_id from img_files;"
+  get_known_prompt_ids:   -> new Set @db.first_values SQL"select prompt_id from all_prompts;"
 
 #===========================================================================================================
 module.exports = {

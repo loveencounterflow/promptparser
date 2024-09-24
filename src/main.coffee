@@ -43,8 +43,8 @@ cmd             = 'build'
 flags           =
   match:      /(?:)/,
   trash_db:   true,
-  sample:     0.1,
-  # sample:     1,
+  # sample:     0.1,
+  sample:     1,
   # max_count:  20,
   max_count:  Infinity,
   prompts:    '../../jzr/to-be-merged-from-Atlas/prompts-consolidated.md'
@@ -54,32 +54,40 @@ flags           =
   db:         '/dev/shm/promptparser.sqlite'
 
 #===========================================================================================================
-run_journal_walker = ( prompt_db ) ->
+run_journal_walker = ({ prompt_db, known_prompt_ids, }) ->
   lines = GUY.fs.walk_lines_with_positions flags.prompts
-  yield from new Journal_walker { cmd, flags, lines, }
+  yield from new Journal_walker { cmd, flags, lines, known_prompt_ids, }
   return null
 
 #===========================================================================================================
-run_image_walker = ( prompt_db ) ->
-  known_path_ids  = prompt_db.img_get_known_path_ids()
-  yield from new Image_walker { cmd, flags, known_path_ids, }
+run_image_walker = ({ prompt_db, known_path_ids, known_prompt_ids, }) ->
+  yield from new Image_walker { cmd, flags, known_path_ids, known_prompt_ids, }
   return null
 
 #===========================================================================================================
 if module is require.main then await do =>
-  prompt_db = new Prompt_db { cmd, flags, }
+  prompt_db         = new Prompt_db { cmd, flags, }
+  known_path_ids    = prompt_db.get_known_img_path_ids()
+  known_prompt_ids  = prompt_db.get_known_prompt_ids()
+  #---------------------------------------------------------------------------------------------------------
   do =>
     count = 0
-    for d from run_image_walker prompt_db
+    for d from run_image_walker { prompt_db, known_path_ids, known_prompt_ids, }
       count++; break if count > flags.max_count
+      if d.table is 'all_prompts'
+        continue if known_prompt_ids.has d.fields.prompt_id
+        known_prompt_ids.add d.fields.prompt_id
       prompt_db.insert_into[ d.table ] d.fields
     return null
+  #---------------------------------------------------------------------------------------------------------
   do =>
-    for d from run_journal_walker prompt_db
+    for d from run_journal_walker { prompt_db, known_prompt_ids, }
+      if d.table is 'all_prompts'
+        continue if known_prompt_ids.has d.fields.prompt_id
+        known_prompt_ids.add d.fields.prompt_id
       prompt_db.insert_into[ d.table ] d.fields
     return null
-
-
+  #---------------------------------------------------------------------------------------------------------
   return null
 
   echo()
