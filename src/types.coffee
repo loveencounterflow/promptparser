@@ -77,16 +77,6 @@ get_types = ->
       return true if @isa.generator x
       return false
     #.......................................................................................................
-    pfr_constructor_cfg:
-      test:   'object'
-      fields:
-        cmd:                  'nonempty.text'
-        flags:                'object'
-        lines:                'list_or_iterator'
-      create: ( cfg ) ->
-        R = { @declarations.pfr_constructor_cfg.template..., cfg..., }
-        return R
-    #.......................................................................................................
     prompt_db_cfg:
       test:   'object'
       fields:
@@ -165,7 +155,31 @@ get_types = ->
       test:                 'nonempty.text'
       template:             null
       create: ( x ) -> x
-
+    #.......................................................................................................
+    cli_images:
+      test:                 'nonempty.text'
+      template:             null
+      create: ( x ) -> x
+    #.......................................................................................................
+    pfr_constructor_cfg:
+      test:   'object'
+      fields:
+        cmd:                  'nonempty.text'
+        flags:                'object'
+        lines:                'list_or_iterator'
+      create: ( cfg ) ->
+        R = { @declarations.pfr_constructor_cfg.template..., cfg..., }
+        return R
+    #.......................................................................................................
+    image_walker_cfg:
+      test:   'object'
+      fields:
+        cmd:                  'nonempty.text'
+        flags:                'object'
+        known_path_ids:       ( x ) -> @isa.optional.set x ### TAINT workaround due to missing feature ###
+      create: ( cfg ) ->
+        R = { @declarations.pfr_constructor_cfg.template..., cfg..., }
+        return R
   #.........................................................................................................
   return types
 
