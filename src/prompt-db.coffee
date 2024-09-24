@@ -19,7 +19,6 @@ GUY                       = require 'guy'
   log     }               = GUY.trm
 #...........................................................................................................
 { hide }                  = GUY.props
-pluck                     = ( o, k ) -> R = o[ k ]; delete o[ k ]; R
 { get_types }             = require './types'
 #...........................................................................................................
 { DATOM }                 = require 'datom'
@@ -42,7 +41,7 @@ class Prompt_db
   constructor: ( cfg ) ->
     hide @, 'types',  get_types()
     @cfg = @types.create.prompt_db_cfg cfg
-    path = pluck @cfg.flags, 'db'
+    path = U.pluck @cfg.flags, 'db'
     trash path if @cfg.flags.trash_db
     hide @, 'db', new DBay { path, }
     @create_db_structure()

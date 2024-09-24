@@ -83,6 +83,9 @@ class Utilities
     bad:          ( P... ) -> GUY.trm.red   GUY.trm.reverse GUY.trm.bold P...
 
   #---------------------------------------------------------------------------------------------------------
+  pluck: ( x, key, fallback = null ) -> R = x[ key ]; delete x[ key ]; R ? fallback
+
+  #---------------------------------------------------------------------------------------------------------
   format_nr: ( x, width = null ) ->
     R = format_nr x
     return R unless width?
