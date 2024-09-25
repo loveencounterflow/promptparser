@@ -37,7 +37,6 @@ pluck                     = ( o, k ) -> R = o[ k ]; delete o[ k ]; R
 
 
 #===========================================================================================================
-known_path_ids  = null
 lines           = null
 cmd             = 'build'
 flags           =
@@ -67,24 +66,18 @@ run_image_walker = ({ prompt_db, known_path_ids, known_prompt_ids, }) ->
 #===========================================================================================================
 if module is require.main then await do =>
   prompt_db         = new Prompt_db { cmd, flags, }
-  known_path_ids    = prompt_db.get_known_img_path_ids()
+  known_path_ids    = prompt_db.get_known_path_ids()
   known_prompt_ids  = prompt_db.get_known_prompt_ids()
   #---------------------------------------------------------------------------------------------------------
   do =>
     count = 0
     for d from run_image_walker { prompt_db, known_path_ids, known_prompt_ids, }
       count++; break if count > flags.max_count
-      if d.table is 'all_prompts'
-        continue if known_prompt_ids.has d.fields.prompt_id
-        known_prompt_ids.add d.fields.prompt_id
       prompt_db.insert_into[ d.table ] d.fields
     return null
   #---------------------------------------------------------------------------------------------------------
   do =>
     for d from run_journal_walker { prompt_db, known_prompt_ids, }
-      if d.table is 'all_prompts'
-        continue if known_prompt_ids.has d.fields.prompt_id
-        known_prompt_ids.add d.fields.prompt_id
       prompt_db.insert_into[ d.table ] d.fields
     return null
   #---------------------------------------------------------------------------------------------------------
