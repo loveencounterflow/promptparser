@@ -74,25 +74,19 @@ class Image_walker
       if Math.random() > @cfg.flags.sample
         counts.unsampled_files++
         continue
-      #...................................................................................................
+      #.....................................................................................................
       if @known_path_ids.has path_id
-        # help "Ω___3 skipping path ID #{rpr path_id}"
         counts.skipped++
-        ### NOTE we know that in the present run we will not again have to test against the current
-        `path_id`, so we also know we can safely delete it from the pool of known IDs (thereby making it
-        smaller and potentially a tad faster); after having gone through all `path_ids` in the file
-        system, we will then effectively have turned `@known_path_ids` into `extraneous_path_ids`, i.e.
-        those that could be deleted from the DB if deemed necessary. ###
-        @known_path_ids.delete path_id
-      else
-        counts.added++
-        #.................................................................................................
-        { prompt_id
-          prompt    } = U.exif_from_path path
-        unless @known_prompt_ids.has prompt_id
-          @known_path_ids.add prompt_id
-          yield { $key: 'record', table: 'all_prompts', fields: { prompt_id, prompt, }, }
-        yield { $key: 'record', table: 'img_files', fields: { path_id, prompt_id, path, }, }
+        continue
+      #.....................................................................................................
+      @known_path_ids.add path_id
+      counts.added++
+      { prompt_id
+        prompt    } = U.exif_from_path path
+      unless @known_prompt_ids.has prompt_id
+        @known_prompt_ids.add prompt_id
+        yield { $key: 'record', table: 'all_prompts', fields: { prompt_id, prompt, }, }
+      yield { $key: 'record', table: 'img_files', fields: { path_id, prompt_id, path, }, }
     #.....................................................................................................
     info 'Ω___4', counts
     console.timeEnd 'TMP_RENAME_build_file_db'
