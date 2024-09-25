@@ -148,8 +148,27 @@ class Prompt_db
         from img_files_and_prompts  as i
         where true
           and prompt != ''
-          and not exists ( select 1 from jnl_prompts as j where i.prompt_id = j.prompt_id );
-        """
+          and not exists ( select 1 from jnl_prompts as j where i.prompt_id = j.prompt_id );"""
+    #.......................................................................................................
+    @db SQL"""
+      create view all_prompts_and_occurrences as select
+          a.prompt_id         as prompt_id,
+          jnl.prompt_id       as jnl_prompt_id,
+          img.prompt_id       as img_prompt_id,
+          a.prompt            as prompt
+        from      all_prompts   as a
+        left join jnl_prompts   as jnl using ( prompt_id )
+        left join img_files     as img using ( prompt_id );"""
+    # #.......................................................................................................
+    # @db SQL"""
+    #   create view jnl_prompts_without_img_files as select
+    #       a.prompt_id       as prompt_id,
+    #       a.prompt          as prompt
+    #     from jnl_prompts  as p
+    #     join all_prompts  as a using ( prompt_id )
+    #     where true
+    #       and a.prompt != ''
+    #       and not exists ( select 1 from img_files as j where a.prompt_id = j.prompt_id );"""
     #=======================================================================================================
     ### TAINT auto-generate? ###
     ### NOTE will contain counts for all relations ###
@@ -171,6 +190,7 @@ class Prompt_db
         union all select  'img_files_with_empty_prompts',   count(*)  from img_files_with_empty_prompts
         union all select  'img_files_with_jnl_prompts',     count(*)  from img_files_with_jnl_prompts
         union all select  'img_files_without_jnl_prompts',  count(*)  from img_files_without_jnl_prompts
+        union all select  'all_prompts_and_occurrences',  count(*)  from all_prompts_and_occurrences
         -- -------------------------------------------------------------------------------------------------
         ;"""
     #=======================================================================================================
