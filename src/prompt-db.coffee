@@ -43,7 +43,8 @@ class Prompt_db
     @cfg = @types.create.prompt_db_cfg cfg
     path = U.pluck @cfg.flags, 'db'
     trash path if @cfg.flags.trash_db
-    hide @, 'db', new DBay { path, }
+    hide @, 'db',     new DBay { path, }
+    hide @, 'cache',  { known_path_ids: null, known_prompt_ids: null, }
     @create_db_structure()
     return undefined
 
@@ -197,8 +198,14 @@ class Prompt_db
     return null
 
   #---------------------------------------------------------------------------------------------------------
-  get_known_img_path_ids: -> new Set @db.first_values SQL"select path_id from img_files;"
-  get_known_prompt_ids:   -> new Set @db.first_values SQL"select prompt_id from all_prompts;"
+  get_known_path_ids: ->
+    return @cache.known_path_ids    if @cache.known_path_ids?
+    return ( @cache.known_path_ids = new Set @db.first_values SQL"select path_id from img_files;"      )
+
+  #---------------------------------------------------------------------------------------------------------
+  get_known_prompt_ids:   ->
+    return @cache.known_prompt_ids  if @cache.known_prompt_ids?
+    return ( @cache.known_prompt_ids   = new Set @db.first_values SQL"select prompt_id from all_prompts;"  )
 
 #===========================================================================================================
 module.exports = {
