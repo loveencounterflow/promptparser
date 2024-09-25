@@ -165,6 +165,8 @@ left join prompts as p
   **JRN**)</del> <ins>*journal* (**JNL**)</ins>
 * **[–]** in the CLI, if DB path and / or prompts journal are not indicated, try to resolve standard names
   and extensions by globbing the current working directory
+* **[–]** instead of passing around mutable data structures `known_path_ids`, `known_prompt_ids`, pass
+  around methods to check and update these as that entails better guarantees against misuse
 * **[–]** invariants for error / fault detection:
   * **[–]** more actual images with a prompt than in journal
 
