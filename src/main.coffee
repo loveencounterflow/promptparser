@@ -91,6 +91,6 @@ if module is require.main then await do =>
   return null
 
   echo()
-  echo ( GUY.trm.grey 'Ω___4' ), ( GUY.trm.gold "run `node lib/cli.js help` instead of this file" )
+  echo ( GUY.trm.grey 'Ω___3' ), ( GUY.trm.gold "run `node lib/cli.js help` instead of this file" )
   echo()
   process.exit 111
