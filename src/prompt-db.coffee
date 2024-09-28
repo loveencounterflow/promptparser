@@ -149,16 +149,24 @@ class Prompt_db
         from      all_prompts   as a
         left join jnl_prompts   as jnl using ( prompt_id )
         left join img_files     as img using ( prompt_id );"""
-    # #.......................................................................................................
-    # @db SQL"""
-    #   create view jnl_prompts_without_img_files as select
-    #       a.prompt_id       as prompt_id,
-    #       a.prompt          as prompt
-    #     from jnl_prompts  as p
-    #     join all_prompts  as a using ( prompt_id )
-    #     where true
-    #       and a.prompt != ''
-    #       and not exists ( select 1 from img_files as j where a.prompt_id = j.prompt_id );"""
+    #.......................................................................................................
+    @db SQL"""
+      create view all_prompts_without_img_files as select
+          *
+        from all_prompts_and_occurrences  as o
+        join all_prompts                  as a using ( prompt_id )
+        where true
+          and a.prompt != ''
+          and img_prompt_id is null;"""
+    #.......................................................................................................
+    @db SQL"""
+      create view all_prompts_without_jnl_entries as select
+          *
+        from all_prompts_and_occurrences  as o
+        join all_prompts                  as a using ( prompt_id )
+        where true
+          and a.prompt != ''
+          and jnl_prompt_id is null;"""
     #=======================================================================================================
     ### TAINT auto-generate? ###
     ### NOTE will contain counts for all relations ###
