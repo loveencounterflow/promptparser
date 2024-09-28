@@ -137,7 +137,6 @@ class Prompt_db
           i.path            as path,
           a.prompt          as prompt
         from img_files_and_prompts  as i
-        join jnl_prompts            as j using ( prompt_id )
         join all_prompts            as a using ( prompt_id );"""
     #.......................................................................................................
     @db SQL"""
