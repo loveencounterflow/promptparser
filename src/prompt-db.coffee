@@ -92,18 +92,6 @@ class Prompt_db
           cast( ( ( cast( c.production as real ) / c.generations / 4 ) * 100 + 0.5 ) as integer ) as productivity
         from jnl_generations as g
         left join jnl_counts as c using ( prompt_id );"""
-    #.......................................................................................................
-    @db SQL"""
-      create view jnl_promptstats as select distinct
-          d.prompt_id     as prompt_id,
-          d.generations   as generations,
-          d.images        as images,
-          d.density       as density,
-          p.lnr           as lnr,
-          a.prompt        as prompt
-        from jnl_prompts    as p
-        join jnl_densities  as d using ( prompt_id )
-        join all_prompts    as a using ( prompt_id );"""
     #-------------------------------------------------------------------------------------------------------
     @db SQL"""
       create table img_files (
@@ -140,6 +128,14 @@ class Prompt_db
         join all_prompts            as a using ( prompt_id );"""
     #.......................................................................................................
     @db SQL"""
+      create view img_file_prompt_counts as select distinct
+          äll.prompt_id       as prompt_id,
+          count( img.path ) over w            as downloads
+        from img_files_and_prompts  as img
+        join all_prompts            as äll using ( prompt_id )
+        window w as ( partition by prompt_id );"""
+    #.......................................................................................................
+    @db SQL"""
       create view all_prompts_and_occurrences as select
           a.prompt_id         as prompt_id,
           jnl.prompt_id       as jnl_prompt_id,
@@ -167,6 +163,42 @@ class Prompt_db
           and a.prompt != ''
           and jnl_prompt_id is null;"""
     #=======================================================================================================
+    @db SQL"""
+      create view _jnl_prodpoints as select distinct
+          d.prompt_id                                                       as prompt_id,
+          d.generations                                                     as generations,
+          d.generations * 4                                                 as potential,
+          d.production                                                      as production,
+          d.productivity                                                    as productivity,
+          d.productivity * d.production                                     as prodpoints,
+          c.downloads                                                       as downloads,
+          cast( cast( c.downloads as float ) / d.production * 100 + 0.5 as integer ) as acceptance,
+          p.lnr                                                             as lnr,
+          a.prompt                                                          as prompt
+        from jnl_prompts            as p
+        join _jnl_productivities    as d using ( prompt_id )
+        join all_prompts            as a using ( prompt_id )
+        join img_file_prompt_counts as c using ( prompt_id );"""
+    #.......................................................................................................
+    @db SQL"""
+      create view jnl_promptstats as select
+          p.prompt_id                       as prompt_id,
+          p.generations                     as generations,
+          p.potential                       as potential,
+          p.production                      as production,
+          p.downloads                       as downloads,
+          p.acceptance                      as acceptance,
+          p.productivity                    as productivity,
+          p.prodpoints                      as prodpoints,
+          p.lnr                             as lnr,
+          p.prompt                          as prompt
+        from _jnl_prodpoints as p
+        order by
+          p.prodpoints desc,
+          p.acceptance desc,
+          -- fooQQQ desc,
+          p.productivity desc,
+          p.lnr desc;"""
     ### TAINT auto-generate? ###
     ### NOTE will contain counts for all relations ###
     @db SQL"""
@@ -178,7 +210,7 @@ class Prompt_db
         union all select  'jnl_prompts',                      count(*)  from jnl_prompts
         union all select  'jnl_generations',                  count(*)  from jnl_generations
         union all select  'jnl_counts',                       count(*)  from jnl_counts
-        union all select  'jnl_densities',                    count(*)  from jnl_densities
+        union all select  '_jnl_productivities',                    count(*)  from _jnl_productivities
         union all select  'jnl_promptstats',                  count(*)  from jnl_promptstats
         -- -------------------------------------------------------------------------------------------------
         union all select  'img_files',                        count(*)  from img_files
