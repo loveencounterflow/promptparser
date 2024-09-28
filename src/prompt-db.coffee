@@ -80,16 +80,16 @@ class Prompt_db
       create view jnl_counts as select distinct
           g.prompt_id           as prompt_id,
           count(*)      over w  as generations,
-          sum( count )  over w  as images
+          sum( count )  over w  as production
         from jnl_generations as g
         window w as ( partition by prompt_id );"""
     #.......................................................................................................
     @db SQL"""
-      create view jnl_densities as select
-          c.prompt_id                                                                         as prompt_id,
-          c.generations                                                                       as generations,
-          c.images                                                                            as images,
-          cast( ( ( cast( c.images as real ) / c.generations / 4 ) * 100 + 0.5 ) as integer ) as density
+      create view _jnl_productivities as select
+          c.prompt_id                                                                             as prompt_id,
+          c.generations                                                                           as generations,
+          c.production                                                                            as production,
+          cast( ( ( cast( c.production as real ) / c.generations / 4 ) * 100 + 0.5 ) as integer ) as productivity
         from jnl_generations as g
         left join jnl_counts as c using ( prompt_id );"""
     #.......................................................................................................
