@@ -199,6 +199,17 @@ class Prompt_db
           -- fooQQQ desc,
           p.productivity desc,
           p.lnr desc;"""
+    #.......................................................................................................
+    @db SQL"""
+      create view faults_downloads_gt_production as select
+        s.production  as production,
+        s.downloads   as downloads,
+        s.prompt_id   as prompt_id,
+        f.path        as path
+        from jnl_promptstats  as s
+        join img_files        as f using ( prompt_id )
+        where s.production < s.downloads;"""
+    #=======================================================================================================
     ### TAINT auto-generate? ###
     ### NOTE will contain counts for all relations ###
     @db SQL"""
