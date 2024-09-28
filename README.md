@@ -140,16 +140,19 @@ left join prompts as p
       all likelyhood, and could change any time) more images per generation, since prompt B was run more
       often, both get the same `prodpoints` indicating that—presumably for the high quality of the
       images—prompt B made up for somewhat worse productivity with more generations
+    * like the result of any multiplication, `prodpoints` can be visualized as the area of a rectangle whose
+      sides are proportional to the two multiplicands—in this case, `productivity` and `production`
   * **[–]** correlation between prompt length and productivity
-  * **[–]** **acceptance** rate: what proportion of images were downloaded, expressed in per cent; two flavors:
+  * **[–]** **acceptance** rate: what proportion of images were downloaded, expressed in per cent; two
+    flavors:
     * **[–]** ratio of downloaded to potential
     * **[–]** ratio of downloaded to production
 * **[–]** in jobdefs, forbid:
   * **[+]** `runner`
   * **[–]** `fallback`
-* **[–]** in both the File Registry and the Production Registry, see to it that all prompts that equal the empty
-  string are correctly assigned `Utilities::nosuchprompt`; this value is, ATM, the empty string, too, but
-  that could change in the future
+* **[–]** in both the File Registry and the Production Registry, see to it that all prompts that equal the
+  empty string are correctly assigned `Utilities::nosuchprompt`; this value is, ATM, the empty string, too,
+  but that could change in the future
 * **[–]** mention that file IDs are derived from *paths* (partial or absolute paths?), *not* from content
   hashes which would probably be the better and more correct (but also computationally more expensive) way
   to do it
