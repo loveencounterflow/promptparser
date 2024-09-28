@@ -118,8 +118,8 @@ class Prompt_db
           a.prompt_id   as prompt_id,
           f.path        as path,
           a.prompt      as prompt
-        from      all_prompts as a
-        left join img_files   as f using ( prompt_id );"""
+        from img_files   as f
+        join all_prompts as a using ( prompt_id );"""
     #=======================================================================================================
     @db SQL"""
       create view img_files_with_empty_prompts as select
@@ -136,19 +136,9 @@ class Prompt_db
           a.prompt_id       as prompt_id,
           i.path            as path,
           a.prompt          as prompt
-        from all_prompts                as a
-        join img_files_and_prompts  as i using ( prompt_id );"""
-    #.......................................................................................................
-    @db SQL"""
-      create view img_files_without_jnl_prompts as select
-          i.path_id         as path_id,
-          i.prompt_id       as prompt_id,
-          i.path            as path,
-          i.prompt          as prompt
         from img_files_and_prompts  as i
-        where true
-          and prompt != ''
-          and not exists ( select 1 from jnl_prompts as j where i.prompt_id = j.prompt_id );"""
+        join jnl_prompts            as j using ( prompt_id )
+        join all_prompts            as a using ( prompt_id );"""
     #.......................................................................................................
     @db SQL"""
       create view all_prompts_and_occurrences as select
