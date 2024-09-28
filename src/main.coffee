@@ -42,7 +42,8 @@ cmd             = 'build'
 flags           =
   match:      /(?:)/,
   trash_db:   true,
-  # sample:     0.001,
+  # sample:     0.05,
+  # sample:     0.1,
   sample:     1,
   # max_count:  20,
   max_count:  Infinity,
