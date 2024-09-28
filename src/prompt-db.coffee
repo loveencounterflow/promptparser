@@ -94,7 +94,7 @@ class Prompt_db
         left join jnl_counts as c using ( prompt_id );"""
     #.......................................................................................................
     @db SQL"""
-      create view promptstats as select distinct
+      create view jnl_promptstats as select distinct
           d.prompt_id     as prompt_id,
           d.generations   as generations,
           d.images        as images,
