@@ -176,21 +176,22 @@ class Prompt_db
       create view rowcounts as
         select            null as name,                 null as rowcount where false
         -- -------------------------------------------------------------------------------------------------
-        union all select  'all_prompts',                    count(*)  from all_prompts
+        union all select  'all_prompts',                      count(*)  from all_prompts
         -- -------------------------------------------------------------------------------------------------
-        union all select  'jnl_prompts',                    count(*)  from jnl_prompts
-        union all select  'jnl_generations',                count(*)  from jnl_generations
-        union all select  'jnl_counts',                     count(*)  from jnl_counts
-        union all select  'jnl_densities',                  count(*)  from jnl_densities
-        union all select  'promptstats',                    count(*)  from promptstats
+        union all select  'jnl_prompts',                      count(*)  from jnl_prompts
+        union all select  'jnl_generations',                  count(*)  from jnl_generations
+        union all select  'jnl_counts',                       count(*)  from jnl_counts
+        union all select  'jnl_densities',                    count(*)  from jnl_densities
+        union all select  'jnl_promptstats',                  count(*)  from jnl_promptstats
         -- -------------------------------------------------------------------------------------------------
-        union all select  'img_files',                      count(*)  from img_files
-        union all select  'img_files_and_prompts',          count(*)  from img_files_and_prompts
+        union all select  'img_files',                        count(*)  from img_files
+        union all select  'img_files_and_prompts',            count(*)  from img_files_and_prompts
         -- -------------------------------------------------------------------------------------------------
-        union all select  'img_files_with_empty_prompts',   count(*)  from img_files_with_empty_prompts
-        union all select  'img_files_with_jnl_prompts',     count(*)  from img_files_with_jnl_prompts
-        union all select  'img_files_without_jnl_prompts',  count(*)  from img_files_without_jnl_prompts
-        union all select  'all_prompts_and_occurrences',  count(*)  from all_prompts_and_occurrences
+        union all select  'img_files_with_empty_prompts',     count(*)  from img_files_with_empty_prompts
+        union all select  'img_files_with_jnl_prompts',       count(*)  from img_files_with_jnl_prompts
+        union all select  'all_prompts_and_occurrences',      count(*)  from all_prompts_and_occurrences
+        union all select  'all_prompts_without_img_files',    count(*)  from all_prompts_without_img_files
+        union all select  'all_prompts_without_jnl_entries',  count(*)  from all_prompts_without_jnl_entries
         -- -------------------------------------------------------------------------------------------------
         ;"""
     #=======================================================================================================
