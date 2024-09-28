@@ -140,8 +140,14 @@ left join prompts as p
       all likelyhood, and could change any time) more images per generation, since prompt B was run more
       often, both get the same `prodpoints` indicating that—presumably for the high quality of the
       images—prompt B made up for somewhat worse productivity with more generations
-    * like the result of any multiplication, `prodpoints` can be visualized as the area of a rectangle whose
-      sides are proportional to the two multiplicands—in this case, `productivity` and `production`
+    * Like the result of any multiplication, `prodpoints` can be visualized as the area of a rectangle whose
+      sides are proportional to the two multiplicands—in this case, `productivity` and `production`.
+    * Since we should expect that in real life the number of images per prompt is small (< 10), we can
+      easily see that for these—many—cases, `prodpoints` will be more or less proportional to `productivity`
+      (which can be a number like 50 or 100 even though only a single generation was run with a given
+      prompt). Still, it can happen that a prompt with only, say, 3 generations and high productivity gets
+      roughly as many `prodpoints` as one with 11 generations but low productivity, indicating that both
+      prompts were deemed of being of similar interest
   * **[–]** correlation between prompt length and productivity
   * **[–]** **acceptance** rate: what proportion of images were downloaded, expressed in per cent; two
     flavors:
