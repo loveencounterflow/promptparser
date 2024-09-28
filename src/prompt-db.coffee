@@ -201,14 +201,17 @@ class Prompt_db
           p.lnr desc;"""
     #.......................................................................................................
     @db SQL"""
-      create view faults_downloads_gt_production as select
+      create view faults_downloads_gt_production as select distinct
         s.production  as production,
         s.downloads   as downloads,
         s.prompt_id   as prompt_id,
-        f.path        as path
+        s.lnr         as lnr,
+        s.prompt      as prompt
+        -- f.path        as path
         from jnl_promptstats  as s
-        join img_files        as f using ( prompt_id )
-        where s.production < s.downloads;"""
+        -- join img_files        as f using ( prompt_id )
+        where s.downloads > s.production
+        order by ( s.downloads - s.production ) desc;"""
     #=======================================================================================================
     ### TAINT auto-generate? ###
     ### NOTE will contain counts for all relations ###
@@ -233,6 +236,12 @@ class Prompt_db
         union all select  'all_prompts_without_img_files',    count(*)  from all_prompts_without_img_files
         union all select  'all_prompts_without_jnl_entries',  count(*)  from all_prompts_without_jnl_entries
         -- -------------------------------------------------------------------------------------------------
+        union all select  'faults_downloads_gt_production',   count(*)  from faults_downloads_gt_production
+        ;"""
+    #=======================================================================================================
+    @db SQL"""
+      create view faultcounts as
+        select * from rowcounts where name like 'faults_%';"""
         ;"""
     #=======================================================================================================
     ### TAINT this should become a standard part of `DBay`; note that as with `@_required_table_names`,
