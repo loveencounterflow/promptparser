@@ -125,10 +125,25 @@ left join prompts as p
   '/[a-z]/i'`
 * **[–]** use [`slevithan/regex`](https://github.com/slevithan/regex) to compile RegEx flags
 * **[–]** Metrics:
-  * **[–]** fulfillment rate: ratio of possible (4 per generation) to actually produced images
-  * **[–]** correlation between prompt length and fulfillment rate
-  * **[–]** acceptance rate: what proportion of produced images were downloaded
-  * **[–]** success rate: what proportion of possible images (generation count times four) were downloaded
+  * **[–]** **potential**: number of generations times maximum number of images per generation (always 4 in
+    Dall-E)
+  * **[–]** **production**: number of produced images (in each generation or over a number of generations, e.g.
+    all generations from a given prompt)
+  * **[–]** **productivity**: ratio of potential to production, expressed in per cent
+  * **[–]** **prodpoints**: arithmetic product of productivity (given in per cent) and production; this
+    measure will be proportionally grow with both the number of generations and the productivity; example:
+    * prompt A: journal entry `[4444444]`, ran for 7 generations (a potential of 28 images), actually
+      produced 28 images, i.e. a productivity of 100%;
+    * prompt B: journal entry `[44344442312]`, ran for 11 generations (a potential of 44 images), produced
+      35 images, i.e. a productivity of 80%;
+    * both prompts get 28 * 100 = 35 * 80 = 2800 `prodpoints`, so although it's true that prompt A gets (in
+      all likelyhood, and could change any time) more images per generation, since prompt B was run more
+      often, both get the same `prodpoints` indicating that—presumably for the high quality of the
+      images—prompt B made up for somewhat worse productivity with more generations
+  * **[–]** correlation between prompt length and productivity
+  * **[–]** **acceptance** rate: what proportion of images were downloaded, expressed in per cent; two flavors:
+    * **[–]** ratio of downloaded to potential
+    * **[–]** ratio of downloaded to production
 * **[–]** in jobdefs, forbid:
   * **[+]** `runner`
   * **[–]** `fallback`
@@ -139,7 +154,7 @@ left join prompts as p
   hashes which would probably be the better and more correct (but also computationally more expensive) way
   to do it
 * **[–]** introduce metric for 'strength of failure' (centrality?), i.e. `[s00000]` is 'more
-  nope' than `[s0]`; this also holds true for any other fulfillment rate
+  nope' than `[s0]`; this also holds true for any other productivity
 * **[–]** future structure:
   * <ins>no more `File_mirror`, instead iterator over file lines<ins> <del>`File_mirror` becomes a 'DB
     shaper' (for lack of a better word); given a `DBay` instance (as `db`), a table prefix (default `fm_`)
@@ -168,7 +183,10 @@ left join prompts as p
 * **[–]** instead of passing around mutable data structures `known_path_ids`, `known_prompt_ids`, pass
   around methods to check and update these as that entails better guarantees against misuse
 * **[–]** invariants for error / fault detection:
-  * **[–]** more actual images with a prompt than in journal
+  * **[–]** more actual images with a prompt than in journal; this is actually the case for no less than 950
+    prompts at this time; consider to treat this by adding theoretical / assumed generations
+    * **[–]** implement parsing of expressions like `[A++v 1x3, 10x4]` the lack of which is responsible for
+      some of these faults; since we must give generations an ordering, randomize
 
 ## Is Done
 
