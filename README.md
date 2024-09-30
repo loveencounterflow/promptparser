@@ -197,6 +197,9 @@ left join prompts as p
     * **[–]** implement parsing of expressions like `[A++v 1x3, 10x4]` the lack of which is responsible for
       some of these faults; since we must give generations an ordering, randomize
 
+[A++v 1x3, 10x4 p#3522] several old-style journalling counts
+
+
 ## Is Done
 
 * **[+]** add `prompt_id` to all records so they have a common name for the central anchoring point of all
