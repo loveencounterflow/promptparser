@@ -64,6 +64,14 @@ run_image_walker = ({ prompt_db, known_path_ids, known_prompt_ids, }) ->
   yield from new Image_walker { cmd, flags, known_path_ids, known_prompt_ids, }
   return null
 
+
+#===========================================================================================================
+module.exports = {
+  Journal_walker,
+  Image_walker,
+  Prompt_db, }
+
+
 #===========================================================================================================
 if module is require.main then await do =>
   prompt_db         = new Prompt_db { cmd, flags, }
