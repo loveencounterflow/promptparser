@@ -242,7 +242,6 @@ class Prompt_db
     @db SQL"""
       create view faultcounts as
         select * from rowcounts where name like 'faults_%';"""
-        ;"""
     #=======================================================================================================
     ### TAINT this should become a standard part of `DBay`; note that as with `@_required_table_names`,
     one should walk the prototype chain ###
