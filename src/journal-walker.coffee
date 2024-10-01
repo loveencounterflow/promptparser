@@ -93,7 +93,7 @@ new_prompt_lexer = ( mode = 'plain' ) ->
     lexer.add_lexeme { mode, lxid: 'format',          jump: null,     pattern:  /(?<=\[\S*)[swh]/u,       }
     lexer.add_lexeme { mode, lxid: 'commaws',         jump: null,     pattern:  /,\x20*/u,                }
     lexer.add_lexeme { mode, lxid: 'ws',              jump: null,     pattern:  /\x20+/u,                 }
-    lexer.add_lexeme { mode, lxid: 'multiplication',  jump: null,     pattern:  /[0-9]{1,2}x[U01234]/u,   }
+    lexer.add_lexeme { mode, lxid: 'multiplication',  jump: null,     pattern:  /(?<times>[0-9]{1,2})x(?<imgcount>[U01234])/u,   }
     lexer.add_lexeme { mode, lxid: 'promptnr',        jump: null,     pattern:  /p#[0-9]+/u,              }
     lexer.add_lexeme { mode, lxid: 'generation',      jump: null,     pattern:  /UNSAFE|[U01234]/u,       }
     lexer.add_lexeme { mode, lxid: 'grade',           jump: null,     pattern:  /[-+A-Fvnr]+/u,           }
