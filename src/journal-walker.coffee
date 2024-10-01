@@ -248,6 +248,38 @@ class Prompt_parser extends Transformer
       return send stamp d
 
   #---------------------------------------------------------------------------------------------------------
+  $consolidate_multiplications: ->
+    ### TAINT code duplication ###
+    parts   = null
+    lnr     = null
+    #.......................................................................................................
+    return ( d, send ) =>
+      return send d if d.$stamped
+      debug 'Ω__15', d if d.$key is 'generations'
+      #.....................................................................................................
+      if d is start_of_line
+        parts = []
+        return send d
+      #.....................................................................................................
+      if d is end_of_line
+        ### TAINT use Datom API ###
+        value = U.shuffle_predictably parts.flat()
+        token = { $key: 'generations', value, lnr, }
+        parts = lnr = null
+        send token
+        return send d
+      #.....................................................................................................
+      return send d unless d.$key is 'marks:multiplication'
+      times       = parseInt d.data.times, 10
+      imgcount    = if d.data.imgcount is 'U' then 0 else parseInt d.data.imgcount, 10
+      generations = ( imgcount for _ in [ 1 .. times ] )
+      debug 'Ω__17', { times, imgcount, generations, }, d
+      #.....................................................................................................
+      lnr ?= d.lnr1
+      parts.push generations
+      return send stamp d
+
+  #---------------------------------------------------------------------------------------------------------
   $consolidate_comments: -> ( d, send ) =>
     return send d if d.$stamped
     return send d unless d.$key is 'marks:comment'
@@ -301,7 +333,11 @@ class Prompt_parser extends Transformer
       if d.lnr?
         current_lnr         = d.lnr
         prerecord.lnr       = d.lnr
-      prerecord[ d.$key ] = d.value
+      if @types.isa.list prerecord[ d.$key ]
+        if @types.isa.list d.value  then  prerecord[ d.$key ] = [ prerecord[ d.$key ]..., d.value..., ]
+        else                              prerecord[ d.$key ].push d.value
+      else
+        prerecord[ d.$key ] = d.value
       return send stamp d
 
   #---------------------------------------------------------------------------------------------------------
