@@ -17,7 +17,7 @@ class _Journal_walker_for_testing extends Journal_walker
     super cfg
     return undefined
 
-  #---------------------------------------------------------------------------------------------------------
+  #=========================================================================================================
   parse_all_records: ( source ) ->
     R = []
     for { lnr, line, eol, } from GUY.str.walk_lines_with_positions source
@@ -53,6 +53,7 @@ class _Journal_walker_for_testing extends Journal_walker
       break if lnr1 isnt token.lnr1
       R.push token
     return R
+
 
 #===========================================================================================================
 module.exports = {
