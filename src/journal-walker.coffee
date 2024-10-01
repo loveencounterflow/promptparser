@@ -255,7 +255,6 @@ class Prompt_parser extends Transformer
     #.......................................................................................................
     return ( d, send ) =>
       return send d if d.$stamped
-      debug 'Ω__15', d if d.$key is 'generations'
       #.....................................................................................................
       if d is start_of_line
         parts = []
@@ -273,7 +272,6 @@ class Prompt_parser extends Transformer
       times       = parseInt d.data.times, 10
       imgcount    = if d.data.imgcount is 'U' then 0 else parseInt d.data.imgcount, 10
       generations = ( imgcount for _ in [ 1 .. times ] )
-      debug 'Ω__17', { times, imgcount, generations, }, d
       #.....................................................................................................
       lnr ?= d.lnr1
       parts.push generations
